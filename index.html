@@ -4,10 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🗺️ خرائط مصر - تعمل</title>
+    <title>🗺️ خرائط مصر الشاملة - بحث كل شيء</title>
 
+    <!-- ===== المكتبات ===== -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js">
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -34,7 +38,7 @@
             background: #1a1a2e;
         }
 
-        /* ===== شاشة التحميل ===== */
+        /* شاشة التحميل */
         #loading {
             position: fixed;
             top: 0;
@@ -128,7 +132,7 @@
             }
         }
 
-        /* ===== شريط البحث ===== */
+        /* شريط البحث العلوي */
         .search-container {
             position: absolute;
             top: 12px;
@@ -219,6 +223,7 @@
             }
         }
 
+        /* أزرار التحكم */
         .action-buttons {
             display: flex;
             gap: 4px;
@@ -264,7 +269,7 @@
             transition: all 0.3s ease !important;
         }
 
-        /* ===== مؤشر الصوت ===== */
+        /* مؤشر الصوت */
         .voice-status {
             position: fixed;
             bottom: 100px;
@@ -363,312 +368,62 @@
             transform: rotate(90deg);
         }
 
-        /* ===== شريط الخدمات ===== */
-        .services-bar {
-            position: absolute;
-            bottom: 12px;
+        /* مؤشر التحميل */
+        .search-loader {
+            position: fixed;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(20px);
-            padding: 6px 12px;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-            display: flex;
-            gap: 3px;
-            overflow-x: auto;
-            max-width: 96%;
-            flex-wrap: nowrap;
-            scrollbar-width: none;
-        }
-
-        .services-bar::-webkit-scrollbar {
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 16px;
             display: none;
-        }
-
-        .service-btn {
-            background: transparent;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 8px;
-            color: #555;
-            transition: all 0.3s ease;
-            display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1px;
-            white-space: nowrap;
-            min-width: 38px;
+            gap: 15px;
         }
 
-        .service-btn i {
-            font-size: 14px;
+        .search-loader.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
         }
 
-        .service-btn span {
-            font-size: 6px;
+        .search-loader .loader-spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .search-loader .loader-text {
+            font-size: 15px;
             font-weight: 500;
         }
 
-        .service-btn:hover {
-            background: #f0f2f5;
-            transform: translateY(-2px);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
-        .service-btn.active {
-            background: #1a73e8;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* ألوان الخدمات */
-        .service-btn[data-service="hospital"] {
-            color: #e74c3c;
-        }
-
-        .service-btn[data-service="hospital"].active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .service-btn[data-service="pharmacy"] {
-            color: #2ecc71;
-        }
-
-        .service-btn[data-service="pharmacy"].active {
-            background: #2ecc71;
-            color: white;
-        }
-
-        .service-btn[data-service="bank"] {
-            color: #f39c12;
-        }
-
-        .service-btn[data-service="bank"].active {
-            background: #f39c12;
-            color: white;
-        }
-
-        .service-btn[data-service="restaurant"] {
-            color: #e67e22;
-        }
-
-        .service-btn[data-service="restaurant"].active {
-            background: #e67e22;
-            color: white;
-        }
-
-        .service-btn[data-service="cafe"] {
-            color: #6c5ce7;
-        }
-
-        .service-btn[data-service="cafe"].active {
-            background: #6c5ce7;
-            color: white;
-        }
-
-        .service-btn[data-service="fuel"] {
-            color: #1a73e8;
-        }
-
-        .service-btn[data-service="fuel"].active {
-            background: #1a73e8;
-            color: white;
-        }
-
-        .service-btn[data-service="market"] {
-            color: #00b894;
-        }
-
-        .service-btn[data-service="market"].active {
-            background: #00b894;
-            color: white;
-        }
-
-        .service-btn[data-service="tourist"] {
-            color: #9b59b6;
-        }
-
-        .service-btn[data-service="tourist"].active {
-            background: #9b59b6;
-            color: white;
-        }
-
-        .service-btn[data-service="historical"] {
-            color: #8e44ad;
-        }
-
-        .service-btn[data-service="historical"].active {
-            background: #8e44ad;
-            color: white;
-        }
-
-        .service-btn[data-service="museum"] {
-            color: #d35400;
-        }
-
-        .service-btn[data-service="museum"].active {
-            background: #d35400;
-            color: white;
-        }
-
-        .service-btn[data-service="beach"] {
-            color: #3498db;
-        }
-
-        .service-btn[data-service="beach"].active {
-            background: #3498db;
-            color: white;
-        }
-
-        .service-btn[data-service="entertainment"] {
-            color: #e67e22;
-        }
-
-        .service-btn[data-service="entertainment"].active {
-            background: #e67e22;
-            color: white;
-        }
-
-        .service-btn[data-service="mosque"] {
-            color: #2d3436;
-        }
-
-        .service-btn[data-service="mosque"].active {
-            background: #2d3436;
-            color: white;
-        }
-
-        .service-btn[data-service="school"] {
-            color: #3498db;
-        }
-
-        .service-btn[data-service="school"].active {
-            background: #3498db;
-            color: white;
-        }
-
-        .service-btn[data-service="university"] {
-            color: #2980b9;
-        }
-
-        .service-btn[data-service="university"].active {
-            background: #2980b9;
-            color: white;
-        }
-
-        .service-btn[data-service="parking"] {
-            color: #2c3e50;
-        }
-
-        .service-btn[data-service="parking"].active {
-            background: #2c3e50;
-            color: white;
-        }
-
-        .service-btn[data-service="metro"] {
-            color: #e74c3c;
-        }
-
-        .service-btn[data-service="metro"].active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .service-btn[data-service="bus"] {
-            color: #2ecc71;
-        }
-
-        .service-btn[data-service="bus"].active {
-            background: #2ecc71;
-            color: white;
-        }
-
-        .service-btn[data-service="train"] {
-            color: #8e44ad;
-        }
-
-        .service-btn[data-service="train"].active {
-            background: #8e44ad;
-            color: white;
-        }
-
-        .service-btn[data-service="airport"] {
-            color: #2980b9;
-        }
-
-        .service-btn[data-service="airport"].active {
-            background: #2980b9;
-            color: white;
-        }
-
-        .service-btn[data-service="police"] {
-            color: #1a5276;
-        }
-
-        .service-btn[data-service="police"].active {
-            background: #1a5276;
-            color: white;
-        }
-
-        .service-btn[data-service="fire"] {
-            color: #e74c3c;
-        }
-
-        .service-btn[data-service="fire"].active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .service-btn[data-service="atm"] {
-            color: #16a085;
-        }
-
-        .service-btn[data-service="atm"].active {
-            background: #16a085;
-            color: white;
-        }
-
-        .service-btn[data-service="hotel"] {
-            color: #e67e22;
-        }
-
-        .service-btn[data-service="hotel"].active {
-            background: #e67e22;
-            color: white;
-        }
-
-        .service-btn[data-service="park"] {
-            color: #27ae60;
-        }
-
-        .service-btn[data-service="park"].active {
-            background: #27ae60;
-            color: white;
-        }
-
-        .service-btn[data-service="cinema"] {
-            color: #e74c3c;
-        }
-
-        .service-btn[data-service="cinema"].active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .service-btn[data-service="gym"] {
-            color: #f39c12;
-        }
-
-        .service-btn[data-service="gym"].active {
-            background: #f39c12;
-            color: white;
-        }
-
-        /* ===== لوحة النتائج ===== */
+        /* لوحة النتائج */
         #panel {
             position: absolute;
             top: 75px;
@@ -787,62 +542,64 @@
             color: #e74c3c;
         }
 
-        /* ===== مؤشر التحميل ===== */
-        .search-loader {
+        .result-item .actions .route-btn {
+            color: #1a73e8;
+        }
+
+        /* مؤشر التوجيه */
+        #navigationGuide {
             position: fixed;
-            top: 50%;
+            bottom: 120px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3000;
+            transform: translateX(-50%);
+            z-index: 1500;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
             color: white;
-            padding: 25px 35px;
-            border-radius: 16px;
+            padding: 10px 20px;
+            border-radius: 50px;
             display: none;
-            flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            font-size: 13px;
         }
 
-        .search-loader.show {
+        #navigationGuide.show {
             display: flex;
-            animation: fadeIn 0.3s ease;
+            animation: slideUp 0.3s ease;
         }
 
-        .search-loader .loader-spinner {
-            width: 45px;
-            height: 45px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        #navigationGuide .direction-arrow {
+            font-size: 24px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        #navigationGuide .direction-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .search-loader .loader-text {
-            font-size: 15px;
-            font-weight: 500;
+        #navigationGuide .direction-info .dest {
+            font-weight: 600;
+            color: #2ecc71;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
+        #navigationGuide .direction-info .dist {
+            font-size: 11px;
+            color: #aaa;
         }
 
-        /* ===== رسائل ===== */
+        #navigationGuide .close-guide {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        /* رسائل */
         .toast {
             position: fixed;
             bottom: 80px;
@@ -901,24 +658,6 @@
                 font-size: 12px;
             }
 
-            .services-bar {
-                bottom: 10px;
-                padding: 4px 8px;
-            }
-
-            .service-btn {
-                min-width: 32px;
-                padding: 3px 6px;
-            }
-
-            .service-btn i {
-                font-size: 12px;
-            }
-
-            .service-btn span {
-                font-size: 5px;
-            }
-
             #panel {
                 width: 94%;
                 right: -100%;
@@ -941,6 +680,16 @@
                 line-height: 34px !important;
                 font-size: 16px !important;
             }
+
+            #navigationGuide {
+                bottom: 100px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            #navigationGuide .direction-arrow {
+                font-size: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -961,19 +710,6 @@
                 width: 24px;
                 height: 24px;
                 font-size: 10px;
-            }
-
-            .service-btn {
-                min-width: 28px;
-                padding: 2px 4px;
-            }
-
-            .service-btn i {
-                font-size: 10px;
-            }
-
-            .service-btn span {
-                font-size: 4px;
             }
 
             #panel {
@@ -1017,18 +753,6 @@
                 background: #3a3a4e;
             }
 
-            .services-bar {
-                background: rgba(26, 26, 46, 0.97);
-            }
-
-            .service-btn {
-                color: #ccc;
-            }
-
-            .service-btn:hover {
-                background: #2a2a3e;
-            }
-
             #panel {
                 background: rgba(26, 26, 46, 0.98);
             }
@@ -1067,6 +791,10 @@
                 color: #ccc !important;
             }
 
+            #navigationGuide {
+                background: rgba(0, 0, 0, 0.9);
+            }
+
             .search-loader {
                 background: rgba(0, 0, 0, 0.85);
             }
@@ -1079,8 +807,8 @@
     <!-- ===== شاشة التحميل ===== -->
     <div id="loading">
         <div class="icon">🗺️</div>
-        <h1>خرائط مصر المتطورة</h1>
-        <p>جميع الخدمات في جميع أنحاء مصر</p>
+        <h1>خرائط مصر الشاملة</h1>
+        <p>ابحث عن أي مكان، شارع، منطقة، أو خدمة</p>
         <div class="loader-container">
             <div class="loader-bar"></div>
         </div>
@@ -1093,7 +821,7 @@
     <div class="search-container">
         <div class="search-box">
             <i class="fas fa-search" style="color:#1a73e8;"></i>
-            <input type="text" id="searchInput" placeholder="ابحث عن أي مكان في مصر...">
+            <input type="text" id="searchInput" placeholder="ابحث عن شارع، منطقة، مستشفى، بنك، مطعم...">
             <button class="voice-btn" id="voiceBtn" title="بحث صوتي">
                 <i class="fas fa-microphone"></i>
             </button>
@@ -1104,6 +832,8 @@
             <button id="layersBtn" title="طبقات"><i class="fas fa-layer-group"></i></button>
             <button id="favoritesBtn" title="المفضلة"><i class="fas fa-heart"></i></button>
             <button id="trafficBtn" title="المرور"><i class="fas fa-car"></i></button>
+            <button id="routeBtn" title="توجيه"><i class="fas fa-route"></i></button>
+            <button id="clearRouteBtn" title="إلغاء المسار"><i class="fas fa-times"></i></button>
         </div>
     </div>
 
@@ -1126,41 +856,14 @@
         <div class="loader-text" id="loaderText">⏳ جاري البحث...</div>
     </div>
 
-    <!-- ===== شريط الخدمات ===== -->
-    <div class="services-bar" id="servicesBar">
-        <button class="service-btn" data-service="hospital"><i
-                class="fas fa-hospital"></i><span>مستشفيات</span></button>
-        <button class="service-btn" data-service="pharmacy"><i
-                class="fas fa-prescription-bottle"></i><span>صيدليات</span></button>
-        <button class="service-btn" data-service="bank"><i class="fas fa-university"></i><span>بنوك</span></button>
-        <button class="service-btn" data-service="restaurant"><i class="fas fa-utensils"></i><span>مطاعم</span></button>
-        <button class="service-btn" data-service="cafe"><i class="fas fa-mug-saucer"></i><span>كافيهات</span></button>
-        <button class="service-btn" data-service="fuel"><i class="fas fa-gas-pump"></i><span>بنزين</span></button>
-        <button class="service-btn" data-service="market"><i class="fas fa-store"></i><span>أسواق</span></button>
-        <button class="service-btn active" data-service="tourist"><i
-                class="fas fa-umbrella-beach"></i><span>سياحة</span></button>
-        <button class="service-btn" data-service="historical"><i class="fas fa-landmark"></i><span>آثار</span></button>
-        <button class="service-btn" data-service="museum"><i class="fas fa-monument"></i><span>متاحف</span></button>
-        <button class="service-btn" data-service="beach"><i class="fas fa-water"></i><span>شواطئ</span></button>
-        <button class="service-btn" data-service="entertainment"><i
-                class="fas fa-gamepad"></i><span>ترفيه</span></button>
-        <button class="service-btn" data-service="mosque"><i class="fas fa-mosque"></i><span>مساجد</span></button>
-        <button class="service-btn" data-service="school"><i class="fas fa-school"></i><span>مدارس</span></button>
-        <button class="service-btn" data-service="university"><i
-                class="fas fa-university"></i><span>جامعات</span></button>
-        <button class="service-btn" data-service="parking"><i class="fas fa-parking"></i><span>مواقف</span></button>
-        <button class="service-btn" data-service="metro"><i class="fas fa-subway"></i><span>مترو</span></button>
-        <button class="service-btn" data-service="bus"><i class="fas fa-bus"></i><span>أتوبيس</span></button>
-        <button class="service-btn" data-service="train"><i class="fas fa-train"></i><span>قطار</span></button>
-        <button class="service-btn" data-service="airport"><i class="fas fa-plane"></i><span>مطارات</span></button>
-        <button class="service-btn" data-service="police"><i class="fas fa-shield-halved"></i><span>شرطة</span></button>
-        <button class="service-btn" data-service="fire"><i class="fas fa-fire-extinguisher"></i><span>دفاع
-                مدني</span></button>
-        <button class="service-btn" data-service="atm"><i class="fas fa-money-bill"></i><span>صرافات</span></button>
-        <button class="service-btn" data-service="hotel"><i class="fas fa-hotel"></i><span>فنادق</span></button>
-        <button class="service-btn" data-service="park"><i class="fas fa-tree"></i><span>حدائق</span></button>
-        <button class="service-btn" data-service="cinema"><i class="fas fa-film"></i><span>سينما</span></button>
-        <button class="service-btn" data-service="gym"><i class="fas fa-dumbbell"></i><span>جيم</span></button>
+    <!-- ===== مؤشر التوجيه ===== -->
+    <div id="navigationGuide">
+        <span class="direction-arrow">📍</span>
+        <div class="direction-info">
+            <span class="dest" id="guideDest">الوجهة</span>
+            <span class="dist" id="guideDist">0 كم</span>
+        </div>
+        <button class="close-guide" id="closeGuide"><i class="fas fa-xmark"></i></button>
     </div>
 
     <!-- ===== لوحة النتائج ===== -->
@@ -1236,222 +939,7 @@
                 }).addTo(map);
 
                 // ============================================================
-                // 3. البيانات المحلية - جميع الأماكن في مصر
-                // ============================================================
-                var egyptData = {
-                    tourist: [
-                        { name: 'أهرامات الجيزة', lat: 29.9792, lon: 31.1342, address: 'الجيزة، القاهرة' },
-                        { name: 'أبو الهول', lat: 29.9753, lon: 31.1375, address: 'الجيزة، القاهرة' },
-                        { name: 'قلعة صلاح الدين', lat: 30.0490, lon: 31.2620, address: 'القاهرة' },
-                        { name: 'المتحف المصري', lat: 30.0479, lon: 31.2334, address: 'التحرير، القاهرة' },
-                        { name: 'مكتبة الإسكندرية', lat: 31.2080, lon: 29.9090, address: 'الإسكندرية' },
-                        { name: 'قلعة قايتباي', lat: 31.2130, lon: 29.8840, address: 'الإسكندرية' },
-                        { name: 'دير سانت كاترين', lat: 28.5550, lon: 33.9750, address: 'جنوب سيناء' },
-                        { name: 'جبل موسى', lat: 28.5380, lon: 33.9750, address: 'جنوب سيناء' },
-                        { name: 'معبد الكرنك', lat: 25.7193, lon: 32.6575, address: 'الأقصر' },
-                        { name: 'معبد الأقصر', lat: 25.6999, lon: 32.6394, address: 'الأقصر' },
-                        { name: 'وادي الملوك', lat: 25.7400, lon: 32.6010, address: 'الأقصر' },
-                        { name: 'معبد حتشبسوت', lat: 25.7370, lon: 32.6070, address: 'الأقصر' },
-                        { name: 'معبد أبو سمبل', lat: 22.3369, lon: 31.6256, address: 'أسوان' },
-                        { name: 'معبد فيلة', lat: 24.0250, lon: 32.8840, address: 'أسوان' },
-                        { name: 'السد العالي', lat: 23.9720, lon: 32.8780, address: 'أسوان' },
-                        { name: 'جامع الأزهر', lat: 30.0458, lon: 31.2627, address: 'القاهرة' },
-                        { name: 'مسجد الحسين', lat: 30.0464, lon: 31.2614, address: 'القاهرة' },
-                        { name: 'مسجد محمد علي', lat: 30.0486, lon: 31.2630, address: 'القاهرة' },
-                        { name: 'الكنيسة المعلقة', lat: 30.0450, lon: 31.2620, address: 'مصر القديمة، القاهرة' },
-                        { name: 'متحف الحضارة المصرية', lat: 30.0400, lon: 31.2800, address: 'الفسطاط، القاهرة' },
-                        { name: 'متحف الفن الإسلامي', lat: 30.0440, lon: 31.2630, address: 'القاهرة' },
-                        { name: 'مدرج الإسكندرية الروماني', lat: 31.1980, lon: 29.9050, address: 'الإسكندرية' },
-                    ],
-                    hospital: [
-                        {
-                            name: 'مستشفى القاهرة الجامعي', lat: 30.0444, lon: 31.2357,
-                            address: 'القصر العيني، القاهرة'
-                        },
-                        { name: 'مستشفى المعادي', lat: 29.9686, lon: 31.2461, address: 'المعادي، القاهرة' },
-                        { name: 'مستشفى 6 أكتوبر', lat: 29.9554, lon: 31.2936, address: 'مدينة 6 أكتوبر' },
-                        { name: 'مستشفى الجيزة العام', lat: 30.0166, lon: 31.2131, address: 'الجيزة، القاهرة' },
-                        { name: 'مستشفى الإسكندرية الجامعي', lat: 31.2000, lon: 29.9000, address: 'الإسكندرية' },
-                    ],
-                    pharmacy: [
-                        { name: 'صيدلية العزبي', lat: 30.0484, lon: 31.2387, address: 'التحرير، القاهرة' },
-                        { name: 'صيدلية النيل', lat: 29.9726, lon: 31.2491, address: 'المعادي، القاهرة' },
-                        { name: 'صيدلية الصحة', lat: 29.9584, lon: 31.2966, address: '6 أكتوبر' },
-                        { name: 'صيدلية الإسكندرية', lat: 31.2000, lon: 29.9000, address: 'الإسكندرية' },
-                    ],
-                    bank: [
-                        { name: 'البنك الأهلي المصري', lat: 30.0464, lon: 31.2367, address: 'القاهرة' },
-                        { name: 'بنك مصر', lat: 30.0524, lon: 31.2397, address: 'القاهرة' },
-                        { name: 'بنك القاهرة', lat: 30.0400, lon: 31.2300, address: 'القاهرة' },
-                        { name: 'بنك الإسكندرية', lat: 31.2000, lon: 29.9000, address: 'الإسكندرية' },
-                    ],
-                    restaurant: [
-                        { name: 'مطعم النيل', lat: 30.0474, lon: 31.2347, address: 'القاهرة' },
-                        { name: 'مطعم الأهرام', lat: 29.9666, lon: 31.2471, address: 'المعادي، القاهرة' },
-                        { name: 'مطعم الفردوس', lat: 29.9604, lon: 31.2956, address: '6 أكتوبر' },
-                        { name: 'مطعم الإسكندرية', lat: 31.2000, lon: 29.9000, address: 'الإسكندرية' },
-                    ],
-                    cafe: [
-                        { name: 'كافيه النيل', lat: 30.0400, lon: 31.2300, address: 'الزمالك، القاهرة' },
-                        { name: 'كافيه روما', lat: 30.0500, lon: 31.2400, address: 'وسط البلد، القاهرة' },
-                        { name: 'كافيه ستار', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                    ],
-                    fuel: [
-                        { name: 'محطة مصر للبترول', lat: 30.0494, lon: 31.2377, address: 'رمسيس، القاهرة' },
-                        { name: 'محطة شل', lat: 29.9706, lon: 31.2481, address: 'المعادي، القاهرة' },
-                        { name: 'محطة توتال', lat: 29.9624, lon: 31.2946, address: '6 أكتوبر' },
-                    ],
-                    market: [
-                        { name: 'سوق العتبة', lat: 30.0500, lon: 31.2600, address: 'العتبة، القاهرة' },
-                        { name: 'سوق الجمعة', lat: 30.0600, lon: 31.2800, address: 'مدينة نصر، القاهرة' },
-                    ],
-                    historical: [
-                        { name: 'معبد الكرنك', lat: 25.7193, lon: 32.6575, address: 'الأقصر' },
-                        { name: 'معبد الأقصر', lat: 25.6999, lon: 32.6394, address: 'الأقصر' },
-                        { name: 'وادي الملوك', lat: 25.7400, lon: 32.6010, address: 'الأقصر' },
-                        { name: 'وادي الملكات', lat: 25.7200, lon: 32.6000, address: 'الأقصر' },
-                        { name: 'معبد حتشبسوت', lat: 25.7370, lon: 32.6070, address: 'الأقصر' },
-                        { name: 'تمثالا ممنون', lat: 25.7200, lon: 32.6100, address: 'الأقصر' },
-                        { name: 'معبد أبو سمبل', lat: 22.3369, lon: 31.6256, address: 'أسوان' },
-                        { name: 'معبد فيلة', lat: 24.0250, lon: 32.8840, address: 'أسوان' },
-                        { name: 'السد العالي', lat: 23.9720, lon: 32.8780, address: 'أسوان' },
-                        { name: 'جزيرة إلفنتين', lat: 24.0800, lon: 32.8870, address: 'أسوان' },
-                        { name: 'معبد كوم أمبو', lat: 24.4517, lon: 32.9283, address: 'أسوان' },
-                        { name: 'معبد إدفو', lat: 24.9777, lon: 32.8733, address: 'إدفو، أسوان' },
-                        { name: 'هرم هوارة', lat: 29.2690, lon: 30.8990, address: 'الفيوم' },
-                        { name: 'مقابر بني حسن', lat: 27.9300, lon: 30.8700, address: 'المنيا' },
-                        { name: 'تل العمارنة', lat: 27.6400, lon: 30.9000, address: 'المنيا' },
-                    ],
-                    museum: [
-                        { name: 'المتحف المصري الكبير', lat: 30.0220, lon: 31.1200, address: 'الجيزة، القاهرة' },
-                        { name: 'المتحف المصري (التحرير)', lat: 30.0479, lon: 31.2334, address: 'القاهرة' },
-                        { name: 'متحف الحضارة المصرية', lat: 30.0400, lon: 31.2800, address: 'الفسطاط، القاهرة' },
-                        { name: 'متحف الفن الإسلامي', lat: 30.0440, lon: 31.2630, address: 'القاهرة' },
-                        { name: 'متحف محمود مختار', lat: 30.0500, lon: 31.2400, address: 'القاهرة' },
-                        { name: 'متحف الإسكندرية القومي', lat: 31.2000, lon: 29.9000, address: 'الإسكندرية' },
-                        { name: 'متحف الأقصر', lat: 25.7000, lon: 32.6400, address: 'الأقصر' },
-                        { name: 'متحف أسوان', lat: 24.0800, lon: 32.8900, address: 'أسوان' },
-                    ],
-                    beach: [
-                        { name: 'شاطئ الإسكندرية', lat: 31.2140, lon: 29.8850, address: 'الإسكندرية' },
-                        { name: 'شاطئ سيدي عبد الرحمن', lat: 30.7500, lon: 29.0000, address: 'الساحل الشمالي' },
-                        { name: 'شاطئ مرسى مطروح', lat: 31.3500, lon: 27.2400, address: 'مطروح' },
-                        { name: 'شاطئ العلمين', lat: 30.8300, lon: 28.9500, address: 'العلمين' },
-                        { name: 'شاطئ الغردقة', lat: 27.2500, lon: 33.8100, address: 'البحر الأحمر' },
-                        { name: 'شاطئ شرم الشيخ', lat: 27.8900, lon: 34.3300, address: 'جنوب سيناء' },
-                        { name: 'شاطئ دهب', lat: 28.5000, lon: 34.5100, address: 'جنوب سيناء' },
-                        { name: 'شاطئ الجونة', lat: 27.3800, lon: 33.6300, address: 'البحر الأحمر' },
-                        { name: 'شاطئ نويبع', lat: 29.0300, lon: 34.6600, address: 'جنوب سيناء' },
-                        { name: 'شاطئ طابا', lat: 29.4900, lon: 34.9000, address: 'جنوب سيناء' },
-                        { name: 'شاطئ راس محمد', lat: 27.7300, lon: 34.2600, address: 'شرم الشيخ' },
-                        { name: 'شاطئ سفاجا', lat: 26.7800, lon: 33.9300, address: 'البحر الأحمر' },
-                        { name: 'شاطئ مرسى علم', lat: 25.0500, lon: 34.7300, address: 'البحر الأحمر' },
-                    ],
-                    entertainment: [
-                        { name: 'حديقة الأزهر', lat: 30.0450, lon: 31.2620, address: 'القاهرة' },
-                        { name: 'حديقة الحيوان', lat: 30.0200, lon: 31.2100, address: 'الجيزة، القاهرة' },
-                        { name: 'حديقة الميريلاند', lat: 30.0800, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                        { name: 'منتزه دريم بارك', lat: 29.9500, lon: 31.2500, address: 'مدينة 6 أكتوبر' },
-                        { name: 'قرية مراسي للألعاب المائية', lat: 31.2140, lon: 29.8850, address: 'الإسكندرية' },
-                        { name: 'ملاهي الجزيرة', lat: 30.0700, lon: 31.2200, address: 'الزمالك، القاهرة' },
-                        { name: 'أكواريوم القاهرة', lat: 30.0600, lon: 31.2500, address: 'القاهرة' },
-                    ],
-                    mosque: [
-                        { name: 'جامع الأزهر', lat: 30.0458, lon: 31.2627, address: 'القاهرة' },
-                        { name: 'مسجد الحسين', lat: 30.0464, lon: 31.2614, address: 'القاهرة' },
-                        { name: 'مسجد محمد علي', lat: 30.0486, lon: 31.2630, address: 'القاهرة' },
-                        { name: 'مسجد الرحمن', lat: 30.0200, lon: 31.2200, address: 'الجيزة' },
-                    ],
-                    school: [
-                        { name: 'مدرسة القاهرة الثانوية', lat: 30.0454, lon: 31.2367, address: 'رمسيس، القاهرة' },
-                        { name: 'مدرسة المعادي التجريبية', lat: 29.9696, lon: 31.2471, address: 'المعادي، القاهرة' },
-                        { name: 'مدرسة السلام الابتدائية', lat: 30.1300, lon: 31.3000, address: 'السلام، القاهرة' },
-                    ],
-                    university: [
-                        { name: 'جامعة القاهرة', lat: 30.0277, lon: 31.2102, address: 'الجيزة' },
-                        { name: 'جامعة عين شمس', lat: 30.0720, lon: 31.2930, address: 'مدينة نصر، القاهرة' },
-                        { name: 'الجامعة الأمريكية', lat: 30.0400, lon: 31.2200, address: 'الزمالك، القاهرة' },
-                        { name: 'جامعة الأزهر', lat: 30.0460, lon: 31.2630, address: 'القاهرة' },
-                    ],
-                    parking: [
-                        { name: 'موقف التحرير', lat: 30.0450, lon: 31.2360, address: 'ميدان التحرير، القاهرة' },
-                        { name: 'موقف الزمالك', lat: 30.0700, lon: 31.2200, address: 'الزمالك، القاهرة' },
-                        { name: 'موقف مدينة نصر', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                    ],
-                    metro: [
-                        { name: 'محطة السادات', lat: 30.0444, lon: 31.2357, address: 'ميدان التحرير، القاهرة' },
-                        { name: 'محطة المرج الجديدة', lat: 30.1200, lon: 31.3000, address: 'المرج، القاهرة' },
-                        { name: 'محطة شبرا الخيمة', lat: 30.1300, lon: 31.2500, address: 'شبرا الخيمة، القاهرة' },
-                        { name: 'محطة الأوبرا', lat: 30.0400, lon: 31.2200, address: 'دار الأوبرا، القاهرة' },
-                        { name: 'محطة الجيزة', lat: 30.0100, lon: 31.2100, address: 'الجيزة' },
-                        { name: 'محطة القصر العيني', lat: 30.0300, lon: 31.2300, address: 'القصر العيني، القاهرة' },
-                    ],
-                    bus: [
-                        { name: 'محطة التحرير المركزية', lat: 30.0450, lon: 31.2360, address: 'ميدان التحرير، القاهرة' },
-                        { name: 'محطة رمسيس', lat: 30.0490, lon: 31.2380, address: 'ميدان رمسيس، القاهرة' },
-                        { name: 'محطة الجيزة', lat: 30.0100, lon: 31.2100, address: 'الجيزة' },
-                        { name: 'محطة مدينة نصر', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                        { name: 'محطة المعادي', lat: 29.9700, lon: 31.2500, address: 'المعادي، القاهرة' },
-                    ],
-                    train: [
-                        { name: 'محطة مصر - رمسيس', lat: 30.0490, lon: 31.2380, address: 'ميدان رمسيس، القاهرة' },
-                        { name: 'محطة الجيزة', lat: 30.0100, lon: 31.2100, address: 'الجيزة' },
-                        { name: 'محطة شبرا الخيمة', lat: 30.1300, lon: 31.2500, address: 'شبرا الخيمة، القاهرة' },
-                        { name: 'محطة حلوان', lat: 29.8500, lon: 31.3300, address: 'حلوان، القاهرة' },
-                    ],
-                    airport: [
-                        { name: 'مطار القاهرة الدولي', lat: 30.1225, lon: 31.4056, address: 'مصر الجديدة، القاهرة' },
-                        { name: 'مطار برج العرب', lat: 30.9270, lon: 29.6964, address: 'برج العرب، الإسكندرية' },
-                        { name: 'مطار الغردقة', lat: 27.1917, lon: 33.7972, address: 'الغردقة، البحر الأحمر' },
-                        { name: 'مطار شرم الشيخ', lat: 27.9771, lon: 34.3949, address: 'شرم الشيخ، جنوب سيناء' },
-                    ],
-                    police: [
-                        { name: 'قسم شرطة التحرير', lat: 30.0440, lon: 31.2350, address: 'ميدان التحرير، القاهرة' },
-                        { name: 'قسم شرطة الزمالك', lat: 30.0700, lon: 31.2200, address: 'الزمالك، القاهرة' },
-                        { name: 'قسم شرطة مدينة نصر', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                    ],
-                    fire: [
-                        { name: 'مركز دفاع مدني التحرير', lat: 30.0440, lon: 31.2350, address: 'ميدان التحرير، القاهرة' },
-                        { name: 'مركز دفاع مدني المعادي', lat: 29.9700, lon: 31.2500, address: 'المعادي، القاهرة' },
-                        { name: 'مركز دفاع مدني مدينة نصر', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                    ],
-                    atm: [
-                        {
-                            name: 'ATM البنك الأهلي - التحرير', lat: 30.0460, lon: 31.2370,
-                            address: 'ميدان التحرير، القاهرة'
-                        },
-                        { name: 'ATM بنك مصر - وسط البلد', lat: 30.0520, lon: 31.2400, address: 'وسط البلد، القاهرة' },
-                        {
-                            name: 'ATM بنك القاهرة - قصر النيل', lat: 30.0400, lon: 31.2300,
-                            address: 'قصر النيل، القاهرة'
-                        },
-                    ],
-                    hotel: [
-                        { name: 'فندق ماريوت الزمالك', lat: 30.0700, lon: 31.2200, address: 'الزمالك، القاهرة' },
-                        { name: 'فندق سوفيتيل القاهرة', lat: 30.0400, lon: 31.2300, address: 'الزمالك، القاهرة' },
-                        { name: 'فندق شبرد', lat: 30.0500, lon: 31.2400, address: 'وسط البلد، القاهرة' },
-                        { name: 'فندق هيلتون رمسيس', lat: 30.0490, lon: 31.2380, address: 'رمسيس، القاهرة' },
-                    ],
-                    park: [
-                        { name: 'حديقة الأزهر', lat: 30.0450, lon: 31.2620, address: 'القاهرة' },
-                        { name: 'حديقة الحيوان', lat: 30.0200, lon: 31.2100, address: 'الجيزة، القاهرة' },
-                        { name: 'حديقة الميريلاند', lat: 30.0800, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                        { name: 'حديقة الفسطاط', lat: 30.0400, lon: 31.2800, address: 'الفسطاط، القاهرة' },
-                    ],
-                    cinema: [
-                        { name: 'سينما النيل', lat: 30.0400, lon: 31.2300, address: 'الزمالك، القاهرة' },
-                        { name: 'سينما سيتي ستار', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                        { name: 'سينما راديو', lat: 30.0500, lon: 31.2400, address: 'وسط البلد، القاهرة' },
-                    ],
-                    gym: [
-                        { name: 'جيم النيل', lat: 30.0400, lon: 31.2300, address: 'الزمالك، القاهرة' },
-                        { name: 'جيم سيتي ستار', lat: 30.0600, lon: 31.2900, address: 'مدينة نصر، القاهرة' },
-                        { name: 'جيم المعادي', lat: 29.9700, lon: 31.2500, address: 'المعادي، القاهرة' },
-                    ]
-                };
-
-                // ============================================================
-                // 4. المتغيرات
+                // 3. المتغيرات
                 // ============================================================
                 var currentMarker = null;
                 var favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -1459,10 +947,12 @@
                 var panelContent = document.getElementById('panelContent');
                 var panelTitle = document.getElementById('panelTitle');
                 var markers = [];
-                var currentCategory = 'tourist';
+                var routingControl = null;
+                var directionMarker = null;
+                var trafficMarkers = [];
 
                 // ============================================================
-                // 5. الدوال الأساسية
+                // 4. الدوال الأساسية
                 // ============================================================
                 function showToast(msg, duration) {
                     duration = duration || 3000;
@@ -1486,7 +976,7 @@
 
                 function addCustomMarker(lat, lon, name, icon, color) {
                     color = color || '#1a73e8';
-                    var iconSize = 44;
+                    var iconSize = 42;
                     var customIcon = L.divIcon({
                         className: 'custom-marker',
                         html: `
@@ -1498,12 +988,11 @@
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
-                                font-size: 22px;
-                                border: 4px solid ${color};
-                                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                                font-size: 20px;
+                                border: 3px solid ${color};
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                                 transition: all 0.3s ease;
                                 cursor: pointer;
-                                font-weight: bold;
                             ">
                                 ${icon || '📍'}
                             </div>
@@ -1552,6 +1041,17 @@
                                 ">
                                     <i class="fas fa-location-dot"></i> عرض
                                 </button>
+                                <button onclick="navigateToPlace(${lat}, ${lon}, '${name}')" style="
+                                    background:#2ecc71;
+                                    color:white;
+                                    border:none;
+                                    padding:5px 14px;
+                                    border-radius:20px;
+                                    cursor:pointer;
+                                    font-size:12px;
+                                ">
+                                    <i class="fas fa-route"></i> توجيه
+                                </button>
                                 <button onclick="addFav('${encodeURIComponent(name)}', ${lat}, ${lon})" style="
                                     background:#e74c3c;
                                     color:white;
@@ -1590,72 +1090,6 @@
                     panel.classList.remove('open');
                 }
 
-                function getIcon(category) {
-                    var icons = {
-                        'tourist': '🏛️',
-                        'hospital': '🏥',
-                        'pharmacy': '💊',
-                        'bank': '🏦',
-                        'restaurant': '🍽️',
-                        'cafe': '☕',
-                        'fuel': '⛽',
-                        'market': '🛒',
-                        'historical': '🏛️',
-                        'museum': '🏛️',
-                        'beach': '🏖️',
-                        'entertainment': '🎡',
-                        'mosque': '🕌',
-                        'school': '📚',
-                        'university': '🎓',
-                        'parking': '🅿️',
-                        'metro': '🚇',
-                        'bus': '🚌',
-                        'train': '🚂',
-                        'airport': '✈️',
-                        'police': '🛡️',
-                        'fire': '🚒',
-                        'atm': '🏧',
-                        'hotel': '🏨',
-                        'park': '🌳',
-                        'cinema': '🎬',
-                        'gym': '🏋️'
-                    };
-                    return icons[category] || '📍';
-                }
-
-                function getColor(category) {
-                    var colors = {
-                        'tourist': '#9b59b6',
-                        'hospital': '#e74c3c',
-                        'pharmacy': '#2ecc71',
-                        'bank': '#f39c12',
-                        'restaurant': '#e67e22',
-                        'cafe': '#6c5ce7',
-                        'fuel': '#1a73e8',
-                        'market': '#00b894',
-                        'historical': '#8e44ad',
-                        'museum': '#d35400',
-                        'beach': '#3498db',
-                        'entertainment': '#e67e22',
-                        'mosque': '#2d3436',
-                        'school': '#3498db',
-                        'university': '#2980b9',
-                        'parking': '#2c3e50',
-                        'metro': '#e74c3c',
-                        'bus': '#2ecc71',
-                        'train': '#8e44ad',
-                        'airport': '#2980b9',
-                        'police': '#1a5276',
-                        'fire': '#e74c3c',
-                        'atm': '#16a085',
-                        'hotel': '#e67e22',
-                        'park': '#27ae60',
-                        'cinema': '#e74c3c',
-                        'gym': '#f39c12'
-                    };
-                    return colors[category] || '#1a73e8';
-                }
-
                 function getDistance(lat1, lon1, lat2, lon2) {
                     var R = 6371;
                     var dLat = (lat2 - lat1) * Math.PI / 180;
@@ -1668,9 +1102,9 @@
                 }
 
                 // ============================================================
-                // 6. البحث - بيانات محلية + OpenStreetMap
+                // 5. البحث الشامل - كل شيء في مصر
                 // ============================================================
-                function searchOSM(query, category) {
+                function searchOSM(query) {
                     if (!query || query.trim() === '') {
                         showToast('⚠️ ادخل نص للبحث');
                         return;
@@ -1678,73 +1112,8 @@
 
                     showLoader('⏳ جاري البحث...');
 
-                    // 1. البحث في البيانات المحلية
-                    var localResults = [];
-                    var searchCategory = category || 'all';
-
-                    if (searchCategory === 'all') {
-                        for (var key in egyptData) {
-                            egyptData[key].forEach(function (item) {
-                                if (item.name.toLowerCase().includes(query.toLowerCase()) ||
-                                    (item.address && item.address.toLowerCase().includes(query.toLowerCase()))) {
-                                    localResults.push({ ...item, category: key });
-                                }
-                            });
-                        }
-                    } else if (egyptData[searchCategory]) {
-                        egyptData[searchCategory].forEach(function (item) {
-                            if (item.name.toLowerCase().includes(query.toLowerCase()) ||
-                                (item.address && item.address.toLowerCase().includes(query.toLowerCase()))) {
-                                localResults.push({ ...item, category: searchCategory });
-                            }
-                        });
-                    }
-
-                    // إذا وجدنا نتائج محلية
-                    if (localResults.length > 0) {
-                        hideLoader();
-                        displayResults(localResults);
-                        showToast('✅ تم العثور على ' + localResults.length + ' نتيجة');
-                        return;
-                    }
-
-                    // 2. البحث في OpenStreetMap (إذا لم توجد نتائج محلية)
-                    var searchQuery = query.trim();
-                    if (category && category !== 'all') {
-                        var categoryMap = {
-                            'hospital': 'مستشفى',
-                            'pharmacy': 'صيدلية',
-                            'bank': 'بنك',
-                            'restaurant': 'مطعم',
-                            'cafe': 'كافيه',
-                            'fuel': 'محطة وقود',
-                            'market': 'سوق',
-                            'tourist': 'معلم سياحي',
-                            'historical': 'أثر',
-                            'museum': 'متحف',
-                            'beach': 'شاطئ',
-                            'entertainment': 'ترفيه',
-                            'mosque': 'مسجد',
-                            'school': 'مدرسة',
-                            'university': 'جامعة',
-                            'parking': 'موقف',
-                            'metro': 'مترو',
-                            'bus': 'أتوبيس',
-                            'train': 'قطار',
-                            'airport': 'مطار',
-                            'police': 'شرطة',
-                            'fire': 'دفاع مدني',
-                            'atm': 'صراف',
-                            'hotel': 'فندق',
-                            'park': 'حديقة',
-                            'cinema': 'سينما',
-                            'gym': 'جيم'
-                        };
-                        searchQuery = categoryMap[category] || query;
-                    }
-
                     var url = 'https://nominatim.openstreetmap.org/search?q=' +
-                        encodeURIComponent(searchQuery) +
+                        encodeURIComponent(query.trim()) +
                         '&format=json&limit=30&addressdetails=1&accept-language=ar&countrycodes=eg';
 
                     fetch(url, {
@@ -1758,30 +1127,19 @@
                             hideLoader();
                             if (!data || data.length === 0) {
                                 openPanel('<i class="fas fa-search"></i> نتائج البحث',
-                                    '<div style="padding:30px 20px;text-align:center;color:#999;"><div style="font-size:40px;">🔍</div><div style="font-size:16px;font-weight:600;color:#333;margin-top:8px;">لا توجد نتائج</div></div>'
+                                    '<div style="padding:30px 20px;text-align:center;color:#999;"><div style="font-size:40px;">🔍</div><div style="font-size:16px;font-weight:600;color:#333;margin-top:8px;">لا توجد نتائج</div><div style="font-size:13px;margin-top:4px;">جرب كلمات مختلفة</div></div>'
                                 );
                                 showToast('❌ لا توجد نتائج');
                                 return;
                             }
 
-                            var results = data.map(function (item) {
-                                return {
-                                    name: item.display_name.split(',')[0],
-                                    address: item.display_name,
-                                    lat: parseFloat(item.lat),
-                                    lon: parseFloat(item.lon),
-                                    category: category || 'بحث'
-                                };
-                            });
-
-                            displayResults(results);
-                            showToast('✅ تم العثور على ' + results.length + ' نتيجة من OpenStreetMap');
+                            displayResults(data);
+                            showToast('✅ تم العثور على ' + data.length + ' نتيجة');
                         })
                         .catch(function (error) {
                             hideLoader();
                             console.error('❌ خطأ:', error);
                             showToast('❌ ' + error.message);
-                            // عرض رسالة للمستخدم
                             openPanel('<i class="fas fa-search"></i> نتائج البحث',
                                 '<div style="padding:30px 20px;text-align:center;color:#e74c3c;"><div style="font-size:40px;">⚠️</div><div style="font-size:16px;font-weight:600;margin-top:8px;">حدث خطأ في البحث</div><div style="font-size:13px;margin-top:4px;">تأكد من اتصال الإنترنت</div></div>'
                             );
@@ -1797,29 +1155,47 @@
                     results.forEach(function (item) {
                         var lat = parseFloat(item.lat);
                         var lon = parseFloat(item.lon);
-                        var name = item.name || 'مكان';
-                        var address = item.address || '';
-                        var category = item.category || 'default';
+                        var name = item.display_name.split(',')[0] || 'مكان';
+                        var address = item.display_name || '';
 
-                        var icon = getIcon(category);
-                        var color = getColor(category);
+                        var icon = '📍';
+                        if (item.category === 'amenity' || item.type === 'hospital') icon = '🏥';
+                        else if (item.type === 'pharmacy') icon = '💊';
+                        else if (item.type === 'bank') icon = '🏦';
+                        else if (item.type === 'restaurant') icon = '🍽️';
+                        else if (item.type === 'cafe') icon = '☕';
+                        else if (item.type === 'fuel') icon = '⛽';
+                        else if (item.type === 'tourism') icon = '🏛️';
+                        else if (item.type === 'historical') icon = '🏛️';
+                        else if (item.type === 'museum') icon = '🏛️';
+                        else if (item.type === 'beach') icon = '🏖️';
+                        else if (item.type === 'entertainment') icon = '🎡';
+                        else if (item.type === 'place_of_worship') icon = '🕌';
+                        else if (item.category === 'shop') icon = '🛒';
+                        else if (item.category === 'highway') icon = '🛣️';
+                        else if (item.category === 'building') icon = '🏢';
+                        else if (item.category === 'landuse') icon = '🏞️';
 
                         var distance = getDistance(userLocation.lat, userLocation.lng, lat, lon);
                         var distanceText = distance < 1 ? (distance * 1000).toFixed(0) + ' م' : distance.toFixed(1) +
                             ' كم';
 
-                        addCustomMarker(lat, lon, name, icon, color);
+                        addCustomMarker(lat, lon, name, icon, '#1a73e8');
 
                         html += `
-                            <div class="result-item" onclick="map.setView([${lat}, ${lon}], 15); closePanel();">
+                            <div class="result-item" onclick="map.setView([${lat}, ${lon}], 15); closePanel(); navigateToPlace(${lat}, ${lon}, '${name}');">
                                 <div class="info">
                                     <div class="name">${icon} ${name}</div>
                                     <div class="address">${address}</div>
                                     <div class="distance">📏 ${distanceText}</div>
+                                    ${item.category ? `<div style="font-size:10px;color:#888;margin-top:2px;">📌 ${item.category}</div>` : ''}
                                 </div>
                                 <div class="actions">
                                     <button class="fav-btn" onclick="event.stopPropagation(); addFav('${encodeURIComponent(name)}', ${lat}, ${lon})">
                                         <i class="fas fa-heart"></i>
+                                    </button>
+                                    <button class="route-btn" onclick="event.stopPropagation(); navigateToPlace(${lat}, ${lon}, '${name}')">
+                                        <i class="fas fa-route"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1829,15 +1205,144 @@
                     if (firstResult) {
                         var lat = parseFloat(firstResult.lat);
                         var lon = parseFloat(firstResult.lon);
-                        map.setView([lat, lon], 12);
-                        var firstName = firstResult.name || 'مكان';
-                        var firstIcon = getIcon(firstResult.category || 'default');
-                        var firstColor = getColor(firstResult.category || 'default');
-                        addCustomMarker(lat, lon, firstName, firstIcon, firstColor);
+                        map.setView([lat, lon], 13);
+                        var firstName = firstResult.display_name.split(',')[0] || 'مكان';
+                        addCustomMarker(lat, lon, firstName, '📍', '#1a73e8');
+                        navigateToPlace(lat, lon, firstName);
                     }
 
                     openPanel('<i class="fas fa-search"></i> نتائج البحث (' + results.length + ')', html);
                 }
+
+                // ============================================================
+                // 6. التوجيه وقياس المسافات
+                // ============================================================
+                window.navigateToPlace = function (lat, lon, name) {
+                    // إزالة التوجيه السابق
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    if (directionMarker) {
+                        map.removeLayer(directionMarker);
+                        directionMarker = null;
+                    }
+
+                    var userPos = map.getCenter();
+
+                    // حساب المسافة
+                    var distance = getDistance(userPos.lat, userPos.lng, lat, lon);
+                    var distanceText = distance < 1 ? (distance * 1000).toFixed(0) + ' م' : distance.toFixed(1) + ' كم';
+
+                    // عرض المسار
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userPos.lat, userPos.lng),
+                            L.latLng(lat, lon)
+                        ],
+                        routeWhileDragging: true,
+                        showAlternatives: true,
+                        lineOptions: {
+                            styles: [{ color: '#1a73e8', weight: 5, opacity: 0.8 }]
+                        },
+                        createMarker: function (i, wp) {
+                            return L.marker(wp.latLng, {
+                                draggable: true,
+                                icon: L.divIcon({
+                                    className: i === 0 ? 'start-marker' : 'end-marker',
+                                    html: i === 0 ? '🟢' : '🏁',
+                                    iconSize: [30, 30]
+                                })
+                            });
+                        }
+                    }).addTo(map);
+
+                    routingControl.on('routesfound', function (e) {
+                        var routes = e.routes;
+                        var summary = routes[0].summary;
+                        var routeDistance = (summary.totalDistance / 1000).toFixed(1);
+                        var time = Math.round(summary.totalTime / 60);
+
+                        document.getElementById('guideDest').textContent = name;
+                        document.getElementById('guideDist').textContent = routeDistance + ' كم • ' + time +
+                            ' دقيقة';
+                        document.getElementById('navigationGuide').classList.add('show');
+
+                        showToast('🧭 المسار إلى ' + name + ' (' + routeDistance + ' كم، ' + time + ' دقيقة)');
+                    });
+
+                    // سهم في الوجهة
+                    var arrowIcon = L.divIcon({
+                        className: 'direction-arrow-marker',
+                        html: `<div style="
+                            font-size: 40px;
+                            animation: arrowBounce 1.5s ease infinite;
+                            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+                            text-shadow: 0 0 20px rgba(231,76,60,0.5);
+                        ">📍</div>`,
+                        iconSize: [50, 50],
+                        iconAnchor: [25, 25]
+                    });
+
+                    directionMarker = L.marker([lat, lon], {
+                        icon: arrowIcon,
+                        zIndexOffset: 1000
+                    }).addTo(map);
+
+                    // نقطة حمراء
+                    var destIcon = L.divIcon({
+                        className: 'destination-marker',
+                        html: `<div style="
+                            width: 20px;
+                            height: 20px;
+                            background: #e74c3c;
+                            border-radius: 50%;
+                            border: 3px solid white;
+                            box-shadow: 0 0 20px rgba(231,76,60,0.6);
+                            animation: arrowBounce 1.5s ease infinite;
+                        "></div>`,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+
+                    L.marker([lat, lon], {
+                        icon: destIcon,
+                        zIndexOffset: 999
+                    }).addTo(map);
+                };
+
+                document.getElementById('routeBtn').addEventListener('click', function () {
+                    var center = map.getCenter();
+                    var query = prompt('أدخل اسم المكان للذهاب إليه:');
+                    if (query && query.trim() !== '') {
+                        searchOSM(query);
+                    }
+                });
+
+                document.getElementById('clearRouteBtn').addEventListener('click', function () {
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    if (directionMarker) {
+                        map.removeLayer(directionMarker);
+                        directionMarker = null;
+                    }
+                    document.getElementById('navigationGuide').classList.remove('show');
+                    showToast('🗑️ تم إلغاء المسار');
+                });
+
+                document.getElementById('closeGuide').addEventListener('click', function () {
+                    document.getElementById('navigationGuide').classList.remove('show');
+                    if (routingControl) {
+                        map.removeControl(routingControl);
+                        routingControl = null;
+                    }
+                    if (directionMarker) {
+                        map.removeLayer(directionMarker);
+                        directionMarker = null;
+                    }
+                });
 
                 // ============================================================
                 // 7. البحث الصوتي
@@ -1904,12 +1409,8 @@
                             if (finalTranscript.trim() !== '') {
                                 showVoiceStatus('✅ تم التعرف: "' + finalTranscript + '"');
                                 document.getElementById('searchInput').value = finalTranscript;
-
                                 setTimeout(function () {
-                                    var activeBtn = document.querySelector('.service-btn.active');
-                                    var category = activeBtn ? activeBtn.getAttribute('data-service') :
-                                        null;
-                                    searchOSM(finalTranscript, category);
+                                    searchOSM(finalTranscript);
                                     hideVoiceStatus();
                                     voiceBtn.classList.remove('recording');
                                     isRecording = false;
@@ -1977,7 +1478,89 @@
                 });
 
                 // ============================================================
-                // 8. المفضلة
+                // 8. حركة المرور - نقاط مرور في عدة مدن
+                // ============================================================
+                var isTrafficOn = false;
+                document.getElementById('trafficBtn').addEventListener('click', function () {
+                    isTrafficOn = !isTrafficOn;
+                    this.classList.toggle('active');
+
+                    if (isTrafficOn) {
+                        trafficMarkers.forEach(function (m) { map.removeLayer(m); });
+                        trafficMarkers = [];
+
+                        var trafficPoints = [
+                            // القاهرة
+                            { lat: 30.0444, lon: 31.2357, status: 'heavy' },
+                            { lat: 30.1200, lon: 31.3000, status: 'moderate' },
+                            { lat: 29.9800, lon: 31.1500, status: 'heavy' },
+                            { lat: 30.0800, lon: 31.4000, status: 'good' },
+                            { lat: 30.0500, lon: 31.2000, status: 'moderate' },
+                            { lat: 29.9700, lon: 31.2500, status: 'good' },
+                            // الإسكندرية
+                            { lat: 31.2000, lon: 29.9000, status: 'heavy' },
+                            { lat: 31.2140, lon: 29.8850, status: 'moderate' },
+                            // الجيزة
+                            { lat: 30.0166, lon: 31.2131, status: 'moderate' },
+                            { lat: 29.9792, lon: 31.1342, status: 'good' },
+                            // الأقصر
+                            { lat: 25.7000, lon: 32.6400, status: 'good' },
+                            // أسوان
+                            { lat: 24.0880, lon: 32.8990, status: 'moderate' },
+                            // الغردقة
+                            { lat: 27.2500, lon: 33.8100, status: 'good' },
+                            // شرم الشيخ
+                            { lat: 27.8900, lon: 34.3300, status: 'good' },
+                            // السويس
+                            { lat: 29.9700, lon: 32.5500, status: 'moderate' },
+                            // بورسعيد
+                            { lat: 31.2500, lon: 32.2800, status: 'heavy' },
+                            // دمياط
+                            { lat: 31.4200, lon: 31.8100, status: 'moderate' },
+                            // المنصورة
+                            { lat: 31.0500, lon: 31.3800, status: 'good' },
+                            // طنطا
+                            { lat: 30.7900, lon: 31.0000, status: 'moderate' },
+                            // المنيا
+                            { lat: 28.1100, lon: 30.7500, status: 'good' },
+                            // سوهاج
+                            { lat: 26.5600, lon: 31.6900, status: 'moderate' },
+                            // قنا
+                            { lat: 26.1700, lon: 32.7200, status: 'good' },
+                            // أسيوط
+                            { lat: 27.1800, lon: 31.1800, status: 'moderate' },
+                            // الفيوم
+                            { lat: 29.3100, lon: 30.8400, status: 'good' },
+                            // بني سويف
+                            { lat: 29.0700, lon: 31.0900, status: 'moderate' },
+                        ];
+
+                        trafficPoints.forEach(function (p) {
+                            var color = p.status === 'good' ? '#2ecc71' :
+                                p.status === 'moderate' ? '#f39c12' : '#e74c3c';
+                            var circle = L.circleMarker([p.lat, p.lon], {
+                                radius: 10,
+                                fillColor: color,
+                                color: color,
+                                weight: 2,
+                                opacity: 0.8,
+                                fillOpacity: 0.6
+                            }).addTo(map);
+                            circle.bindPopup('🚗 حركة مرور: ' +
+                                (p.status === 'good' ? 'جيدة' :
+                                    p.status === 'moderate' ? 'متوسطة' : 'مزدحمة'));
+                            trafficMarkers.push(circle);
+                        });
+                        showToast('🚗 تم تفعيل المرور في جميع المحافظات');
+                    } else {
+                        trafficMarkers.forEach(function (m) { map.removeLayer(m); });
+                        trafficMarkers = [];
+                        showToast('🚗 تم إلغاء المرور');
+                    }
+                });
+
+                // ============================================================
+                // 9. المفضلة
                 // ============================================================
                 window.addFav = function (name, lat, lon) {
                     var displayName = decodeURIComponent(name);
@@ -2030,7 +1613,7 @@
                 });
 
                 // ============================================================
-                // 9. تحديد الموقع
+                // 10. تحديد الموقع
                 // ============================================================
                 document.getElementById('locateBtn').addEventListener('click', function () {
                     if (!navigator.geolocation) {
@@ -2051,7 +1634,7 @@
                 });
 
                 // ============================================================
-                // 10. طبقات الخريطة
+                // 11. طبقات الخريطة
                 // ============================================================
                 var layers = {
                     osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -2085,116 +1668,15 @@
                 });
 
                 // ============================================================
-                // 11. حركة المرور
-                // ============================================================
-                var trafficMarkers = [];
-                var isTrafficOn = false;
-
-                document.getElementById('trafficBtn').addEventListener('click', function () {
-                    isTrafficOn = !isTrafficOn;
-                    this.classList.toggle('active');
-
-                    if (isTrafficOn) {
-                        trafficMarkers.forEach(function (m) { map.removeLayer(m); });
-                        trafficMarkers = [];
-
-                        var points = [
-                            { lat: 30.0444, lon: 31.2357, status: 'heavy' },
-                            { lat: 30.1200, lon: 31.3000, status: 'moderate' },
-                            { lat: 29.9800, lon: 31.1500, status: 'heavy' },
-                            { lat: 30.0800, lon: 31.4000, status: 'good' },
-                            { lat: 30.0500, lon: 31.2000, status: 'moderate' },
-                            { lat: 29.9700, lon: 31.2500, status: 'good' },
-                            { lat: 31.2000, lon: 29.9000, status: 'heavy' }
-                        ];
-
-                        points.forEach(function (p) {
-                            var color = p.status === 'good' ? '#2ecc71' :
-                                p.status === 'moderate' ? '#f39c12' : '#e74c3c';
-                            var circle = L.circleMarker([p.lat, p.lon], {
-                                radius: 10,
-                                fillColor: color,
-                                color: color,
-                                weight: 2,
-                                opacity: 0.8,
-                                fillOpacity: 0.6
-                            }).addTo(map);
-                            circle.bindPopup('🚗 حركة مرور: ' +
-                                (p.status === 'good' ? 'جيدة' :
-                                    p.status === 'moderate' ? 'متوسطة' : 'مزدحمة'));
-                            trafficMarkers.push(circle);
-                        });
-                        showToast('🚗 تم تفعيل المرور');
-                    } else {
-                        trafficMarkers.forEach(function (m) { map.removeLayer(m); });
-                        trafficMarkers = [];
-                        showToast('🚗 تم إلغاء المرور');
-                    }
-                });
-
-                // ============================================================
-                // 12. أزرار الخدمات
-                // ============================================================
-                document.querySelectorAll('.service-btn').forEach(function (btn) {
-                    btn.addEventListener('click', function () {
-                        document.querySelectorAll('.service-btn').forEach(function (b) {
-                            b.classList.remove(
-                                'active');
-                        });
-                        this.classList.add('active');
-                        var service = this.getAttribute('data-service');
-                        currentCategory = service;
-                        var searchTerms = {
-                            'hospital': 'مستشفى',
-                            'pharmacy': 'صيدلية',
-                            'bank': 'بنك',
-                            'restaurant': 'مطعم',
-                            'cafe': 'كافيه',
-                            'fuel': 'محطة وقود',
-                            'market': 'سوق',
-                            'tourist': 'معالم سياحية',
-                            'historical': 'أماكن أثرية',
-                            'museum': 'متاحف',
-                            'beach': 'شواطئ',
-                            'entertainment': 'أماكن ترفيهية',
-                            'mosque': 'مساجد',
-                            'school': 'مدارس',
-                            'university': 'جامعات',
-                            'parking': 'مواقف',
-                            'metro': 'مترو',
-                            'bus': 'أتوبيس',
-                            'train': 'قطار',
-                            'airport': 'مطارات',
-                            'police': 'شرطة',
-                            'fire': 'دفاع مدني',
-                            'atm': 'صرافات',
-                            'hotel': 'فنادق',
-                            'park': 'حدائق',
-                            'cinema': 'سينما',
-                            'gym': 'جيم'
-                        };
-                        var query = searchTerms[service] || service;
-                        document.getElementById('searchInput').value = query;
-                        searchOSM(query, service);
-                    });
-                });
-
-                // ============================================================
-                // 13. البحث
+                // 12. البحث
                 // ============================================================
                 document.getElementById('searchBtn').addEventListener('click', function () {
-                    var query = document.getElementById('searchInput').value;
-                    var activeBtn = document.querySelector('.service-btn.active');
-                    var category = activeBtn ? activeBtn.getAttribute('data-service') : null;
-                    searchOSM(query, category);
+                    searchOSM(document.getElementById('searchInput').value);
                 });
 
                 document.getElementById('searchInput').addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
-                        var query = document.getElementById('searchInput').value;
-                        var activeBtn = document.querySelector('.service-btn.active');
-                        var category = activeBtn ? activeBtn.getAttribute('data-service') : null;
-                        searchOSM(query, category);
+                        searchOSM(document.getElementById('searchInput').value);
                     }
                 });
 
@@ -2203,29 +1685,28 @@
                 });
 
                 // ============================================================
-                // 14. تحميل افتراضي
+                // 13. تحميل افتراضي
                 // ============================================================
                 setTimeout(function () {
-                    document.getElementById('searchInput').placeholder = 'ابحث عن أي مكان في مصر...';
-                    showToast('🔍 ابحث عن أي مكان في مصر');
-                    // عرض السياحة افتراضياً
-                    searchOSM('معالم سياحية', 'tourist');
+                    document.getElementById('searchInput').placeholder = 'ابحث عن شارع، منطقة، خدمة...';
+                    showToast('🔍 ابحث عن أي شيء في مصر');
                 }, 1000);
 
                 // ============================================================
-                // 15. جعل الدوال عامة
+                // 14. جعل الدوال عامة
                 // ============================================================
                 window.map = map;
                 window.addCustomMarker = addCustomMarker;
                 window.closePanel = closePanel;
                 window.addFav = addFav;
                 window.searchOSM = searchOSM;
-                window.egyptData = egyptData;
+                window.navigateToPlace = navigateToPlace;
 
-                console.log('🗺️ خرائط مصر - تعمل 100% ✅');
-                console.log('📋 عدد الخدمات: 27 فئة');
-                console.log('📍 عدد الأماكن: ' + Object.values(egyptData).reduce(function (a, b) { return a + b.length; },
-                    0) + ' مكان');
+                console.log('🗺️ خرائط مصر الشاملة - الإصدار النهائي ✅');
+                console.log('🔍 البحث: يعمل على كل شيء (شوارع، مناطق، خدمات)');
+                console.log('🧭 التوجيه وقياس المسافات: جاهز');
+                console.log('🚗 حركة المرور: تغطي جميع المحافظات');
+                console.log('🎤 البحث الصوتي: جاهز');
 
             } // نهاية initApp
 
