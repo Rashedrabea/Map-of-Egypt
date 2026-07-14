@@ -1,0 +1,44 @@
+{
+  "name": "egypt-maps-app",
+  "version": "3.0.0",
+  "description": "🗺️ تطبيق خرائط مصر الشامل - بحث عن كل شيء، توجيه، مرور، مفضلة، وأكثر",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'لا يوجد بناء مطلوب - التطبيق هو ملف HTML واحد'",
+    "test": "echo 'لا توجد اختبارات'"
+  },
+  "keywords": [
+    "maps",
+    "egypt",
+    "openstreetmap",
+    "leaflet",
+    "routing",
+    "traffic",
+    "map",
+    "egypt-maps",
+    "gis",
+    "navigation"
+  ],
+  "author": {
+    "name": "Rashed Rabee",
+    "email": "rashedrabea@gmail.com",
+    "url": "https://rashedrabea.github.io/Map-of-Egypt/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rashedrabea/Map-of-Egypt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rashedrabea/Map-of-Egypt/issues"
+  },
+  "homepage": "https://rashedrabea.github.io/Map-of-Egypt/",
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-routing-machine": "^3.2.12"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
