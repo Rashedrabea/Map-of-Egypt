@@ -1,0 +1,114 @@
+# ============================================================
+# Dependabot Configuration File
+# للحفاظ على التطبيق محدثاً وآمناً
+# ============================================================
+
+version: 2
+updates:
+
+  # ============================================================
+  # 1. تحديث المكتبات الأساسية (npm)
+  # ============================================================
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
+      timezone: "Africa/Cairo"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "📦"
+      prefix-development: "🔧"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+    reviewers:
+      - "rashedrabea"
+    assignees:
+      - "rashedrabea"
+    target-branch: "main"
+    versioning-strategy: "increase"
+    ignore:
+      - dependency-name: "leaflet"
+        versions:
+          - ">=2.0.0"
+      - dependency-name: "leaflet-routing-machine"
+        versions:
+          - ">=4.0.0"
+    groups:
+      leaflet:
+        patterns:
+          - "leaflet"
+          - "leaflet-routing-machine"
+        update-types:
+          - "patch"
+          - "minor"
+
+  # ============================================================
+  # 2. تحديث GitHub Actions
+  # ============================================================
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
+      timezone: "Africa/Cairo"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "⚙️"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "rashedrabea"
+    assignees:
+      - "rashedrabea"
+    target-branch: "main"
+
+  # ============================================================
+  # 3. تحديث Docker (في حال استخدامه)
+  # ============================================================
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+      time: "00:00"
+      timezone: "Africa/Cairo"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "🐳"
+    labels:
+      - "dependencies"
+      - "docker"
+    reviewers:
+      - "rashedrabea"
+    assignees:
+      - "rashedrabea"
+    target-branch: "main"
+
+  # ============================================================
+  # 4. تحديث GitHub Pages (في حال وجود ملفات تكوين)
+  # ============================================================
+  - package-ecosystem: "github-pages"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
+      timezone: "Africa/Cairo"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "📄"
+    labels:
+      - "dependencies"
+      - "github-pages"
+    reviewers:
+      - "rashedrabea"
+    assignees:
+      - "rashedrabea"
+    target-branch: "main"
