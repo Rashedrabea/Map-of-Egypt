@@ -755,574 +755,6 @@
         }
 
         .leaflet-control-attribution {
-            display: n            background: rgba(60, 140, 255, 0.25);
-        }
-
-        /* ===== أزرار التحكم ===== */
-        #controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .ctrl-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(12, 16, 24, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #eef4ff;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            position: relative;
-        }
-
-        .ctrl-btn:hover {
-            background: rgba(30, 40, 60, 0.8);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-
-        .ctrl-btn.active {
-            background: rgba(60, 140, 255, 0.25);
-            border-color: rgba(60, 140, 255, 0.2);
-            box-shadow: 0 0 30px rgba(60, 140, 255, 0.2);
-        }
-
-        .ctrl-btn .badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 12px;
-            height: 12px;
-            background: #3dff9e;
-            border-radius: 50%;
-            border: 2px solid rgba(12, 16, 24, 0.8);
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-                opacity: 0.7;
-            }
-        }
-
-        /* ===== اللوحة السفلية - تعمل على جميع الشاشات ===== */
-        #bottom-bar {
-            position: absolute;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            width: min(92%, 750px);
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            background: rgba(10, 14, 24, 0.75);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 60px;
-            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8);
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .bottom-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
-            color: #b0c8e8;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border: 1px solid transparent;
-            transition: 0.2s;
-            flex-shrink: 0;
-        }
-
-        .bottom-item i {
-            font-size: 1rem;
-            color: #7bb0ff;
-        }
-
-        .bottom-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.04);
-            color: #fff;
-        }
-
-        .bottom-item.active {
-            background: rgba(60, 130, 255, 0.12);
-            border-color: rgba(60, 130, 255, 0.12);
-            color: #b8d6ff;
-        }
-
-        /* ===== 3D Indicator ===== */
-        #d3-indicator {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5;
-            padding: 8px 24px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 40px;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #d3-indicator i {
-            color: #7bb0ff;
-        }
-
-        /* ===== نتائج البحث ===== */
-        #search-results {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            width: min(90%, 600px);
-            max-height: 300px;
-            overflow-y: auto;
-            background: rgba(10, 14, 24, 0.92);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 8px;
-            display: none;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-        }
-
-        #search-results.show {
-            display: block;
-        }
-
-        .result-item {
-            padding: 12px 16px;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #d0daf0;
-        }
-
-        .result-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .result-item i {
-            color: #7bb0ff;
-            width: 20px;
-        }
-
-        .result-item .name {
-            font-weight: 500;
-        }
-
-        .result-item .address {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* ===== AR Overlay ===== */
-        #ar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 50;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: #fff;
-        }
-
-        #ar-overlay.open {
-            display: flex;
-        }
-
-        #ar-overlay .ar-content {
-            text-align: center;
-            padding: 40px;
-        }
-
-        #ar-overlay .ar-content i {
-            font-size: 4rem;
-            color: #ffb84d;
-            margin-bottom: 20px;
-            animation: ar-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes ar-pulse {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 0.8;
-            }
-        }
-
-        #ar-overlay .ar-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        #ar-overlay .ar-content p {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.95rem;
-        }
-
-        #ar-overlay .ar-content .compass-display {
-            font-size: 3rem;
-            margin: 20px 0;
-            color: #ffb84d;
-        }
-
-        .ar-close {
-            margin-top: 30px;
-            padding: 12px 40px;
-            border: none;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .ar-close:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        /* ===== مؤشر الموقع ===== */
-        .user-marker {
-            width: 20px;
-            height: 20px;
-            background: #3dff9e;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(61, 255, 158, 0.4), 0 0 60px rgba(61, 255, 158, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(61, 255, 158, 0.6), 0 0 80px rgba(61, 255, 158, 0.2);
-            }
-            100% {
-                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
-            }
-        }
-
-        /* ===== مؤشر البحث ===== */
-        .search-marker {
-            width: 30px;
-            height: 30px;
-            background: #ff6b6b;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-            border: 3px solid #fff;
-        }
-
-        .search-marker::after {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-        }
-
-        /* ===== 3D Buildings ===== */
-        .building-3d {
-            position: absolute;
-            background: rgba(140, 155, 175, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 2px;
-            pointer-events: none;
-            z-index: 1;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .building-3d .top {
-            position: absolute;
-            top: -3px;
-            left: -2px;
-            width: calc(100% + 4px);
-            height: calc(100% + 4px);
-            background: rgba(200, 215, 235, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        /* ===== لوحة المعلومات ===== */
-        #info-panel {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-            z-index: 8;
-            background: rgba(10, 14, 24, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 16px;
-            padding: 12px 16px;
-            min-width: 120px;
-            display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        #info-panel.show {
-            display: block;
-        }
-
-        #info-panel .info-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-            font-size: 0.7rem;
-            color: #b0c8e8;
-        }
-
-        #info-panel .info-row i {
-            color: #7bb0ff;
-            width: 16px;
-            font-size: 0.7rem;
-        }
-
-        /* ===== خط المسار ===== */
-        .route-line {
-            stroke: #4ecdc4;
-            stroke-width: 4;
-            stroke-dasharray: 8, 4;
-            fill: none;
-            animation: dash 1s linear infinite;
-        }
-
-        @keyframes dash {
-            to {
-                stroke-dashoffset: -12;
-            }
-        }
-
-        /* ===== استجابة للشاشات الصغيرة ===== */
-        @media (max-width: 768px) {
-            #bottom-bar {
-                bottom: 16px;
-                padding: 6px 8px;
-                width: 96%;
-                border-radius: 40px;
-                gap: 2px;
-                justify-content: center;
-            }
-
-            .bottom-item {
-                font-size: 0.55rem;
-                padding: 4px 8px;
-                gap: 4px;
-            }
-
-            .bottom-item i {
-                font-size: 0.75rem;
-            }
-
-            .bottom-item span {
-                display: inline-block;
-            }
-
-            #search-container {
-                top: 12px;
-                width: 94%;
-                padding: 2px 2px 2px 12px;
-            }
-
-            #search-input {
-                font-size: 0.8rem;
-                padding: 8px 10px;
-            }
-
-            #search-btn {
-                padding: 6px 12px;
-                font-size: 0.7rem;
-            }
-
-            #controls {
-                top: 12px;
-                right: 12px;
-            }
-
-            .ctrl-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 0.9rem;
-            }
-
-            #ar-overlay .ar-content {
-                padding: 20px;
-            }
-
-            #ar-overlay .ar-content i {
-                font-size: 3rem;
-            }
-
-            #info-panel {
-                bottom: 80px;
-                right: 12px;
-                padding: 8px 12px;
-                min-width: 80px;
-            }
-
-            #info-panel .info-row {
-                font-size: 0.55rem;
-            }
-
-            #d3-indicator {
-                bottom: 80px;
-                padding: 4px 14px;
-                font-size: 0.65rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #bottom-bar {
-                bottom: 12px;
-                padding: 4px 6px;
-                width: 98%;
-                border-radius: 30px;
-                gap: 1px;
-            }
-
-            .bottom-item {
-                font-size: 0.45rem;
-                padding: 3px 6px;
-                gap: 3px;
-                border-radius: 30px;
-            }
-
-            .bottom-item i {
-                font-size: 0.6rem;
-            }
-
-            .bottom-item span {
-                font-size: 0.4rem;
-            }
-
-            #search-container {
-                top: 8px;
-                width: 96%;
-                padding: 2px 2px 2px 10px;
-                border-radius: 40px;
-            }
-
-            #search-input {
-                font-size: 0.7rem;
-                padding: 6px 8px;
-            }
-
-            #search-btn {
-                padding: 4px 10px;
-                font-size: 0.6rem;
-            }
-
-            #controls {
-                top: 8px;
-                right: 8px;
-                gap: 6px;
-            }
-
-            .ctrl-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.75rem;
-            }
-
-            #info-panel {
-                bottom: 70px;
-                right: 8px;
-                padding: 6px 10px;
-                min-width: 60px;
-                border-radius: 12px;
-            }
-
-            #info-panel .info-row {
-                font-size: 0.5rem;
-                padding: 2px 0;
-            }
-
-            #d3-indicator {
-                bottom: 70px;
-                padding: 3px 10px;
-                font-size: 0.55rem;
-                border-radius: 30px;
-            }
-
-            #ar-overlay .ar-content {
-                padding: 16px;
-            }
-
-            #ar-overlay .ar-content i {
-                font-size: 2.5rem;
-            }
-
-            #ar-overlay .ar-content h3 {
-                font-size: 1.2rem;
-            }
-
-            #ar-overlay .ar-content p {
-                font-size: 0.8rem;
-            }
-
-            #ar-overlay .ar-content .compass-display {
-                font-size: 2.5rem;
-                margin: 12px 0;
-            }
-        }
-
-        .leaflet-control-attribution {
             display: none !important;
         }
         .leaflet-control-zoom {
@@ -1342,7 +774,7 @@
     <!-- ===== شريط البحث ===== -->
     <div id="search-container">
         <i class="fas fa-search"></i>
-        <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع، مطعم..." />
+        <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع، مطعم..." autocomplete="off" />
         <button id="search-btn">بحث</button>
     </div>
 
@@ -1475,7 +907,6 @@
         let routeMarkers = [];
         let startPoint = null;
         let endPoint = null;
-        let destinationName = '';
 
         // ================================================================
         //  تبديل الأنماط
@@ -1607,8 +1038,6 @@
                     this.classList.remove('active');
                     return;
                 }
-
-                destinationName = destination;
 
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&lang=ar`)
                     .then(res => res.json())
@@ -1827,17 +1256,18 @@
         }
 
         // ================================================================
-        //  مؤشر الموقع
+        //  مؤشر الموقع (GPS)
         // ================================================================
         let userMarker = null;
         let userCircle = null;
         let userPosition = null;
+        let isLocating = false;
 
         function createUserIcon() {
             return L.divIcon({
                 className: 'user-marker',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10],
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
                 html: '<div></div>',
             });
         }
@@ -1845,7 +1275,9 @@
         function updateLocation(position) {
             const { latitude, longitude, accuracy } = position.coords;
             userPosition = [latitude, longitude];
+            isLocating = true;
 
+            // تحديث الموقع في AR
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=ar`)
                 .then(res => res.json())
                 .then(data => {
@@ -1880,6 +1312,9 @@
             if (position.coords.heading !== null && position.coords.heading !== undefined) {
                 document.getElementById('ar-compass').textContent = Math.round(position.coords.heading);
             }
+
+            // تحديث زر الموقع
+            document.getElementById('locate-btn').style.color = '#3dff9e';
         }
 
         function locateUser() {
@@ -1921,13 +1356,14 @@
         });
 
         // ================================================================
-        //  البحث
+        //  البحث - تحسين كبير
         // ================================================================
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
         const resultsContainer = document.getElementById('search-results');
         let searchMarker = null;
         let searchCircle = null;
+        let searchTimeout = null;
 
         function clearSearchMarker() {
             if (searchMarker) {
@@ -1945,8 +1381,8 @@
 
             const icon = L.divIcon({
                 className: 'search-marker',
-                iconSize: [30, 30],
-                iconAnchor: [15, 30],
+                iconSize: [34, 34],
+                iconAnchor: [17, 34],
                 html: '<div></div>',
             });
 
@@ -1954,7 +1390,7 @@
             searchMarker.bindPopup(`<strong>📍 ${name}</strong><br>تم العثور على الموقع`);
 
             searchCircle = L.circle([lat, lng], {
-                radius: 50,
+                radius: 60,
                 color: '#ff6b6b',
                 fillColor: '#ff6b6b',
                 fillOpacity: 0.05,
@@ -1966,7 +1402,7 @@
 
             setTimeout(() => {
                 if (searchMarker) searchMarker.openPopup();
-            }, 500);
+            }, 600);
         }
 
         async function performSearch(query) {
@@ -2020,17 +1456,36 @@
             }
         }
 
+        // بحث عند الضغط على زر البحث
         searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+
+        // بحث عند الضغط على Enter
         searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch(searchInput.value);
-        });
-        searchInput.addEventListener('input', () => {
-            if (searchInput.value.length === 0) {
-                resultsContainer.classList.remove('show');
-                clearSearchMarker();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch(searchInput.value);
             }
         });
 
+        // بحث تلقائي مع تأخير (لتحسين التجربة)
+        searchInput.addEventListener('input', () => {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            const query = searchInput.value.trim();
+
+            if (query.length === 0) {
+                resultsContainer.classList.remove('show');
+                clearSearchMarker();
+                return;
+            }
+
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 500);
+            }
+        });
+
+        // إغلاق النتائج عند النقر خارجها
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#search-container') && !e.target.closest('#search-results')) {
                 resultsContainer.classList.remove('show');
@@ -2102,19 +1557,21 @@
         function showToast(message, color = '#7bb0ff') {
             const toast = document.createElement('div');
             toast.style.position = 'absolute';
-            toast.style.top = '80px';
+            toast.style.top = '76px';
             toast.style.left = '50%';
             toast.style.transform = 'translateX(-50%)';
-            toast.style.zIndex = '20';
-            toast.style.padding = '10px 24px';
-            toast.style.background = 'rgba(0,0,0,0.7)';
+            toast.style.zIndex = '25';
+            toast.style.padding = '10px 22px';
+            toast.style.background = 'rgba(0,0,0,0.8)';
             toast.style.backdropFilter = 'blur(12px)';
             toast.style.borderRadius = '40px';
             toast.style.border = `1px solid ${color}33`;
             toast.style.color = '#fff';
-            toast.style.fontSize = '0.85rem';
-            toast.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+            toast.style.fontSize = '0.8rem';
+            toast.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)';
             toast.style.transition = 'opacity 0.8s';
+            toast.style.maxWidth = '90%';
+            toast.style.textAlign = 'center';
             toast.innerHTML = message;
             document.body.appendChild(toast);
             setTimeout(() => {
@@ -2126,24 +1583,26 @@
         // ================================================================
         //  رسالة ترحيب
         // ================================================================
-        console.log('🚀 أورا ماب – الشريط يعمل على جميع الشاشات');
+        console.log('🚀 أورا ماب – نسخة الجوال المحسّنة');
 
         setTimeout(() => {
             const toast = document.createElement('div');
             toast.style.position = 'absolute';
-            toast.style.bottom = '100px';
+            toast.style.bottom = '90px';
             toast.style.left = '50%';
             toast.style.transform = 'translateX(-50%)';
-            toast.style.zIndex = '20';
-            toast.style.padding = '12px 28px';
-            toast.style.background = 'rgba(0,20,40,0.8)';
+            toast.style.zIndex = '25';
+            toast.style.padding = '10px 24px';
+            toast.style.background = 'rgba(0,20,40,0.85)';
             toast.style.backdropFilter = 'blur(16px)';
             toast.style.borderRadius = '60px';
             toast.style.border = '1px solid rgba(255,255,255,0.04)';
             toast.style.color = '#b0d0ff';
-            toast.style.fontSize = '0.85rem';
+            toast.style.fontSize = '0.75rem';
             toast.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6)';
-            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – الشريط يعمل تلقائياً!';
+            toast.style.maxWidth = '90%';
+            toast.style.textAlign = 'center';
+            toast.innerHTML = '📍 <strong>أورا ماب</strong> – مؤشر GPS يعمل الآن!';
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.transition = 'opacity 1s';
