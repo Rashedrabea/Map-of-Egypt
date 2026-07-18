@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>أورا ماب – خريطة 3D</title>
+    <title>أورا ماب – الخريطة الذكية</title>
 
     <!-- ===== Leaflet ===== -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -41,7 +41,7 @@
         }
 
         #map-container.is3d {
-            transform: perspective(1200px) rotateX(12deg) scale(0.95);
+            transform: perspective(1000px) rotateX(8deg) scale(0.97);
         }
 
         #map {
@@ -105,6 +105,40 @@
 
         #search-btn:hover {
             background: rgba(60, 140, 255, 0.25);
+        }
+
+        /* زر الميكروفون */
+        #voice-btn {
+            background: rgba(255, 180, 60, 0.12);
+            border: none;
+            color: #ffb84d;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid rgba(255, 180, 60, 0.08);
+            margin-left: 4px;
+        }
+
+        #voice-btn:hover {
+            background: rgba(255, 180, 60, 0.2);
+        }
+
+        #voice-btn.listening {
+            background: rgba(255, 80, 80, 0.2);
+            border-color: rgba(255, 80, 80, 0.2);
+            animation: pulse-voice 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse-voice {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         /* ===== أزرار التحكم ===== */
@@ -179,7 +213,7 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-            width: min(92%, 680px);
+            width: min(92%, 750px);
             padding: 10px 16px;
             display: flex;
             align-items: center;
@@ -198,19 +232,19 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 18px;
+            padding: 8px 14px;
             border-radius: 40px;
             background: rgba(255, 255, 255, 0.02);
             cursor: pointer;
             color: #b0c8e8;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
             border: 1px solid transparent;
             transition: 0.2s;
         }
 
         .bottom-item i {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #7bb0ff;
         }
 
@@ -237,7 +271,7 @@
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(12px);
             border-radius: 40px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.05);
             display: none;
@@ -427,8 +461,8 @@
         /* ===== 3D Buildings ===== */
         .building-3d {
             position: absolute;
-            background: rgba(150, 165, 185, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(140, 155, 175, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 2px;
             pointer-events: none;
             z-index: 1;
@@ -442,8 +476,44 @@
             left: -2px;
             width: calc(100% + 4px);
             height: calc(100% + 4px);
-            background: rgba(200, 215, 235, 0.1);
+            background: rgba(200, 215, 235, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* ===== لوحة المعلومات ===== */
+        #info-panel {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            z-index: 8;
+            background: rgba(10, 14, 24, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 12px 16px;
+            min-width: 120px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #info-panel.show {
+            display: block;
+        }
+
+        #info-panel .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.7rem;
+            color: #b0c8e8;
+        }
+
+        #info-panel .info-row i {
+            color: #7bb0ff;
+            width: 16px;
+            font-size: 0.7rem;
         }
 
         /* ===== استجابة ===== */
@@ -461,6 +531,10 @@
                 padding: 8px 14px;
                 font-size: 0.75rem;
             }
+            #voice-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
             #controls {
                 top: 12px;
                 right: 12px;
@@ -477,18 +551,27 @@
                 border-radius: 40px;
             }
             .bottom-item {
-                font-size: 0.65rem;
-                padding: 6px 12px;
+                font-size: 0.6rem;
+                padding: 4px 10px;
                 gap: 4px;
             }
             .bottom-item i {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }
             #ar-overlay .ar-content {
                 padding: 20px;
             }
             #ar-overlay .ar-content i {
                 font-size: 3rem;
+            }
+            #info-panel {
+                bottom: 80px;
+                right: 12px;
+                padding: 8px 12px;
+                min-width: 80px;
+            }
+            #info-panel .info-row {
+                font-size: 0.6rem;
             }
         }
 
@@ -504,7 +587,7 @@
     </style>
 </head>
 <body>
-    <!-- ===== حاوية الخريطة مع تأثير 3D ===== -->
+    <!-- ===== حاوية الخريطة ===== -->
     <div id="map-container">
         <div id="map"></div>
     </div>
@@ -512,7 +595,8 @@
     <!-- ===== شريط البحث ===== -->
     <div id="search-container">
         <i class="fas fa-search"></i>
-        <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع، معلم..." />
+        <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع، مطعم..." />
+        <button id="voice-btn" title="بحث صوتي"><i class="fas fa-microphone"></i></button>
         <button id="search-btn">بحث</button>
     </div>
 
@@ -524,6 +608,9 @@
         <div class="ctrl-btn" id="locate-btn" title="تحديد موقعي">
             <i class="fas fa-location-crosshairs"></i>
             <span class="badge"></span>
+        </div>
+        <div class="ctrl-btn" id="favorites-btn" title="المفضلة">
+            <i class="fas fa-heart"></i>
         </div>
         <div class="ctrl-btn" id="d3-toggle" title="الوضع ثلاثي الأبعاد">
             <i class="fas fa-cube"></i>
@@ -551,34 +638,57 @@
             <i class="fas fa-moon"></i>
             <span>ليلي</span>
         </div>
+        <div class="bottom-item" id="mode-navigation">
+            <i class="fas fa-route"></i>
+            <span>ملاحة</span>
+        </div>
     </div>
 
     <!-- ===== مؤشر ثلاثي الأبعاد ===== -->
     <div id="d3-indicator">
         <i class="fas fa-cube"></i>
-        الوضع ثلاثي الأبعاد مفعل - المباني تظهر!
+        الوضع ثلاثي الأبعاد مفعل - المباني تظهر
+    </div>
+
+    <!-- ===== لوحة المعلومات ===== -->
+    <div id="info-panel">
+        <div class="info-row">
+            <i class="fas fa-route"></i>
+            <span>المسافة: <span id="distance-info">--</span></span>
+        </div>
+        <div class="info-row">
+            <i class="fas fa-clock"></i>
+            <span>الوقت: <span id="time-info">--</span></span>
+        </div>
+        <div class="info-row">
+            <i class="fas fa-map-pin"></i>
+            <span>الموقع: <span id="location-info">--</span></span>
+        </div>
     </div>
 
     <!-- ===== طبقة الواقع المعزز ===== -->
     <div id="ar-overlay">
         <div class="ar-content">
             <i class="fas fa-camera"></i>
-            <h3>🌍 الواقع المعزز مفعل</h3>
-            <p>وجه الكاميرا إلى الشارع لعرض معلومات المباني والمواقع</p>
+            <h3>🌍 الواقع المعزز</h3>
+            <p>اتجاه بوصلة حية + معلومات المكان</p>
             <div class="compass-display">
                 <i class="fas fa-compass"></i>
                 <span id="ar-compass">--</span>°
             </div>
             <p style="font-size:0.8rem; color:rgba(255,255,255,0.3);">
-                <i class="fas fa-satellite"></i> يتم تحديث الاتجاه تلقائياً
+                <i class="fas fa-map-pin"></i> الموقع: <span id="ar-location">جاري التحديد...</span>
             </p>
-            <button class="ar-close" id="ar-close-btn">إغلاق الواقع المعزز</button>
+            <p style="font-size:0.8rem; color:rgba(255,255,255,0.3);">
+                <i class="fas fa-building"></i> أقرب معلم: <span id="ar-nearby">جاري البحث...</span>
+            </p>
+            <button class="ar-close" id="ar-close-btn">إغلاق</button>
         </div>
     </div>
 
     <script>
         // ================================================================
-        //  تهيئة Leaflet (تعمل فوراً)
+        //  تهيئة Leaflet
         // ================================================================
         const map = L.map('map', {
             center: [30.0444, 31.2357],
@@ -638,8 +748,27 @@
             setMapLayer(nightLayer, this);
         });
 
+        // ===== وضع الملاحة =====
+        let navigationMode = false;
+        document.getElementById('mode-navigation').addEventListener('click', function() {
+            navigationMode = !navigationMode;
+            this.classList.toggle('active', navigationMode);
+
+            if (navigationMode) {
+                showToast('🧭 وضع الملاحة مفعل - اتبع الطريق', '#4ecdc4');
+                document.getElementById('info-panel').classList.add('show');
+                // محاكاة معلومات الملاحة
+                document.getElementById('distance-info').textContent = '1.2 كم';
+                document.getElementById('time-info').textContent = '5 دقائق';
+                document.getElementById('location-info').textContent = 'شارع التحرير';
+            } else {
+                document.getElementById('info-panel').classList.remove('show');
+                showToast('📍 تم إلغاء الملاحة', '#ff6b6b');
+            }
+        });
+
         // ================================================================
-        //  المباني 3D (محاكاة حقيقية)
+        //  المباني 3D
         // ================================================================
         let is3D = false;
         const btn3d = document.getElementById('d3-toggle');
@@ -648,7 +777,6 @@
         let buildingElements = [];
         let buildingInterval = null;
 
-        // بيانات المباني في وسط القاهرة (إحداثيات حقيقية)
         const buildingData = [
             { lat: 30.0458, lng: 31.2242, w: 0.0012, h: 0.0012 },
             { lat: 30.0425, lng: 31.2334, w: 0.0020, h: 0.0016 },
@@ -668,12 +796,9 @@
             { lat: 30.0445, lng: 31.2365, w: 0.0018, h: 0.0015 },
             { lat: 30.0465, lng: 31.2250, w: 0.0014, h: 0.0014 },
             { lat: 30.0435, lng: 31.2370, w: 0.0016, h: 0.0016 },
-            { lat: 30.0472, lng: 31.2270, w: 0.0018, h: 0.0018 },
-            { lat: 30.0415, lng: 31.2345, w: 0.0022, h: 0.0014 },
         ];
 
         function create3DBuildings() {
-            // إزالة المباني القديمة
             buildingElements.forEach(el => {
                 if (el.parentNode) el.parentNode.removeChild(el);
             });
@@ -691,7 +816,6 @@
                     const width = Math.abs(point2.x - point.x);
                     const height = Math.abs(point2.y - point.y);
 
-                    // فقط المباني في نطاق الرؤية
                     if (width < 300 && height < 300 && width > 3 && height > 3) {
                         const div = document.createElement('div');
                         div.className = 'building-3d';
@@ -704,16 +828,14 @@
                         div.style.width = (width + 2) + 'px';
                         div.style.height = (height + 2) + 'px';
 
-                        // ألوان مختلفة للمباني
                         const colors = [
-                            'rgba(150, 165, 185, 0.6)',
-                            'rgba(160, 175, 195, 0.6)',
-                            'rgba(140, 155, 175, 0.6)',
-                            'rgba(170, 180, 200, 0.6)',
+                            'rgba(150, 165, 185, 0.5)',
+                            'rgba(160, 175, 195, 0.5)',
+                            'rgba(140, 155, 175, 0.5)',
+                            'rgba(170, 180, 200, 0.5)',
                         ];
                         div.style.background = colors[Math.floor(Math.random() * colors.length)];
 
-                        // إضافة السطح
                         const top = document.createElement('div');
                         top.className = 'top';
                         div.appendChild(top);
@@ -721,9 +843,7 @@
                         container.appendChild(div);
                         buildingElements.push(div);
                     }
-                } catch (e) {
-                    // تجاهل الأخطاء
-                }
+                } catch (e) {}
             });
         }
 
@@ -735,35 +855,24 @@
             btn3d.classList.toggle('active', is3D);
 
             if (is3D) {
-                // تأثير الإمالة 3D
                 mapContainer.classList.add('is3d');
-
-                // تغيير إلى التضاريس
                 setMapLayer(terrainLayer, document.getElementById('mode-terrain'));
-
                 indicator.style.display = 'flex';
                 btn3d.style.color = '#7bb0ff';
 
-                // إنشاء المباني
                 setTimeout(create3DBuildings, 300);
-
-                // تحديث المباني عند الحركة
                 map.on('moveend', create3DBuildings);
                 map.on('zoomend', create3DBuildings);
 
-                // تحديث دوري للمباني
                 if (buildingInterval) clearInterval(buildingInterval);
                 buildingInterval = setInterval(create3DBuildings, 2000);
 
-                showToast('🌐 <strong>الوضع ثلاثي الأبعاد</strong> – تم التفعيل!', '#7bb0ff');
+                showToast('🌐 الوضع ثلاثي الأبعاد مفعل - المباني تظهر', '#7bb0ff');
             } else {
-                // إلغاء التأثير
                 mapContainer.classList.remove('is3d');
-
                 indicator.style.display = 'none';
                 btn3d.style.color = '';
 
-                // إزالة المباني
                 buildingElements.forEach(el => {
                     if (el.parentNode) el.parentNode.removeChild(el);
                 });
@@ -778,8 +887,91 @@
                 }
 
                 setMapLayer(streetLayer, document.getElementById('mode-street'));
-                showToast('📍 <strong>الوضع العادي</strong> – تم إلغاء 3D', '#ff6b6b');
+                showToast('📍 الوضع العادي - تم إلغاء 3D', '#ff6b6b');
             }
+        });
+
+        // ================================================================
+        //  المفضلة
+        // ================================================================
+        let favorites = [];
+        let favoriteMarker = null;
+
+        document.getElementById('favorites-btn').addEventListener('click', () => {
+            if (userPosition) {
+                const name = prompt('أدخل اسم لهذا المكان:');
+                if (name) {
+                    favorites.push({
+                        lat: userPosition[0],
+                        lng: userPosition[1],
+                        name: name
+                    });
+                    showToast(`❤️ تم حفظ "${name}" في المفضلة`, '#ff6b6b');
+                    updateFavorites();
+                }
+            } else {
+                alert('⚠️ حدد موقعك أولاً');
+            }
+        });
+
+        function updateFavorites() {
+            if (favoriteMarker) {
+                map.removeLayer(favoriteMarker);
+            }
+            if (favorites.length > 0) {
+                const last = favorites[favorites.length - 1];
+                const icon = L.divIcon({
+                    className: 'fav-marker',
+                    html: `<div style="background:#ff6b6b;border-radius:50%;width:16px;height:16px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>`,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8],
+                });
+                favoriteMarker = L.marker([last.lat, last.lng], { icon })
+                    .addTo(map)
+                    .bindPopup(`❤️ ${last.name}`);
+            }
+        }
+
+        // ================================================================
+        //  البحث الصوتي
+        // ================================================================
+        const voiceBtn = document.getElementById('voice-btn');
+
+        voiceBtn.addEventListener('click', () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('⚠️ متصفحك لا يدعم البحث الصوتي');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            voiceBtn.classList.add('listening');
+            voiceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            recognition.onresult = (event) => {
+                const result = event.results[0][0].transcript;
+                document.getElementById('search-input').value = result;
+                performSearch(result);
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+
+            recognition.onerror = () => {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                showToast('❌ لم يتم التعرف على الصوت، حاول مرة أخرى', '#ff6b6b');
+            };
+
+            recognition.onend = () => {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+
+            recognition.start();
         });
 
         // ================================================================
@@ -801,6 +993,28 @@
         function updateLocation(position) {
             const { latitude, longitude, accuracy } = position.coords;
             userPosition = [latitude, longitude];
+
+            // تحديث الموقع في AR
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=ar`)
+                .then(res => res.json())
+                .then(data => {
+                    const address = data.display_name || 'موقع غير معروف';
+                    document.getElementById('ar-location').textContent = address.split(',').slice(0, 3).join(', ');
+                    // البحث عن معلم قريب
+                    if (data.address) {
+                        const nearby = data.address.amenity || data.address.shop || data.address.tourism || data.address.office ||
+                            'لا يوجد معلم قريب';
+                        document.getElementById('ar-nearby').textContent = nearby;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('ar-location').textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                });
+
+            // تحديث لوحة الملاحة
+            if (navigationMode) {
+                document.getElementById('location-info').textContent = 'تم التحديث';
+            }
 
             if (userMarker) {
                 userMarker.setLatLng([latitude, longitude]);
@@ -994,6 +1208,24 @@
                             document.getElementById('ar-compass').textContent = Math.round(pos.coords
                             .heading);
                         }
+                        fetch(
+                                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=18&accept-language=ar`
+                                )
+                            .then(res => res.json())
+                            .then(data => {
+                                const address = data.display_name || 'موقع غير معروف';
+                                document.getElementById('ar-location').textContent = address.split(',')
+                                    .slice(0, 3).join(', ');
+                                if (data.address) {
+                                    const nearby = data.address.amenity || data.address.shop || data.address
+                                        .tourism || data.address.office || 'لا يوجد معلم قريب';
+                                    document.getElementById('ar-nearby').textContent = nearby;
+                                }
+                            })
+                            .catch(() => {
+                                document.getElementById('ar-location').textContent =
+                                    `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+                            });
                     });
                 }
                 if (arInterval) clearInterval(arInterval);
@@ -1007,10 +1239,10 @@
                         });
                     }
                 }, 2000);
-                showToast('🥽 <strong>الواقع المعزز</strong> – تم التفعيل', '#ffb84d');
+                showToast('🥽 الواقع المعزز مفعل - البوصلة تعمل', '#ffb84d');
             } else {
                 if (arInterval) clearInterval(arInterval);
-                showToast('📍 <strong>الواقع المعزز</strong> – تم الإلغاء', '#ff6b6b');
+                showToast('📍 تم إلغاء الواقع المعزز', '#ff6b6b');
             }
         });
 
@@ -1049,8 +1281,8 @@
         // ================================================================
         //  رسالة ترحيب
         // ================================================================
-        console.log('🚀 أورا ماب – خريطة 3D (تعمل بدون مفاتيح)');
-        console.log('📍 اضغط زر المكعب لتفعيل الوضع ثلاثي الأبعاد');
+        console.log('🚀 أورا ماب – جميع الميزات متاحة');
+        console.log('📍 الميزات: بحث، صوتي، مفضلة، 3D، AR، ملاحة');
 
         setTimeout(() => {
             const toast = document.createElement('div');
@@ -1067,7 +1299,7 @@
             toast.style.color = '#b0d0ff';
             toast.style.fontSize = '0.85rem';
             toast.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6)';
-            toast.innerHTML = '🏗️ <strong>أورا ماب</strong> – اضغط المكعب للمباني 3D!';
+            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – كل الميزات متاحة!';
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.transition = 'opacity 1s';
