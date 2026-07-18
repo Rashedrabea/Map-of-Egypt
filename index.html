@@ -8,8 +8,6 @@
     <!-- ===== Leaflet ===== -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 
     <!-- ===== Font Awesome ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -484,9 +482,19 @@
             font-size: 0.7rem;
         }
 
-        /* ===== Routing Machine Override ===== */
-        .leaflet-routing-container {
-            display: none !important;
+        /* ===== خط المسار ===== */
+        .route-line {
+            stroke: #4ecdc4;
+            stroke-width: 4;
+            stroke-dasharray: 8, 4;
+            fill: none;
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -12;
+            }
         }
 
         /* ===== استجابة ===== */
@@ -630,7 +638,7 @@
         </div>
         <div class="info-row">
             <i class="fas fa-map-pin"></i>
-            <span>الموقع: <span id="location-info">--</span></span>
+            <span>الوجهة: <span id="location-info">--</span></span>
         </div>
     </div>
 
@@ -660,7 +668,7 @@
         // ================================================================
         const map = L.map('map', {
             center: [30.0444, 31.2357],
-            zoom: 15,
+            zoom: 13,
             zoomControl: true,
             fadeAnimation: true,
             zoomAnimation: true,
@@ -693,9 +701,11 @@
         //  متغيرات الملاحة
         // ================================================================
         let navigationMode = false;
-        let routingControl = null;
+        let routeLine = null;
+        let routeMarkers = [];
         let startPoint = null;
         let endPoint = null;
+        let destinationName = '';
 
         // ================================================================
         //  تبديل الأنماط
@@ -725,27 +735,110 @@
         });
 
         // ================================================================
-        //  وضع الملاحة (باستخدام Leaflet Routing Machine)
+        //  حساب المسار باستخدام OSRM API (بديل يعمل بشكل أفضل)
+        // ================================================================
+        async function calculateRoute(startLat, startLng, endLat, endLng) {
+            try {
+                const url =
+                    `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.code === 'Ok' && data.routes.length > 0) {
+                    return data.routes[0];
+                } else {
+                    throw new Error('No route found');
+                }
+            } catch (error) {
+                console.error('Route error:', error);
+                return null;
+            }
+        }
+
+        // ================================================================
+        //  رسم المسار على الخريطة
+        // ================================================================
+        function drawRoute(route, destination) {
+            // إزالة المسار القديم
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            routeMarkers.forEach(m => map.removeLayer(m));
+            routeMarkers = [];
+
+            if (!route) return;
+
+            const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+
+            // رسم الخط
+            routeLine = L.polyline(coordinates, {
+                color: '#4ecdc4',
+                weight: 5,
+                opacity: 0.9,
+                dashArray: '10, 6',
+                lineJoin: 'round',
+            }).addTo(map);
+
+            // إضافة نقطة البداية
+            const startIcon = L.divIcon({
+                className: 'start-marker',
+                html: `<div style="background:#3dff9e;border-radius:50%;width:16px;height:16px;border:3px solid #fff;box-shadow:0 0 20px rgba(61,255,158,0.4);"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+            });
+            const startMarker = L.marker([coordinates[0][0], coordinates[0][1]], { icon: startIcon })
+                .addTo(map)
+                .bindPopup('📍 نقطة البداية');
+            routeMarkers.push(startMarker);
+
+            // إضافة نقطة النهاية
+            const endIcon = L.divIcon({
+                className: 'end-marker',
+                html: `<div style="background:#ff6b6b;border-radius:50%;width:16px;height:16px;border:3px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+            });
+            const endMarker = L.marker([coordinates[coordinates.length - 1][0], coordinates[coordinates.length - 1][1]], { icon: endIcon })
+                .addTo(map)
+                .bindPopup(`📍 ${destination}`);
+            routeMarkers.push(endMarker);
+
+            // عرض المعلومات
+            const distance = (route.distance / 1000).toFixed(1);
+            const time = Math.round(route.duration / 60);
+            document.getElementById('distance-info').textContent = `${distance} كم`;
+            document.getElementById('time-info').textContent = `${time} دقائق`;
+            document.getElementById('location-info').textContent = destination;
+            document.getElementById('info-panel').classList.add('show');
+
+            // توسيع الخريطة لإظهار المسار بالكامل
+            const bounds = L.latLngBounds(coordinates);
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+
+            showToast(`🧭 المسافة: ${distance} كم - ${time} دقائق`, '#4ecdc4');
+        }
+
+        // ================================================================
+        //  وضع الملاحة
         // ================================================================
         document.getElementById('mode-navigation').addEventListener('click', function() {
             navigationMode = !navigationMode;
             this.classList.toggle('active', navigationMode);
 
             if (navigationMode) {
-                // طلب من المستخدم تحديد نقطة البداية والنهاية
-                if (!startPoint) {
-                    // استخدام الموقع الحالي كنقطة بداية
-                    if (userPosition) {
-                        startPoint = userPosition;
-                    } else {
-                        alert('⚠️ حدد موقعك أولاً');
-                        navigationMode = false;
-                        this.classList.remove('active');
-                        return;
-                    }
+                // التحقق من وجود الموقع
+                if (!userPosition) {
+                    alert('⚠️ يرجى تحديد موقعك أولاً');
+                    navigationMode = false;
+                    this.classList.remove('active');
+                    return;
                 }
 
-                // طلب نقطة النهاية
+                startPoint = userPosition;
+
+                // طلب الوجهة
                 const destination = prompt('أدخل اسم الوجهة (مثال: مطعم، شارع، معلم):');
                 if (!destination) {
                     navigationMode = false;
@@ -753,12 +846,14 @@
                     return;
                 }
 
+                destinationName = destination;
+
                 // البحث عن الوجهة
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&lang=ar`)
                     .then(res => res.json())
-                    .then(data => {
+                    .then(async (data) => {
                         if (data.length === 0) {
-                            alert('⚠️ لم يتم العثور على الوجهة');
+                            alert('⚠️ لم يتم العثور على الوجهة: ' + destination);
                             navigationMode = false;
                             document.getElementById('mode-navigation').classList.remove('active');
                             return;
@@ -768,45 +863,25 @@
                         const lon = parseFloat(data[0].lon);
                         endPoint = [lat, lon];
 
-                        // إنشاء المسار
-                        if (routingControl) {
-                            map.removeControl(routingControl);
+                        // حساب المسار
+                        showToast('⏳ جاري حساب المسار...', '#ffb84d');
+
+                        const route = await calculateRoute(
+                            startPoint[0], startPoint[1],
+                            endPoint[0], endPoint[1]
+                        );
+
+                        if (route) {
+                            drawRoute(route, data[0].display_name.split(',')[0]);
+                        } else {
+                            alert('❌ لا يمكن حساب المسار إلى هذه الوجهة');
+                            navigationMode = false;
+                            document.getElementById('mode-navigation').classList.remove('active');
+                            document.getElementById('info-panel').classList.remove('show');
                         }
-
-                        routingControl = L.Routing.control({
-                            waypoints: [
-                                L.latLng(startPoint[0], startPoint[1]),
-                                L.latLng(endPoint[0], endPoint[1])
-                            ],
-                            routeWhileDragging: false,
-                            showAlternatives: true,
-                            fitSelectedRoutes: true,
-                            createMarker: function() { return null; },
-                            language: 'ar',
-                            router: L.Routing.osrmv1({
-                                serviceUrl: 'https://router.project-osrm.org/route/v1/',
-                                profile: 'driving',
-                            }),
-                        }).addTo(map);
-
-                        // عرض معلومات المسار
-                        routingControl.on('routesfound', function(e) {
-                            const route = e.routes[0];
-                            const distance = (route.summary.totalDistance / 1000).toFixed(1);
-                            const time = Math.round(route.summary.totalTime / 60);
-                            document.getElementById('distance-info').textContent = `${distance} كم`;
-                            document.getElementById('time-info').textContent = `${time} دقائق`;
-                            document.getElementById('location-info').textContent = data[0].display_name
-                                .split(',')[0];
-                            document.getElementById('info-panel').classList.add('show');
-                            showToast(`🧭 المسافة: ${distance} كم - ${time} دقائق`, '#4ecdc4');
-                        });
-
-                        routingControl.on('routingerror', function() {
-                            showToast('❌ لا يمكن حساب المسار', '#ff6b6b');
-                        });
                     })
-                    .catch(() => {
+                    .catch((error) => {
+                        console.error('Search error:', error);
                         alert('⚠️ خطأ في البحث عن الوجهة');
                         navigationMode = false;
                         document.getElementById('mode-navigation').classList.remove('active');
@@ -814,10 +889,12 @@
 
             } else {
                 // إلغاء الملاحة
-                if (routingControl) {
-                    map.removeControl(routingControl);
-                    routingControl = null;
+                if (routeLine) {
+                    map.removeLayer(routeLine);
+                    routeLine = null;
                 }
+                routeMarkers.forEach(m => map.removeLayer(m));
+                routeMarkers = [];
                 document.getElementById('info-panel').classList.remove('show');
                 startPoint = null;
                 endPoint = null;
@@ -973,7 +1050,6 @@
         });
 
         function updateFavorites() {
-            // إزالة العلامات القديمة
             favoriteMarkers.forEach(m => map.removeLayer(m));
             favoriteMarkers = [];
 
@@ -1011,7 +1087,6 @@
             const { latitude, longitude, accuracy } = position.coords;
             userPosition = [latitude, longitude];
 
-            // تحديث الموقع في AR
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&accept-language=ar`)
                 .then(res => res.json())
                 .then(data => {
@@ -1045,11 +1120,6 @@
 
             if (position.coords.heading !== null && position.coords.heading !== undefined) {
                 document.getElementById('ar-compass').textContent = Math.round(position.coords.heading);
-            }
-
-            // تحديث نقطة البداية للملاحة
-            if (navigationMode && !startPoint) {
-                startPoint = userPosition;
             }
         }
 
@@ -1297,8 +1367,7 @@
         // ================================================================
         //  رسالة ترحيب
         // ================================================================
-        console.log('🚀 أورا ماب – جميع الميزات متاحة');
-        console.log('📍 الملاحة تعمل مع OSRM، البحث الصوتي تم استبداله بالبحث النصي');
+        console.log('🚀 أورا ماب – الملاحة تعمل مع OSRM');
 
         setTimeout(() => {
             const toast = document.createElement('div');
