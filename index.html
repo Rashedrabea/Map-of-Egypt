@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="ltr">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -134,7 +135,7 @@
         .ctrl-btn.active {
             background: rgba(60, 140, 255, 0.25);
             border-color: rgba(60, 140, 255, 0.2);
-            box-shadow: 0 0 30px rgba(60, 140, 255, 0.15);
+            box-shadow: 0 0 30px rgba(60, 140, 255, 0.2);
         }
 
         .ctrl-btn .badge {
@@ -146,6 +147,21 @@
             background: #3dff9e;
             border-radius: 50%;
             border: 2px solid rgba(12, 16, 24, 0.8);
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
         }
 
         /* ===== اللوحة السفلية ===== */
@@ -327,62 +343,6 @@
             background: rgba(60, 140, 255, 0.25);
         }
 
-        /* ===== مؤشر الموقع ===== */
-        .user-marker {
-            width: 20px;
-            height: 20px;
-            background: #3dff9e;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(61, 255, 158, 0.4), 0 0 60px rgba(61, 255, 158, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .user-marker::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 16px;
-            background: rgba(61, 255, 158, 0.3);
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(61, 255, 158, 0.6), 0 0 80px rgba(61, 255, 158, 0.2);
-            }
-            100% {
-                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
-            }
-        }
-
-        /* ===== مؤشر البحث ===== */
-        .search-marker {
-            width: 30px;
-            height: 30px;
-            background: #ff6b6b;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-            border: 3px solid #fff;
-        }
-
-        .search-marker::after {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-        }
-
         /* ===== نتائج البحث ===== */
         #search-results {
             position: absolute;
@@ -466,6 +426,21 @@
             font-size: 4rem;
             color: #ffb84d;
             margin-bottom: 20px;
+            animation: ar-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes ar-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
         }
 
         #ar-overlay .ar-content h3 {
@@ -476,6 +451,12 @@
         #ar-overlay .ar-content p {
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.95rem;
+        }
+
+        #ar-overlay .ar-content .compass-display {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #ffb84d;
         }
 
         .ar-close {
@@ -517,6 +498,64 @@
             color: #7bb0ff;
         }
 
+        /* ===== مؤشر الموقع ===== */
+        .user-marker {
+            width: 20px;
+            height: 20px;
+            background: #3dff9e;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(61, 255, 158, 0.4), 0 0 60px rgba(61, 255, 158, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .user-marker::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 16px;
+            background: rgba(61, 255, 158, 0.3);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(61, 255, 158, 0.6), 0 0 80px rgba(61, 255, 158, 0.2);
+            }
+
+            100% {
+                box-shadow: 0 0 20px rgba(61, 255, 158, 0.4);
+            }
+        }
+
+        /* ===== مؤشر البحث ===== */
+        .search-marker {
+            width: 30px;
+            height: 30px;
+            background: #ff6b6b;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+            border: 3px solid #fff;
+        }
+
+        .search-marker::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
         /* ===== استجابة ===== */
         @media (max-width: 640px) {
             #search-container {
@@ -524,52 +563,74 @@
                 width: 94%;
                 padding: 2px 2px 2px 14px;
             }
+
             #search-input {
                 font-size: 0.85rem;
                 padding: 10px 12px;
             }
+
             #search-btn {
                 padding: 8px 14px;
                 font-size: 0.75rem;
             }
+
             #controls {
                 top: 12px;
                 right: 12px;
             }
+
             .ctrl-btn {
                 width: 40px;
                 height: 40px;
                 font-size: 1rem;
             }
+
             #bottom-bar {
                 bottom: 16px;
                 padding: 6px 10px;
                 width: 96%;
                 border-radius: 40px;
             }
+
             .bottom-item {
                 font-size: 0.65rem;
                 padding: 6px 12px;
                 gap: 4px;
             }
+
             .bottom-item i {
                 font-size: 0.9rem;
             }
+
             .settings-panel {
                 padding: 24px 20px;
                 width: 94%;
             }
+
+            #ar-overlay .ar-content {
+                padding: 20px;
+            }
+
+            #ar-overlay .ar-content i {
+                font-size: 3rem;
+            }
         }
 
-        /* ===== Leaflet override ===== */
+        /* ===== Leaflet Override ===== */
         .leaflet-control-attribution {
             display: none !important;
         }
+
+        .leaflet-control-zoom {
+            display: none !important;
+        }
+
         .leaflet-tile-pane {
             filter: saturate(1.1) contrast(1.05);
         }
     </style>
 </head>
+
 <body>
     <!-- ===== الخريطة ===== -->
     <div id="map"></div>
@@ -610,10 +671,6 @@
         <div class="bottom-item" id="mode-satellite">
             <i class="fas fa-satellite"></i>
             <span>قمر صناعي</span>
-        </div>
-        <div class="bottom-item" id="mode-satellite-labels">
-            <i class="fas fa-satellite"></i>
-            <span>قمر + أسماء</span>
         </div>
         <div class="bottom-item" id="mode-terrain">
             <i class="fas fa-mountain"></i>
@@ -669,9 +726,13 @@
         <div class="ar-content">
             <i class="fas fa-camera"></i>
             <h3>🌍 الواقع المعزز مفعل</h3>
-            <p>وجه الكاميرا إلى الشارع لعرض معلومات المباني والمواقع في الوقت الفعلي</p>
-            <p style="font-size:0.8rem; margin-top:8px; color:rgba(255,255,255,0.3);">
-                <i class="fas fa-compass"></i> الاتجاه: <span id="ar-compass">--</span>°
+            <p>وجه الكاميرا إلى الشارع لعرض معلومات المباني والمواقع</p>
+            <div class="compass-display">
+                <i class="fas fa-compass"></i>
+                <span id="ar-compass">--</span>°
+            </div>
+            <p style="font-size:0.8rem; color:rgba(255,255,255,0.3);">
+                <i class="fas fa-satellite"></i> يتم تحديث الاتجاه تلقائياً
             </p>
             <button class="ar-close" id="ar-close-btn">إغلاق الواقع المعزز</button>
         </div>
@@ -679,58 +740,37 @@
 
     <script>
         // ================================================================
-        //  تهيئة Leaflet
+        //  تهيئة Leaflet (تعمل فوراً بدون مفتاح)
         // ================================================================
         const map = L.map('map', {
             center: [30.0444, 31.2357],
             zoom: 13,
             zoomControl: true,
-            preferCanvas: true,
+            fadeAnimation: true,
+            zoomAnimation: true,
         });
 
-        // ===== طبقات الخريطة =====
+        // ===== طبقات الخريطة (مجانية بالكامل) =====
 
-        // 1. طبقة الشارع (مع أسماء الشوارع)
+        // 1. طبقة الشارع (OpenStreetMap)
         const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap',
             maxZoom: 19,
         }).addTo(map);
 
-        // 2. طبقة القمر الصناعي (بدون أسماء)
+        // 2. طبقة القمر الصناعي (Esri - مجانية)
         const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: '&copy; Esri',
             maxZoom: 19,
         });
 
-        // 3. طبقة القمر الصناعي + أسماء الشوارع (طبقة شفافة فوق القمر)
-        const satelliteWithLabels = L.layerGroup();
-
-        // طبقة القمر الصناعي
-        const satBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri',
-            maxZoom: 19,
-        });
-
-        // طبقة أسماء الشوارع الشفافة (من OpenStreetMap)
-        const labelsLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap',
-            maxZoom: 19,
-            opacity: 0.7,
-            // إظهار أسماء الشوارع فقط عبر تصفية الألوان
-            // نستخدم طبقة شفافة مع أسماء فقط
-        });
-
-        // نضيف طبقة أسماء الشوارع فوق القمر الصناعي
-        satelliteWithLabels.addLayer(satBase);
-        satelliteWithLabels.addLayer(labelsLayer);
-
-        // 4. طبقة التضاريس
+        // 3. طبقة التضاريس (OpenTopoMap - مجانية)
         const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenTopoMap',
             maxZoom: 17,
         });
 
-        // 5. طبقة ليلية
+        // 4. طبقة ليلية (CartoDB - مجانية)
         const nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; CartoDB',
             maxZoom: 19,
@@ -742,53 +782,39 @@
         //  تبديل أنماط الخريطة
         // ================================================================
         function setMapLayer(layer, activeBtn) {
-            // إزالة الطبقة الحالية
-            if (currentLayer) {
-                if (currentLayer._layers) {
-                    // إذا كانت LayerGroup
-                    currentLayer.eachLayer(l => map.removeLayer(l));
-                } else {
-                    map.removeLayer(currentLayer);
-                }
-            }
-
+            if (currentLayer) map.removeLayer(currentLayer);
             currentLayer = layer;
-
-            // إضافة الطبقة الجديدة
-            if (layer._layers) {
-                // LayerGroup
-                layer.eachLayer(l => map.addLayer(l));
-            } else {
-                map.addLayer(layer);
-            }
-
+            map.addLayer(layer);
             document.querySelectorAll('.bottom-item').forEach(el => el.classList.remove('active'));
             if (activeBtn) activeBtn.classList.add('active');
         }
 
-        document.getElementById('mode-street').addEventListener('click', function() {
+        document.getElementById('mode-street').addEventListener('click', function () {
             setMapLayer(streetLayer, this);
-            if (!is3D) document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-toggle').classList.remove('active');
+            is3D = false;
         });
 
-        document.getElementById('mode-satellite').addEventListener('click', function() {
+        document.getElementById('mode-satellite').addEventListener('click', function () {
             setMapLayer(satelliteLayer, this);
-            if (!is3D) document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-toggle').classList.remove('active');
+            is3D = false;
         });
 
-        document.getElementById('mode-satellite-labels').addEventListener('click', function() {
-            setMapLayer(satelliteWithLabels, this);
-            if (!is3D) document.getElementById('d3-indicator').style.display = 'none';
-        });
-
-        document.getElementById('mode-terrain').addEventListener('click', function() {
+        document.getElementById('mode-terrain').addEventListener('click', function () {
             setMapLayer(terrainLayer, this);
-            if (!is3D) document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-toggle').classList.remove('active');
+            is3D = false;
         });
 
-        document.getElementById('mode-night').addEventListener('click', function() {
+        document.getElementById('mode-night').addEventListener('click', function () {
             setMapLayer(nightLayer, this);
-            if (!is3D) document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-indicator').style.display = 'none';
+            document.getElementById('d3-toggle').classList.remove('active');
+            is3D = false;
         });
 
         // ================================================================
@@ -840,10 +866,10 @@
                         console.warn('Geolocation error:', err);
                         alert('⚠️ لم نتمكن من تحديد موقعك. تأكد من تشغيل خدمات الموقع.');
                     }, {
-                        enableHighAccuracy: true,
-                        maximumAge: 5000,
-                        timeout: 10000,
-                    }
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 10000,
+                }
                 );
                 navigator.geolocation.watchPosition(updateLocation, null, {
                     enableHighAccuracy: true,
@@ -988,7 +1014,7 @@
         });
 
         // ================================================================
-        //  الوضع ثلاثي الأبعاد الحقيقي (باستخدام إمالة الخريطة + Leaflet.Pancontrol)
+        //  الوضع ثلاثي الأبعاد (محاكاة مع تغيير نمط الخريطة)
         // ================================================================
         let is3D = false;
         const btn3d = document.getElementById('d3-toggle');
@@ -999,86 +1025,29 @@
             btn3d.classList.toggle('active', is3D);
 
             if (is3D) {
-                // تفعيل الوضع ثلاثي الأبعاد
-                // Leaflet لا يدعم الميلان بشكل مباشر، لكننا نستخدم تأثيرات بصرية
-                // ونحاكي الإمالة عبر تغيير التكبير وتحديد موقع
-                const center = map.getCenter();
-                map.flyTo(center, map.getZoom(), {
-                    duration: 0.8
-                });
-
-                // نضيف تأثير إمالة وهمي عبر تغيير شكل الخريطة
-                document.getElementById('d3-indicator').style.display = 'flex';
-
-                // تغيير النمط إلى تضاريس لإحساس ثلاثي الأبعاد
+                // تغيير إلى وضع التضاريس
                 setMapLayer(terrainLayer, document.getElementById('mode-terrain'));
-
-                // تغيير لون الزر
+                indicator.style.display = 'flex';
                 btn3d.style.color = '#7bb0ff';
-                btn3d.style.boxShadow = '0 0 30px rgba(60,140,255,0.3)';
 
-                // تأثير دوران وهمي
+                // تأثير بصري - تكبير وإعادة ضبط
                 map.setZoom(map.getZoom() - 0.5);
                 setTimeout(() => {
                     map.setZoom(map.getZoom() + 0.5);
-                }, 200);
+                }, 300);
 
-                // نعرض رسالة توضيحية
-                const toast = document.createElement('div');
-                toast.style.position = 'absolute';
-                toast.style.top = '80px';
-                toast.style.left = '50%';
-                toast.style.transform = 'translateX(-50%)';
-                toast.style.zIndex = '20';
-                toast.style.padding = '10px 24px';
-                toast.style.background = 'rgba(60,140,255,0.2)';
-                toast.style.backdropFilter = 'blur(12px)';
-                toast.style.borderRadius = '40px';
-                toast.style.border = '1px solid rgba(60,140,255,0.1)';
-                toast.style.color = '#b0d0ff';
-                toast.style.fontSize = '0.85rem';
-                toast.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
-                toast.innerHTML = '🌐 <strong>الوضع ثلاثي الأبعاد</strong> – تم التفعيل';
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.style.transition = 'opacity 0.8s';
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 900);
-                }, 2500);
-
+                showToast('🌐 <strong>الوضع ثلاثي الأبعاد</strong> – تم التفعيل', '#7bb0ff');
             } else {
-                // إلغاء الوضع ثلاثي الأبعاد
-                document.getElementById('d3-indicator').style.display = 'none';
+                // العودة إلى الوضع العادي
                 setMapLayer(streetLayer, document.getElementById('mode-street'));
+                indicator.style.display = 'none';
                 btn3d.style.color = '';
-                btn3d.style.boxShadow = '';
-
-                const toast = document.createElement('div');
-                toast.style.position = 'absolute';
-                toast.style.top = '80px';
-                toast.style.left = '50%';
-                toast.style.transform = 'translateX(-50%)';
-                toast.style.zIndex = '20';
-                toast.style.padding = '10px 24px';
-                toast.style.background = 'rgba(255,100,100,0.1)';
-                toast.style.backdropFilter = 'blur(12px)';
-                toast.style.borderRadius = '40px';
-                toast.style.border = '1px solid rgba(255,100,100,0.05)';
-                toast.style.color = '#b0d0ff';
-                toast.style.fontSize = '0.85rem';
-                toast.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
-                toast.innerHTML = '📍 <strong>الوضع العادي</strong> – تم إلغاء 3D';
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.style.transition = 'opacity 0.8s';
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 900);
-                }, 2500);
+                showToast('📍 <strong>الوضع العادي</strong> – تم إلغاء 3D', '#ff6b6b');
             }
         });
 
         // ================================================================
-        //  الواقع المعزز (AR)
+        //  الواقع المعزز (AR) مع البوصلة
         // ================================================================
         const arBtn = document.getElementById('ar-btn');
         const arOverlay = document.getElementById('ar-overlay');
@@ -1091,7 +1060,7 @@
                     navigator.geolocation.getCurrentPosition((pos) => {
                         if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
                             document.getElementById('ar-compass').textContent = Math.round(pos.coords
-                            .heading);
+                                .heading);
                         }
                     });
                 }
@@ -1106,8 +1075,10 @@
                         });
                     }
                 }, 2000);
+                showToast('🥽 <strong>الواقع المعزز</strong> – تم التفعيل', '#ffb84d');
             } else {
                 if (arInterval) clearInterval(arInterval);
+                showToast('📍 <strong>الواقع المعزز</strong> – تم الإلغاء', '#ff6b6b');
             }
         });
 
@@ -1115,6 +1086,33 @@
             arOverlay.classList.remove('open');
             if (arInterval) clearInterval(arInterval);
         });
+
+        // ================================================================
+        //  دوال مساعدة
+        // ================================================================
+        function showToast(message, color = '#7bb0ff') {
+            const toast = document.createElement('div');
+            toast.style.position = 'absolute';
+            toast.style.top = '80px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.zIndex = '20';
+            toast.style.padding = '10px 24px';
+            toast.style.background = 'rgba(0,0,0,0.7)';
+            toast.style.backdropFilter = 'blur(12px)';
+            toast.style.borderRadius = '40px';
+            toast.style.border = `1px solid ${color}33`;
+            toast.style.color = '#fff';
+            toast.style.fontSize = '0.85rem';
+            toast.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+            toast.style.transition = 'opacity 0.8s';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 900);
+            }, 3000);
+        }
 
         // ================================================================
         //  الإعدادات
@@ -1135,7 +1133,7 @@
         });
 
         document.querySelectorAll('.toggle-switch').forEach(toggle => {
-            toggle.addEventListener('click', function() {
+            toggle.addEventListener('click', function () {
                 this.classList.toggle('on');
             });
         });
@@ -1143,8 +1141,8 @@
         // ================================================================
         //  رسالة ترحيب
         // ================================================================
-        console.log('🚀 أورا ماب – خريطة متطورة مع 3D و AR');
-        console.log('📍 أنماط الخريطة: شارع، قمر، قمر+أسماء، تضاريس، ليلي');
+        console.log('🚀 أورا ماب – الخريطة الذكية (تعمل بدون مفتاح)');
+        console.log('📍 جميع الميزات: بحث، موقع، 3D، AR');
 
         setTimeout(() => {
             const toast = document.createElement('div');
@@ -1161,7 +1159,7 @@
             toast.style.color = '#b0d0ff';
             toast.style.fontSize = '0.85rem';
             toast.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6)';
-            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – اختر "قمر + أسماء" لرؤية الشوارع';
+            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – خريطة تعمل فوراً!';
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.transition = 'opacity 1s';
@@ -1171,4 +1169,5 @@
         }, 800);
     </script>
 </body>
+
 </html>
