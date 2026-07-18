@@ -8,6 +8,8 @@
     <!-- ===== Leaflet ===== -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 
     <!-- ===== Font Awesome ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -105,40 +107,6 @@
 
         #search-btn:hover {
             background: rgba(60, 140, 255, 0.25);
-        }
-
-        /* زر الميكروفون */
-        #voice-btn {
-            background: rgba(255, 180, 60, 0.12);
-            border: none;
-            color: #ffb84d;
-            padding: 10px 16px;
-            border-radius: 40px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid rgba(255, 180, 60, 0.08);
-            margin-left: 4px;
-        }
-
-        #voice-btn:hover {
-            background: rgba(255, 180, 60, 0.2);
-        }
-
-        #voice-btn.listening {
-            background: rgba(255, 80, 80, 0.2);
-            border-color: rgba(255, 80, 80, 0.2);
-            animation: pulse-voice 1s ease-in-out infinite;
-        }
-
-        @keyframes pulse-voice {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
         }
 
         /* ===== أزرار التحكم ===== */
@@ -516,6 +484,11 @@
             font-size: 0.7rem;
         }
 
+        /* ===== Routing Machine Override ===== */
+        .leaflet-routing-container {
+            display: none !important;
+        }
+
         /* ===== استجابة ===== */
         @media (max-width: 640px) {
             #search-container {
@@ -530,10 +503,6 @@
             #search-btn {
                 padding: 8px 14px;
                 font-size: 0.75rem;
-            }
-            #voice-btn {
-                padding: 8px 12px;
-                font-size: 0.85rem;
             }
             #controls {
                 top: 12px;
@@ -596,7 +565,6 @@
     <div id="search-container">
         <i class="fas fa-search"></i>
         <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع، مطعم..." />
-        <button id="voice-btn" title="بحث صوتي"><i class="fas fa-microphone"></i></button>
         <button id="search-btn">بحث</button>
     </div>
 
@@ -722,6 +690,14 @@
         let currentLayer = streetLayer;
 
         // ================================================================
+        //  متغيرات الملاحة
+        // ================================================================
+        let navigationMode = false;
+        let routingControl = null;
+        let startPoint = null;
+        let endPoint = null;
+
+        // ================================================================
         //  تبديل الأنماط
         // ================================================================
         function setMapLayer(layer, activeBtn) {
@@ -748,21 +724,103 @@
             setMapLayer(nightLayer, this);
         });
 
-        // ===== وضع الملاحة =====
-        let navigationMode = false;
+        // ================================================================
+        //  وضع الملاحة (باستخدام Leaflet Routing Machine)
+        // ================================================================
         document.getElementById('mode-navigation').addEventListener('click', function() {
             navigationMode = !navigationMode;
             this.classList.toggle('active', navigationMode);
 
             if (navigationMode) {
-                showToast('🧭 وضع الملاحة مفعل - اتبع الطريق', '#4ecdc4');
-                document.getElementById('info-panel').classList.add('show');
-                // محاكاة معلومات الملاحة
-                document.getElementById('distance-info').textContent = '1.2 كم';
-                document.getElementById('time-info').textContent = '5 دقائق';
-                document.getElementById('location-info').textContent = 'شارع التحرير';
+                // طلب من المستخدم تحديد نقطة البداية والنهاية
+                if (!startPoint) {
+                    // استخدام الموقع الحالي كنقطة بداية
+                    if (userPosition) {
+                        startPoint = userPosition;
+                    } else {
+                        alert('⚠️ حدد موقعك أولاً');
+                        navigationMode = false;
+                        this.classList.remove('active');
+                        return;
+                    }
+                }
+
+                // طلب نقطة النهاية
+                const destination = prompt('أدخل اسم الوجهة (مثال: مطعم، شارع، معلم):');
+                if (!destination) {
+                    navigationMode = false;
+                    this.classList.remove('active');
+                    return;
+                }
+
+                // البحث عن الوجهة
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destination)}&limit=1&lang=ar`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            alert('⚠️ لم يتم العثور على الوجهة');
+                            navigationMode = false;
+                            document.getElementById('mode-navigation').classList.remove('active');
+                            return;
+                        }
+
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        endPoint = [lat, lon];
+
+                        // إنشاء المسار
+                        if (routingControl) {
+                            map.removeControl(routingControl);
+                        }
+
+                        routingControl = L.Routing.control({
+                            waypoints: [
+                                L.latLng(startPoint[0], startPoint[1]),
+                                L.latLng(endPoint[0], endPoint[1])
+                            ],
+                            routeWhileDragging: false,
+                            showAlternatives: true,
+                            fitSelectedRoutes: true,
+                            createMarker: function() { return null; },
+                            language: 'ar',
+                            router: L.Routing.osrmv1({
+                                serviceUrl: 'https://router.project-osrm.org/route/v1/',
+                                profile: 'driving',
+                            }),
+                        }).addTo(map);
+
+                        // عرض معلومات المسار
+                        routingControl.on('routesfound', function(e) {
+                            const route = e.routes[0];
+                            const distance = (route.summary.totalDistance / 1000).toFixed(1);
+                            const time = Math.round(route.summary.totalTime / 60);
+                            document.getElementById('distance-info').textContent = `${distance} كم`;
+                            document.getElementById('time-info').textContent = `${time} دقائق`;
+                            document.getElementById('location-info').textContent = data[0].display_name
+                                .split(',')[0];
+                            document.getElementById('info-panel').classList.add('show');
+                            showToast(`🧭 المسافة: ${distance} كم - ${time} دقائق`, '#4ecdc4');
+                        });
+
+                        routingControl.on('routingerror', function() {
+                            showToast('❌ لا يمكن حساب المسار', '#ff6b6b');
+                        });
+                    })
+                    .catch(() => {
+                        alert('⚠️ خطأ في البحث عن الوجهة');
+                        navigationMode = false;
+                        document.getElementById('mode-navigation').classList.remove('active');
+                    });
+
             } else {
+                // إلغاء الملاحة
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
                 document.getElementById('info-panel').classList.remove('show');
+                startPoint = null;
+                endPoint = null;
                 showToast('📍 تم إلغاء الملاحة', '#ff6b6b');
             }
         });
@@ -895,7 +953,7 @@
         //  المفضلة
         // ================================================================
         let favorites = [];
-        let favoriteMarker = null;
+        let favoriteMarkers = [];
 
         document.getElementById('favorites-btn').addEventListener('click', () => {
             if (userPosition) {
@@ -915,64 +973,23 @@
         });
 
         function updateFavorites() {
-            if (favoriteMarker) {
-                map.removeLayer(favoriteMarker);
-            }
-            if (favorites.length > 0) {
-                const last = favorites[favorites.length - 1];
+            // إزالة العلامات القديمة
+            favoriteMarkers.forEach(m => map.removeLayer(m));
+            favoriteMarkers = [];
+
+            favorites.forEach(fav => {
                 const icon = L.divIcon({
                     className: 'fav-marker',
-                    html: `<div style="background:#ff6b6b;border-radius:50%;width:16px;height:16px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>`,
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8],
+                    html: `<div style="background:#ff6b6b;border-radius:50%;width:14px;height:14px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>`,
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7],
                 });
-                favoriteMarker = L.marker([last.lat, last.lng], { icon })
+                const marker = L.marker([fav.lat, fav.lng], { icon })
                     .addTo(map)
-                    .bindPopup(`❤️ ${last.name}`);
-            }
+                    .bindPopup(`❤️ ${fav.name}`);
+                favoriteMarkers.push(marker);
+            });
         }
-
-        // ================================================================
-        //  البحث الصوتي
-        // ================================================================
-        const voiceBtn = document.getElementById('voice-btn');
-
-        voiceBtn.addEventListener('click', () => {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('⚠️ متصفحك لا يدعم البحث الصوتي');
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ar-EG';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            voiceBtn.classList.add('listening');
-            voiceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            recognition.onresult = (event) => {
-                const result = event.results[0][0].transcript;
-                document.getElementById('search-input').value = result;
-                performSearch(result);
-                voiceBtn.classList.remove('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-            };
-
-            recognition.onerror = () => {
-                voiceBtn.classList.remove('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                showToast('❌ لم يتم التعرف على الصوت، حاول مرة أخرى', '#ff6b6b');
-            };
-
-            recognition.onend = () => {
-                voiceBtn.classList.remove('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-            };
-
-            recognition.start();
-        });
 
         // ================================================================
         //  مؤشر الموقع
@@ -1000,21 +1017,15 @@
                 .then(data => {
                     const address = data.display_name || 'موقع غير معروف';
                     document.getElementById('ar-location').textContent = address.split(',').slice(0, 3).join(', ');
-                    // البحث عن معلم قريب
                     if (data.address) {
-                        const nearby = data.address.amenity || data.address.shop || data.address.tourism || data.address.office ||
-                            'لا يوجد معلم قريب';
+                        const nearby = data.address.amenity || data.address.shop || data.address.tourism || data.address
+                            .office || 'لا يوجد معلم قريب';
                         document.getElementById('ar-nearby').textContent = nearby;
                     }
                 })
                 .catch(() => {
                     document.getElementById('ar-location').textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
                 });
-
-            // تحديث لوحة الملاحة
-            if (navigationMode) {
-                document.getElementById('location-info').textContent = 'تم التحديث';
-            }
 
             if (userMarker) {
                 userMarker.setLatLng([latitude, longitude]);
@@ -1034,6 +1045,11 @@
 
             if (position.coords.heading !== null && position.coords.heading !== undefined) {
                 document.getElementById('ar-compass').textContent = Math.round(position.coords.heading);
+            }
+
+            // تحديث نقطة البداية للملاحة
+            if (navigationMode && !startPoint) {
+                startPoint = userPosition;
             }
         }
 
@@ -1282,7 +1298,7 @@
         //  رسالة ترحيب
         // ================================================================
         console.log('🚀 أورا ماب – جميع الميزات متاحة');
-        console.log('📍 الميزات: بحث، صوتي، مفضلة، 3D، AR، ملاحة');
+        console.log('📍 الملاحة تعمل مع OSRM، البحث الصوتي تم استبداله بالبحث النصي');
 
         setTimeout(() => {
             const toast = document.createElement('div');
@@ -1299,7 +1315,7 @@
             toast.style.color = '#b0d0ff';
             toast.style.fontSize = '0.85rem';
             toast.style.boxShadow = '0 12px 40px rgba(0,0,0,0.6)';
-            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – كل الميزات متاحة!';
+            toast.innerHTML = '🗺️ <strong>أورا ماب</strong> – الملاحة تعمل الآن!';
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.transition = 'opacity 1s';
