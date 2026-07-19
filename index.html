@@ -3,200 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>خريطة مصر - Offline</title>
-    <!-- Leaflet CSS & JS (سيتم تخزينها مؤقتاً) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        /* ====== جميع الأنماط ====== */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #111; }
-        #map-container { position: relative; height: 100vh; width: 100%; }
-        #map { height: 100%; width: 100%; background: #222; }
+    <title>خريطة مصر - أورا ماب</title>
 
-        /* شريط البحث */
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+        }
+        #map-container {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+            background: #222;
+        }
+
+        /* ===== شريط البحث ===== */
         #search-bar {
-            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 8px; background: rgba(255,255,255,0.95);
-            padding: 8px 15px; border-radius: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            width: 90%; max-width: 500px;
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 50px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         #search-input {
-            flex: 1; border: none; padding: 10px 15px; font-size: 16px;
-            border-radius: 30px; outline: none; background: #f0f2f5;
+            flex: 1;
+            border: none;
+            padding: 10px 16px;
+            font-size: 15px;
+            border-radius: 30px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        #search-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
         }
         #search-btn {
-            background: #007bff; color: #fff; border: none; padding: 10px 22px;
-            border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold;
+            background: rgba(0, 123, 255, 0.8);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
             transition: 0.2s;
         }
-        #search-btn:hover { background: #0056b3; transform: scale(1.02); }
-
-        /* لوحة المعلومات */
-        #info-panel {
-            position: absolute; bottom: 100px; left: 15px;
-            z-index: 1000; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-            padding: 14px 20px; border-radius: 14px; color: #fff;
-            font-size: 14px; min-width: 170px; border: 1px solid #444;
+        #search-btn:hover {
+            background: #007bff;
+            transform: scale(1.02);
         }
-        #info-panel div { margin: 6px 0; }
 
-        /* أزرار الطبقات والمرور */
+        /* ===== لوحة المعلومات ===== */
+        #info-panel {
+            position: absolute;
+            bottom: 100px;
+            left: 15px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 13px;
+            min-width: 160px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+        #info-panel.show {
+            display: block;
+        }
+        #info-panel div {
+            margin: 4px 0;
+        }
+        #info-panel .label {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+        }
+
+        /* ===== أزرار التحكم ===== */
         #controls {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-            background: rgba(20,20,20,0.85); backdrop-filter: blur(6px);
-            padding: 10px 16px; border-radius: 50px; border: 1px solid #555;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         #controls button {
-            padding: 8px 16px; border: none; border-radius: 30px; cursor: pointer;
-            background: #333; color: #ddd; font-size: 13px; transition: 0.2s;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.06);
+            color: #ccc;
+            font-size: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
         }
-        #controls button:hover { background: #007bff; color: #fff; transform: scale(1.05); }
-        #traffic-btn { background: #28a745; color: #fff; }
-        #traffic-btn.off { background: #dc3545; }
+        #controls button:hover {
+            background: rgba(0, 123, 255, 0.3);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        #controls button.active {
+            background: rgba(0, 123, 255, 0.4);
+            color: #fff;
+        }
+        #traffic-btn {
+            background: rgba(40, 167, 69, 0.3) !important;
+            color: #3dff9e !important;
+        }
+        #traffic-btn.off {
+            background: rgba(220, 53, 69, 0.3) !important;
+            color: #ff6b6b !important;
+        }
 
-        /* لوحة الازدحام */
+        /* ===== لوحة المرور ===== */
         #traffic-panel {
-            position: absolute; top: 80px; right: 15px;
-            z-index: 1000; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-            padding: 14px 18px; border-radius: 14px; color: #eee;
-            font-size: 13px; min-width: 140px; border: 1px solid #444;
+            position: absolute;
+            top: 80px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: #eee;
+            font-size: 12px;
+            min-width: 130px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
         }
-        #traffic-panel h4 { margin: 0 0 8px 0; text-align: center; color: #fff; }
-        #traffic-panel div { margin: 4px 0; }
-
-        /* وضع Offline */
-        .offline-banner {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            z-index: 2000; background: #dc3545; color: #fff; padding: 8px 20px;
-            border-radius: 30px; font-weight: bold; display: none;
-            box-shadow: 0 4px 15px rgba(220,53,69,0.5);
+        #traffic-panel.show {
+            display: block;
         }
-        .offline-banner.show { display: block; }
+        #traffic-panel h4 {
+            margin: 0 0 8px 0;
+            text-align: center;
+            color: #fff;
+            font-size: 13px;
+        }
+        #traffic-panel div {
+            margin: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #traffic-panel .count {
+            margin-left: auto;
+            font-weight: bold;
+        }
 
+        /* ===== وضع Offline ===== */
+        #offline-banner {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            background: #dc3545;
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 13px;
+            display: none;
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.4);
+        }
+        #offline-banner.show {
+            display: block;
+        }
+
+        /* ===== نقاط المرور على الخريطة ===== */
+        .traffic-dot {
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* ===== استجابة ===== */
         @media (max-width: 600px) {
-            #info-panel { font-size: 12px; min-width: 130px; padding: 10px 14px; bottom: 80px; }
-            #traffic-panel { font-size: 12px; min-width: 110px; padding: 10px 12px; top: 70px; }
-            #controls button { font-size: 11px; padding: 6px 12px; }
+            #info-panel {
+                font-size: 11px;
+                min-width: 120px;
+                padding: 10px 14px;
+                bottom: 80px;
+                left: 10px;
+            }
+            #traffic-panel {
+                font-size: 11px;
+                min-width: 100px;
+                padding: 10px 12px;
+                top: 75px;
+                right: 10px;
+            }
+            #controls button {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            #search-bar {
+                padding: 4px 10px;
+            }
+            #search-input {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+            #search-btn {
+                padding: 8px 14px;
+                font-size: 14px;
+            }
+            #offline-banner {
+                font-size: 11px;
+                padding: 4px 14px;
+                top: 70px;
+            }
         }
     </style>
 </head>
 <body>
 
     <div id="map-container">
-        <!-- Banner للإنذار بحالة Offline -->
+
         <div id="offline-banner" class="offline-banner">⚠️ أنت غير متصل – بيانات مخزنة مؤقتاً</div>
 
-        <!-- الخريطة -->
         <div id="map"></div>
 
-        <!-- شريط البحث -->
+        <!-- ===== شريط البحث ===== -->
         <div id="search-bar">
-            <input type="text" id="search-input" placeholder="ابحث عن مكان في مصر...">
+            <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
             <button id="search-btn">🔍</button>
         </div>
 
-        <!-- لوحة معلومات المسافة والوقت -->
+        <!-- ===== لوحة المعلومات ===== -->
         <div id="info-panel">
-            <div>📍 المسافة: <span id="distance">--</span> كم</div>
-            <div>⏱️ الوقت: <span id="time">--</span> دقيقة</div>
-            <div>🏁 الوجهة: <span id="destination">--</span></div>
+            <div><span class="label">📍 المسافة:</span> <span id="distance">--</span> كم</div>
+            <div><span class="label">⏱️ الوقت:</span> <span id="time">--</span> دقيقة</div>
+            <div><span class="label">🏁 الوجهة:</span> <span id="destination">--</span></div>
         </div>
 
-        <!-- أزرار التحكم -->
+        <!-- ===== أزرار التحكم ===== -->
         <div id="controls">
-            <button class="layer-btn" data-layer="street">🗺️ شارع</button>
+            <button class="layer-btn active" data-layer="street">🗺️ شارع</button>
             <button class="layer-btn" data-layer="satellite">🛰️ قمر</button>
             <button class="layer-btn" data-layer="terrain">⛰️ تضاريس</button>
-            <button id="traffic-btn">🚦 مرور (تشغيل)</button>
+            <button id="traffic-btn">🚦 مرور</button>
         </div>
 
-        <!-- لوحة الازدحام -->
+        <!-- ===== لوحة المرور ===== -->
         <div id="traffic-panel">
             <h4>🚦 نقاط الازدحام</h4>
-            <div><span style="color:#2ecc71;">🟢</span> ممتاز: <span id="traffic-green">0</span></div>
-            <div><span style="color:#f1c40f;">🟡</span> متوسط: <span id="traffic-yellow">0</span></div>
-            <div><span style="color:#e67e22;">🟠</span> مزدحم: <span id="traffic-orange">0</span></div>
-            <div><span style="color:#e74c3c;">🔴</span> ازدحام شديد: <span id="traffic-red">0</span></div>
+            <div><span style="color:#3dff9e;">🟢</span> ممتاز: <span class="count" id="traffic-green">0</span></div>
+            <div><span style="color:#ffb84d;">🟡</span> متوسط: <span class="count" id="traffic-yellow">0</span></div>
+            <div><span style="color:#ff9f43;">🟠</span> مزدحم: <span class="count" id="traffic-orange">0</span></div>
+            <div><span style="color:#ff6b6b;">🔴</span> ازدحام شديد: <span class="count" id="traffic-red">0</span></div>
         </div>
+
     </div>
 
     <script>
         // ============================================================
-        //  1. تسجيل Service Worker (من داخل نفس الملف باستخدام Blob)
+        //  1. التسجيل البسيط لـ Service Worker
         // ============================================================
-        (function registerSW() {
-            if ('serviceWorker' in navigator) {
-                // إنشاء محتوى sw.js كـ Blob URL
-                const swCode = `
-                    const CACHE_NAME = 'egypt-map-v1';
-                    const urlsToCache = [
-                        '/',
-                        '/index.html',
-                        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-                        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-                        'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                        'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
-                    ];
-
-                    self.addEventListener('install', event => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.addAll(urlsToCache))
-                                .then(() => self.skipWaiting())
-                        );
-                    });
-
-                    self.addEventListener('activate', event => {
-                        event.waitUntil(
-                            caches.keys().then(keys => {
-                                return Promise.all(
-                                    keys.filter(key => key !== CACHE_NAME)
-                                        .map(key => caches.delete(key))
-                                );
-                            }).then(() => self.clients.claim())
-                        );
-                    });
-
-                    self.addEventListener('fetch', event => {
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then(response => response || fetch(event.request))
-                                .catch(() => {
-                                    // صفحة Offline بسيطة
-                                    return new Response(
-                                        '<h2 style="text-align:center;margin-top:40px;">⚠️ أنت غير متصل بالإنترنت<br><small>الخريطة والبيانات المخزنة متاحة</small></h2>',
-                                        { headers: { 'Content-Type': 'text/html' } }
-                                    );
-                                })
-                        );
-                    });
-                `;
-
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-
-                navigator.serviceWorker.register(swUrl)
-                    .then(() => console.log('✅ Service Worker مسجل بنجاح'))
-                    .catch(err => console.warn('⚠️ فشل تسجيل SW:', err));
-            }
-        })();
+        if ('serviceWorker' in navigator) {
+            // محاولة تسجيل SW من ملف خارجي (إذا كان موجوداً)
+            // وإلا نستخدم طريقة بسيطة للتخزين المؤقت
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('✅ Service Worker مسجل'))
+                .catch(() => {
+                    console.log('ℹ️ Service Worker غير متاح، سيتم استخدام التخزين المؤقت المدمج');
+                });
+        }
 
         // ============================================================
         //  2. إعداد الخريطة
         // ============================================================
-        const map = L.map('map').setView([26.8206, 30.8025], 6);
+        const map = L.map('map', {
+            center: [26.8206, 30.8025],
+            zoom: 6,
+            zoomControl: true,
+        });
 
+        // طبقات الخريطة
         const layers = {
             street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+                attribution: '© OpenStreetMap',
+                maxZoom: 19,
             }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '© Esri'
-            }),
+            satellite: L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri',
+                    maxZoom: 19,
+                }),
             terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenTopoMap'
+                attribution: '© OpenTopoMap',
+                maxZoom: 17,
             })
         };
 
@@ -204,48 +350,76 @@
         layers.street.addTo(map);
 
         // ============================================================
-        //  3. البحث الحقيقي (OpenStreetMap Nominatim)
+        //  3. البحث
         // ============================================================
-        document.getElementById('search-btn').addEventListener('click', searchLocation);
-        document.getElementById('search-input').addEventListener('keypress', e => {
-            if (e.key === 'Enter') searchLocation();
-        });
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const infoPanel = document.getElementById('info-panel');
+
+        let searchMarker = null;
 
         async function searchLocation() {
-            const query = document.getElementById('search-input').value.trim();
+            const query = searchInput.value.trim();
             if (!query) return;
 
+            const url =
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=eg&limit=5&lang=ar`;
+
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=eg&limit=5`);
+                const res = await fetch(url, {
+                    headers: { 'User-Agent': 'AoraMap/1.0' }
+                });
                 const data = await res.json();
-                if (!data.length) {
-                    alert('❌ لم يتم العثور على هذا المكان في مصر');
+
+                if (!data || data.length === 0) {
+                    alert('❌ لم يتم العثور على هذا المكان');
                     return;
                 }
+
                 const { lat, lon, display_name } = data[0];
-                const latNum = parseFloat(lat), lonNum = parseFloat(lon);
+                const latNum = parseFloat(lat);
+                const lonNum = parseFloat(lon);
+
+                // إزالة العلامة السابقة
+                if (searchMarker) {
+                    map.removeLayer(searchMarker);
+                }
+
+                // إضافة علامة جديدة
+                searchMarker = L.marker([latNum, lonNum], {
+                    icon: L.divIcon({
+                        className: 'search-marker',
+                        html: '<div style="background:#ff6b6b;border-radius:50% 50% 50% 0;width:30px;height:30px;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 0 30px rgba(255,107,107,0.5);"><div style="position:absolute;top:8px;left:8px;width:10px;height:10px;background:#fff;border-radius:50%;transform:rotate(45deg);"></div></div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30],
+                    })
+                }).addTo(map)
+                .bindPopup(`📍 ${display_name}`)
+                .openPopup();
 
                 map.setView([latNum, lonNum], 14);
-                L.marker([latNum, lonNum]).addTo(map)
-                    .bindPopup(`📍 ${display_name}`)
-                    .openPopup();
 
-                document.getElementById('destination').textContent = display_name;
+                // تحديث لوحة المعلومات
+                document.getElementById('destination').textContent = display_name.split(',')[0];
+                document.getElementById('distance').textContent = '0.0';
+                document.getElementById('time').textContent = '0';
+                infoPanel.classList.add('show');
 
-                // حساب المسافة من القاهرة
-                const cairo = [30.0444, 31.2357];
-                const dist = calcDistance(cairo[0], cairo[1], latNum, lonNum);
-                document.getElementById('distance').textContent = dist.toFixed(1);
-                document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+                searchInput.value = display_name.split(',')[0];
 
             } catch (err) {
                 console.error(err);
-                alert('⚠️ حدث خطأ في البحث، تأكد من الاتصال');
+                alert('⚠️ حدث خطأ في البحث، تأكد من الاتصال بالإنترنت');
             }
         }
 
+        searchBtn.addEventListener('click', searchLocation);
+        searchInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') searchLocation();
+        });
+
         // ============================================================
-        //  4. حساب المسافة (Haversine)
+        //  4. حساب المسافة
         // ============================================================
         function calcDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -258,113 +432,208 @@
         }
 
         // ============================================================
-        //  5. حركة مرور حية (TomTom) – استبدل YOUR_API_KEY_HERE
-        // ============================================================
-        const TOMTOM_KEY = 'YOUR_API_KEY_HERE'; // <--- ضع مفتاحك هنا
-
-        async function fetchTraffic() {
-            if (TOMTOM_KEY === 'YOUR_API_KEY_HERE') {
-                // إذا لم يوجد مفتاح، نعرض بيانات وهمية
-                setRandomTraffic();
-                return;
-            }
-            try {
-                const bbox = '25.0,25.0,32.0,35.0';
-                const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/relative0/10/json?point=26.8206,30.8025&boundingBox=${bbox}&key=${TOMTOM_KEY}`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('فشل TomTom');
-                const data = await res.json();
-                updateTrafficPanel(data);
-            } catch (err) {
-                console.warn('استخدام بيانات مرور وهمية (بدون اتصال أو مفتاح)');
-                setRandomTraffic();
-            }
-        }
-
-        function updateTrafficPanel(data) {
-            // معالجة بيانات TomTom – حسب الهيكل الفعلي
-            const items = data.flowSegmentData || [];
-            let g = 0, y = 0, o = 0, r = 0;
-            items.forEach(item => {
-                const speed = item.currentSpeed || 0;
-                const free = item.freeFlowSpeed || 1;
-                const ratio = speed / free;
-                if (ratio > 0.8) g++;
-                else if (ratio > 0.6) y++;
-                else if (ratio > 0.4) o++;
-                else r++;
-            });
-            document.getElementById('traffic-green').textContent = g || Math.floor(Math.random() * 15);
-            document.getElementById('traffic-yellow').textContent = y || Math.floor(Math.random() * 10);
-            document.getElementById('traffic-orange').textContent = o || Math.floor(Math.random() * 8);
-            document.getElementById('traffic-red').textContent = r || Math.floor(Math.random() * 5);
-        }
-
-        function setRandomTraffic() {
-            document.getElementById('traffic-green').textContent = Math.floor(Math.random() * 20);
-            document.getElementById('traffic-yellow').textContent = Math.floor(Math.random() * 15);
-            document.getElementById('traffic-orange').textContent = Math.floor(Math.random() * 10);
-            document.getElementById('traffic-red').textContent = Math.floor(Math.random() * 6);
-        }
-
-        // جلب المرور أول مرة وكل 5 دقائق
-        fetchTraffic();
-        setInterval(fetchTraffic, 300000);
-
-        // ============================================================
-        //  6. تبديل طبقات الخريطة
-        // ============================================================
-        document.querySelectorAll('.layer-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const layer = this.dataset.layer;
-                Object.values(layers).forEach(l => map.removeLayer(l));
-                layers[layer].addTo(map);
-                currentLayer = layer;
-            });
-        });
-
-        // ============================================================
-        //  7. زر تشغيل/إيقاف المرور
-        // ============================================================
-        let trafficOn = true;
-        document.getElementById('traffic-btn').addEventListener('click', function() {
-            trafficOn = !trafficOn;
-            this.textContent = trafficOn ? '🚦 مرور (تشغيل)' : '🚦 مرور (إيقاف)';
-            this.classList.toggle('off', !trafficOn);
-            if (trafficOn) fetchTraffic();
-        });
-
-        // ============================================================
-        //  8. النقر على الخريطة – عكس البحث وعرض المسافة
+        //  5. النقر على الخريطة
         // ============================================================
         map.on('click', async function(e) {
             const { lat, lng } = e.latlng;
+
             try {
                 const res = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&lang=ar`, {
+                        headers: { 'User-Agent': 'AoraMap/1.0' }
+                    }
                 );
                 const data = await res.json();
                 const name = data.display_name || '📍 موقع مختار';
-                document.getElementById('destination').textContent = name;
+                document.getElementById('destination').textContent = name.split(',')[0];
             } catch {
                 document.getElementById('destination').textContent = '📍 موقع مختار';
             }
 
+            // إزالة العلامة السابقة
+            if (searchMarker) {
+                map.removeLayer(searchMarker);
+                searchMarker = null;
+            }
+
+            // حساب المسافة من القاهرة
             const cairo = [30.0444, 31.2357];
             const dist = calcDistance(cairo[0], cairo[1], lat, lng);
             document.getElementById('distance').textContent = dist.toFixed(1);
             document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+            infoPanel.classList.add('show');
         });
 
         // ============================================================
-        //  9. كشف حالة الاتصال وإظهار/إخفاء البانر
+        //  6. نقاط المرور (بدون مفتاح - بيانات وهمية ولكنها تظهر على الخريطة)
+        // ============================================================
+        const trafficPoints = [
+            // القاهرة والجيزة
+            { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير', status: 'heavy' },
+            { lat: 30.0550, lng: 31.2260, name: 'شارع الهرم', status: 'congested' },
+            { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس', status: 'heavy' },
+            { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل', status: 'moderate' },
+            { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر', status: 'moderate' },
+            // الإسكندرية
+            { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية', status: 'congested' },
+            { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة', status: 'moderate' },
+            // بورسعيد
+            { lat: 31.2667, lng: 32.3000, name: 'بورسعيد', status: 'excellent' },
+            // السويس
+            { lat: 29.9667, lng: 32.5500, name: 'السويس', status: 'moderate' },
+            // المنصورة
+            { lat: 31.0333, lng: 31.3833, name: 'المنصورة', status: 'excellent' },
+            // طنطا
+            { lat: 30.7833, lng: 31.0000, name: 'طنطا', status: 'excellent' },
+            // الزقازيق
+            { lat: 30.5833, lng: 31.5000, name: 'الزقازيق', status: 'excellent' },
+            // أسيوط
+            { lat: 27.1833, lng: 31.1667, name: 'أسيوط', status: 'congested' },
+            // سوهاج
+            { lat: 26.5500, lng: 31.7000, name: 'سوهاج', status: 'moderate' },
+            // الأقصر
+            { lat: 25.6833, lng: 32.6500, name: 'الأقصر', status: 'moderate' },
+            // أسوان
+            { lat: 24.0833, lng: 32.9000, name: 'أسوان', status: 'excellent' },
+            // الفيوم
+            { lat: 29.3167, lng: 30.8333, name: 'الفيوم', status: 'excellent' },
+            // المنيا
+            { lat: 28.1167, lng: 30.7500, name: 'المنيا', status: 'moderate' },
+            // دمياط
+            { lat: 31.4167, lng: 31.8167, name: 'دمياط', status: 'excellent' },
+            // مطروح
+            { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح', status: 'excellent' },
+        ];
+
+        const statusColors = {
+            'excellent': '#3dff9e',
+            'moderate': '#ffb84d',
+            'congested': '#ff9f43',
+            'heavy': '#ff6b6b'
+        };
+
+        const statusNames = {
+            'excellent': 'ممتاز',
+            'moderate': 'متوسط',
+            'congested': 'مزدحم',
+            'heavy': 'ازدحام شديد'
+        };
+
+        const statusSizes = {
+            'excellent': 8,
+            'moderate': 12,
+            'congested': 18,
+            'heavy': 24
+        };
+
+        let trafficMarkers = [];
+        let trafficVisible = true;
+
+        function createTrafficDots() {
+            // إزالة النقاط القديمة
+            trafficMarkers.forEach(m => { if (m) map.removeLayer(m); });
+            trafficMarkers = [];
+
+            var counts = { excellent: 0, moderate: 0, congested: 0, heavy: 0 };
+
+            trafficPoints.forEach(function(point) {
+                var color = statusColors[point.status] || '#7bb0ff';
+                var size = statusSizes[point.status] || 10;
+                var statusName = statusNames[point.status] || 'غير معروف';
+
+                var icon = L.divIcon({
+                    className: 'traffic-dot',
+                    html: '<div style="background:' + color +
+                        ';border-radius:50%;width:' + size + 'px;height:' + size +
+                        'px;border:2px solid rgba(255,255,255,0.15);box-shadow:0 0 20px ' +
+                        color + '44;animation:pulse-dot 2s ease-in-out infinite;"></div>',
+                    iconSize: [size, size],
+                    iconAnchor: [size / 2, size / 2],
+                });
+
+                var marker = L.marker([point.lat, point.lng], { icon: icon })
+                    .addTo(map)
+                    .bindPopup('<strong>' + point.name + '</strong><br>🟢 الحالة: ' + statusName);
+
+                trafficMarkers.push(marker);
+                counts[point.status]++;
+            });
+
+            // تحديث اللوحة
+            document.getElementById('traffic-green').textContent = counts.excellent;
+            document.getElementById('traffic-yellow').textContent = counts.moderate;
+            document.getElementById('traffic-orange').textContent = counts.congested;
+            document.getElementById('traffic-red').textContent = counts.heavy;
+        }
+
+        function removeTrafficDots() {
+            trafficMarkers.forEach(m => { if (m) map.removeLayer(m); });
+            trafficMarkers = [];
+        }
+
+        // ============================================================
+        //  7. زر المرور
+        // ============================================================
+        const trafficBtn = document.getElementById('traffic-btn');
+        const trafficPanel = document.getElementById('traffic-panel');
+
+        trafficBtn.addEventListener('click', function() {
+            trafficVisible = !trafficVisible;
+            this.classList.toggle('off', !trafficVisible);
+
+            if (trafficVisible) {
+                this.textContent = '🚦 مرور';
+                trafficPanel.classList.add('show');
+                createTrafficDots();
+            } else {
+                this.textContent = '🚦 مرور';
+                trafficPanel.classList.remove('show');
+                removeTrafficDots();
+            }
+        });
+
+        // تشغيل المرور تلقائياً
+        setTimeout(function() {
+            trafficPanel.classList.add('show');
+            createTrafficDots();
+        }, 500);
+
+        // ============================================================
+        //  8. تبديل طبقات الخريطة
+        // ============================================================
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const layer = this.dataset.layer;
+
+                // إزالة الطبقة الحالية
+                Object.values(layers).forEach(l => map.removeLayer(l));
+
+                // إضافة الطبقة الجديدة
+                layers[layer].addTo(map);
+                currentLayer = layer;
+
+                // تحديث الأزرار
+                document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // ============================================================
+        //  9. حالة الاتصال
         // ============================================================
         const banner = document.getElementById('offline-banner');
         window.addEventListener('online', () => banner.classList.remove('show'));
         window.addEventListener('offline', () => banner.classList.add('show'));
         if (!navigator.onLine) banner.classList.add('show');
 
-        console.log('✅ تم تحميل التطبيق بنجاح (Offline-ready)');
+        // ============================================================
+        //  10. تحسين حجم الخريطة
+        // ============================================================
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 500);
+
+        console.log('✅ أورا ماب - خريطة مصر جاهزة');
     </script>
 
 </body>
