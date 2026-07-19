@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>غير متصل - أورا ماب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0e14;
+            color: #f0f4fc;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            max-width: 400px;
+            padding: 40px;
+            background: rgba(14, 20, 32, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .offline-container i {
+            font-size: 4rem;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .offline-container h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #e8f0ff;
+        }
+
+        .offline-container p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .offline-container .btn {
+            margin-top: 20px;
+            padding: 12px 36px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(60, 140, 255, 0.12);
+            color: #8abaff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: 1px solid rgba(60, 140, 255, 0.06);
+            transition: 0.2s;
+        }
+
+        .offline-container .btn:active {
+            background: rgba(60, 140, 255, 0.2);
+        }
+
+        .offline-container .features {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .offline-container .features span {
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(61, 255, 158, 0.04);
+            border: 1px solid rgba(61, 255, 158, 0.04);
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <i class="fas fa-wifi-slash"></i>
+        <h1>⚠️ غير متصل بالإنترنت</h1>
+        <p>الخريطة المحلية تعمل بشكل محدود</p>
+        <p style="font-size:0.8rem; color:rgba(255,255,255,0.2);">
+            يمكنك تصفح المناطق التي زرتها سابقاً
+        </p>
+        <button class="btn" onclick="window.location.href='/'">
+            <i class="fas fa-arrow-left"></i> العودة للخريطة
+        </button>
+        <div class="features">
+            <span>📍 تحديد الموقع</span>
+            <span>🗺️ الخريطة المحلية</span>
+            <span>❤️ المفضلة</span>
+            <span>📜 الذكريات</span>
+            <span>🧭 البوصلة</span>
+        </div>
+    </div>
+</body>
+</html>
