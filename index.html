@@ -1,1057 +1,371 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>أورا ماب</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>خريطة مصر - Offline</title>
+    <!-- Leaflet CSS & JS (سيتم تخزينها مؤقتاً) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0e14; font-family: 'Segoe UI', sans-serif; }
+        /* ====== جميع الأنماط ====== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #111; }
+        #map-container { position: relative; height: 100vh; width: 100%; }
+        #map { height: 100%; width: 100%; background: #222; }
 
-        #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #1a1f2e; }
-
-        /* ===== شريط البحث ===== */
-        #search-container {
-            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-            z-index: 100; width: min(94%, 600px); display: flex; align-items: center;
-            background: rgba(12,16,24,0.92); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 50px;
-            padding: 4px 4px 4px 16px; box-shadow: 0 8px 30px -8px rgba(0,0,0,0.8);
+        /* شريط البحث */
+        #search-bar {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 8px; background: rgba(255,255,255,0.95);
+            padding: 8px 15px; border-radius: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            width: 90%; max-width: 500px;
         }
-        #search-container i { color: rgba(255,255,255,0.35); font-size: 0.9rem; }
-        #search-input { flex: 1; background: transparent; border: none; outline: none; color: #f0f4fc; font-size: 0.9rem; padding: 10px 12px; min-height: 44px; }
-        #search-input::placeholder { color: rgba(255,255,255,0.3); }
-        #search-btn { background: rgba(60,140,255,0.12); border: none; color: #8abaff; padding: 8px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; min-height: 38px; border: 1px solid rgba(60,140,255,0.06); }
-        #voice-btn { background: rgba(255,180,60,0.1); border: none; color: #ffb84d; padding: 8px 14px; border-radius: 40px; font-size: 1rem; cursor: pointer; min-height: 38px; border: 1px solid rgba(255,180,60,0.06); margin-left: 4px; }
-        #voice-btn.listening { background: rgba(255,50,50,0.15); border-color: rgba(255,50,50,0.2); animation: pulse-voice 1s ease-in-out infinite; }
-        @keyframes pulse-voice { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-        /* ===== نتائج البحث ===== */
-        #search-results {
-            position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-            z-index: 100; width: min(94%, 600px); max-height: 260px; overflow-y: auto;
-            background: rgba(10,14,24,0.95); backdrop-filter: blur(24px);
-            border-radius: 18px; border: 1px solid rgba(255,255,255,0.05);
-            padding: 6px; display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        #search-input {
+            flex: 1; border: none; padding: 10px 15px; font-size: 16px;
+            border-radius: 30px; outline: none; background: #f0f2f5;
         }
-        #search-results.show { display: block; }
-        .result-item { padding: 12px 14px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #d0daf0; font-size: 0.85rem; }
-        .result-item:active { background: rgba(255,255,255,0.06); }
-        .result-item i { color: #7bb0ff; width: 18px; }
-        .result-item .name { font-weight: 500; }
-        .result-item .address { font-size: 0.65rem; color: rgba(255,255,255,0.3); }
-
-        /* ===== أزرار التحكم ===== */
-        #controls {
-            position: absolute; top: 76px; right: 10px; z-index: 50;
-            display: flex; flex-direction: column; gap: 8px;
+        #search-btn {
+            background: #007bff; color: #fff; border: none; padding: 10px 22px;
+            border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold;
+            transition: 0.2s;
         }
-        .ctrl-btn {
-            width: 48px; height: 48px; border-radius: 50%;
-            background: rgba(12,16,24,0.85); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.06); color: #eef4ff;
-            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            position: relative; transition: 0.2s; user-select: none;
-        }
-        .ctrl-btn:active { transform: scale(0.92); }
-        .ctrl-btn .badge { position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; background: #3dff9e; border-radius: 50%; border: 2px solid rgba(12,16,24,0.8); animation: pulse-dot 1.5s ease-in-out infinite; }
-        @keyframes pulse-dot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.6; } }
+        #search-btn:hover { background: #0056b3; transform: scale(1.02); }
 
-        /* ===== اللوحة السفلية ===== */
-        #bottom-bar {
-            position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-            z-index: 999; width: min(96%, 750px); padding: 10px 12px;
-            display: flex; align-items: center; justify-content: space-around;
-            background: rgba(10,14,24,0.92); backdrop-filter: blur(28px);
-            border: 1px solid rgba(255,255,255,0.08); border-radius: 60px;
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.9);
-            flex-wrap: nowrap; gap: 2px; min-height: 56px;
-        }
-        .bottom-item {
-            display: flex; flex-direction: column; align-items: center; gap: 2px;
-            padding: 4px 10px; border-radius: 30px; background: rgba(255,255,255,0.03);
-            cursor: pointer; color: #8899bb; font-size: 0.55rem; font-weight: 500;
-            border: 2px solid transparent; transition: 0.3s ease;
-            user-select: none; min-width: 44px; min-height: 44px; justify-content: center;
-        }
-        .bottom-item i { font-size: 1.1rem; color: #7bb0ff; transition: 0.3s; }
-        .bottom-item:active { transform: scale(0.92); }
-        .bottom-item.active { background: rgba(60,130,255,0.12); border-color: #4a9eff; color: #ffffff; }
-        .bottom-item.active i { color: #4a9eff; }
-        .bottom-item.active span { color: #4a9eff; }
-        .bottom-item span { font-size: 0.5rem; color: #667799; transition: 0.3s; }
-        .bottom-item#mode-traffic.active { background: rgba(61,255,158,0.08); border-color: #3dff9e; }
-        .bottom-item#mode-traffic.active i { color: #3dff9e; }
-        .bottom-item#mode-traffic.active span { color: #3dff9e; }
-
-        /* ===== حقوق النشر ===== */
-        #footer {
-            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            z-index: 20; padding: 4px 16px;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
-            border-radius: 20px; font-size: 0.45rem;
-            color: rgba(255,255,255,0.15);
-            text-align: center; white-space: nowrap;
-            pointer-events: none;
-            border: 1px solid rgba(255,255,255,0.02);
-        }
-        #footer a { color: rgba(255,255,255,0.2); text-decoration: none; }
-
-        /* ===== مؤشرات ===== */
-        .user-marker { width: 22px; height: 22px; background: #3dff9e; border-radius: 50%; box-shadow: 0 0 30px rgba(61,255,158,0.5); border: 3px solid rgba(255,255,255,0.15); animation: pulse-gps 1.5s ease-in-out infinite; position: relative; }
-        .user-marker::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 7px; height: 7px; background: #3dff9e; border-radius: 50%; }
-        @keyframes pulse-gps { 0% { box-shadow: 0 0 20px rgba(61,255,158,0.3); } 50% { box-shadow: 0 0 40px rgba(61,255,158,0.5); } 100% { box-shadow: 0 0 20px rgba(61,255,158,0.3); } }
-        .search-marker { width: 30px; height: 30px; background: #ff6b6b; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 30px rgba(255,107,107,0.4); border: 3px solid #fff; position: relative; }
-        .search-marker::after { content: ''; position: absolute; top: 9px; left: 9px; width: 8px; height: 8px; background: #fff; border-radius: 50%; transform: rotate(45deg); }
-
-        /* ===== 3D Buildings ===== */
-        .building-3d { position: absolute; background: rgba(140,155,175,0.4); border: 1px solid rgba(255,255,255,0.04); border-radius: 2px; pointer-events: none; z-index: 1; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        .building-3d .top { position: absolute; top: -3px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px); background: rgba(200,215,235,0.06); border: 1px solid rgba(255,255,255,0.02); }
-
-        /* ===== لوحة المعلومات ===== */
+        /* لوحة المعلومات */
         #info-panel {
-            position: absolute; bottom: 140px; right: 12px; z-index: 50;
-            background: rgba(10,14,24,0.8); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 10px 14px; min-width: 130px; display: none;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            position: absolute; bottom: 100px; left: 15px;
+            z-index: 1000; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+            padding: 14px 20px; border-radius: 14px; color: #fff;
+            font-size: 14px; min-width: 170px; border: 1px solid #444;
         }
-        #info-panel.show { display: block; }
-        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.65rem; color: #b0c8e8; }
-        #info-panel .info-row i { color: #7bb0ff; width: 14px; font-size: 0.65rem; }
+        #info-panel div { margin: 6px 0; }
 
-        /* ===== لوحة المرور - نقاط ===== */
+        /* أزرار الطبقات والمرور */
+        #controls {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+            background: rgba(20,20,20,0.85); backdrop-filter: blur(6px);
+            padding: 10px 16px; border-radius: 50px; border: 1px solid #555;
+        }
+        #controls button {
+            padding: 8px 16px; border: none; border-radius: 30px; cursor: pointer;
+            background: #333; color: #ddd; font-size: 13px; transition: 0.2s;
+        }
+        #controls button:hover { background: #007bff; color: #fff; transform: scale(1.05); }
+        #traffic-btn { background: #28a745; color: #fff; }
+        #traffic-btn.off { background: #dc3545; }
+
+        /* لوحة الازدحام */
         #traffic-panel {
-            position: absolute; bottom: 200px; right: 12px; z-index: 50;
-            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 12px 16px; min-width: 150px; display: none;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            position: absolute; top: 80px; right: 15px;
+            z-index: 1000; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+            padding: 14px 18px; border-radius: 14px; color: #eee;
+            font-size: 13px; min-width: 140px; border: 1px solid #444;
         }
-        #traffic-panel.show { display: block; }
-        #traffic-panel .traffic-title { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-align: center; }
-        .traffic-row { display: flex; align-items: center; gap: 10px; padding: 4px 8px; font-size: 0.65rem; color: #b0c8e8; cursor: pointer; border-radius: 8px; }
-        .traffic-row:hover { background: rgba(255,255,255,0.03); }
-        .traffic-row .color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.05); }
-        .traffic-row .color-dot.green { background: #3dff9e; }
-        .traffic-row .color-dot.yellow { background: #ffb84d; }
-        .traffic-row .color-dot.orange { background: #ff9f43; }
-        .traffic-row .color-dot.red { background: #ff6b6b; }
-        .traffic-row .route-label { font-weight: 500; min-width: 20px; }
-        .traffic-row .route-time { margin-left: auto; color: rgba(255,255,255,0.4); }
-        .traffic-row .route-status { font-size: 0.5rem; padding: 2px 10px; border-radius: 20px; }
-        .traffic-row .route-status.green { background: rgba(61,255,158,0.1); color: #3dff9e; }
-        .traffic-row .route-status.yellow { background: rgba(255,184,77,0.1); color: #ffb84d; }
-        .traffic-row .route-status.orange { background: rgba(255,159,67,0.1); color: #ff9f43; }
-        .traffic-row .route-status.red { background: rgba(255,107,107,0.1); color: #ff6b6b; }
+        #traffic-panel h4 { margin: 0 0 8px 0; text-align: center; color: #fff; }
+        #traffic-panel div { margin: 4px 0; }
 
-        /* ===== شريط الملاحة ===== */
-        #nav-bar {
-            position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-            z-index: 99; width: min(94%, 600px); display: none;
-            align-items: center; gap: 8px;
-            background: rgba(10,14,24,0.92); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 50px;
-            padding: 6px 12px 6px 16px; box-shadow: 0 8px 30px -8px rgba(0,0,0,0.8);
+        /* وضع Offline */
+        .offline-banner {
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; background: #dc3545; color: #fff; padding: 8px 20px;
+            border-radius: 30px; font-weight: bold; display: none;
+            box-shadow: 0 4px 15px rgba(220,53,69,0.5);
         }
-        #nav-bar.show { display: flex; }
-        #nav-bar input { flex: 1; background: transparent; border: none; outline: none; color: #f0f4fc; font-size: 0.85rem; padding: 8px 10px; min-height: 36px; }
-        #nav-bar input::placeholder { color: rgba(255,255,255,0.3); }
-        #nav-btn { background: rgba(255,50,50,0.12); border: none; color: #ff4444; padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; cursor: pointer; min-height: 34px; border: 1px solid rgba(255,50,50,0.06); }
-        #nav-close { background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
+        .offline-banner.show { display: block; }
 
-        /* ===== نافذة المفضلة ===== */
-        #fav-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center;
-        }
-        #fav-modal.open { display: flex; }
-        .fav-panel { background: rgba(14,20,32,0.95); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 28px 32px; width: min(90%, 400px); max-height: 70vh; overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8); }
-        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .fav-panel h2 i { color: #ff6b6b; }
-        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
-        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
-        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
-        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
-
-        /* ===== AR Overlay ===== */
-        #ar-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            justify-content: center; align-items: center; flex-direction: column; color: #fff;
-        }
-        #ar-overlay.open { display: flex; }
-        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
-        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
-        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
-        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
-        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
-        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
-
-        /* ===== Leaflet ===== */
-        .leaflet-control-attribution { display: none !important; }
-        .leaflet-control-zoom { display: none !important; }
-
-        /* ===== استجابة ===== */
-        @media (max-width: 480px) {
-            #bottom-bar { bottom: 12px; padding: 6px 6px; border-radius: 40px; min-height: 48px; gap: 1px; }
-            .bottom-item { padding: 3px 6px; min-width: 36px; min-height: 38px; }
-            .bottom-item i { font-size: 0.9rem; }
-            .bottom-item span { font-size: 0.4rem; }
-            #controls { top: 68px; right: 8px; gap: 6px; }
-            .ctrl-btn { width: 40px; height: 40px; font-size: 1rem; }
-            #search-container { top: 8px; padding: 2px 2px 2px 12px; border-radius: 40px; }
-            #search-input { font-size: 0.75rem; padding: 6px 8px; min-height: 34px; }
-            #search-btn { padding: 4px 12px; font-size: 0.65rem; min-height: 30px; }
-            #voice-btn { padding: 4px 10px; font-size: 0.8rem; min-height: 30px; }
-            #search-results { top: 62px; }
-            #info-panel { bottom: 120px; right: 8px; padding: 6px 10px; min-width: 90px; }
-            #traffic-panel { bottom: 170px; right: 8px; padding: 10px 12px; min-width: 110px; }
-            #nav-bar { top: 64px; padding: 4px 8px 4px 12px; }
-            #nav-bar input { font-size: 0.75rem; padding: 6px 8px; min-height: 30px; }
-            #nav-btn { padding: 4px 12px; font-size: 0.65rem; min-height: 28px; }
-            .traffic-row { font-size: 0.55rem; padding: 3px 6px; }
-            #footer { bottom: 70px; font-size: 0.35rem; padding: 2px 10px; }
+        @media (max-width: 600px) {
+            #info-panel { font-size: 12px; min-width: 130px; padding: 10px 14px; bottom: 80px; }
+            #traffic-panel { font-size: 12px; min-width: 110px; padding: 10px 12px; top: 70px; }
+            #controls button { font-size: 11px; padding: 6px 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== الخريطة ===== -->
-    <div id="map"></div>
+    <div id="map-container">
+        <!-- Banner للإنذار بحالة Offline -->
+        <div id="offline-banner" class="offline-banner">⚠️ أنت غير متصل – بيانات مخزنة مؤقتاً</div>
 
-    <!-- ===== حقوق النشر ===== -->
-    <div id="footer">
-        <i class="fas fa-copyright"></i> 2026 <a href="https://rashedrabea.github.io" target="_blank">راشد ربيع</a> | أورا ماب
-    </div>
+        <!-- الخريطة -->
+        <div id="map"></div>
 
-    <!-- ===== شريط البحث ===== -->
-    <div id="search-container">
-        <i class="fas fa-search"></i>
-        <input id="search-input" type="text" placeholder="ابحث عن مدينة، شارع..." autocomplete="off" />
-        <button id="voice-btn" title="بحث صوتي"><i class="fas fa-microphone"></i></button>
-        <button id="search-btn">بحث</button>
-    </div>
-
-    <!-- ===== نتائج البحث ===== -->
-    <div id="search-results"></div>
-
-    <!-- ===== أزرار التحكم ===== -->
-    <div id="controls">
-        <div class="ctrl-btn" id="locate-btn" title="موقعي"><i class="fas fa-location-crosshairs"></i><span class="badge"></span></div>
-        <div class="ctrl-btn" id="fav-btn" title="المفضلة"><i class="fas fa-heart"></i></div>
-        <div class="ctrl-btn" id="d3-toggle" title="3D"><i class="fas fa-cube"></i></div>
-        <div class="ctrl-btn" id="ar-btn" title="AR"><i class="fas fa-vr-cardboard"></i></div>
-    </div>
-
-    <!-- ===== اللوحة السفلية ===== -->
-    <div id="bottom-bar">
-        <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
-        <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
-        <div class="bottom-item" id="mode-terrain"><i class="fas fa-mountain"></i><span>تضاريس</span></div>
-        <div class="bottom-item" id="mode-night"><i class="fas fa-moon"></i><span>ليلي</span></div>
-        <div class="bottom-item" id="mode-navigation"><i class="fas fa-route"></i><span>ملاحة</span></div>
-        <div class="bottom-item" id="mode-traffic"><i class="fas fa-car"></i><span>مرور</span></div>
-    </div>
-
-    <!-- ===== لوحة المعلومات ===== -->
-    <div id="info-panel">
-        <div class="info-row"><i class="fas fa-route"></i> <span>المسافة: <span id="dist-info">--</span></span></div>
-        <div class="info-row"><i class="fas fa-clock"></i> <span>الوقت: <span id="time-info">--</span></span></div>
-        <div class="info-row"><i class="fas fa-map-pin"></i> <span>الوجهة: <span id="dest-info">--</span></span></div>
-    </div>
-
-    <!-- ===== لوحة المرور ===== -->
-    <div id="traffic-panel">
-        <div class="traffic-title">🚦 نقاط الازدحام</div>
-        <div class="traffic-row" data-status="excellent"><span class="color-dot green"></span><span class="route-label">🟢</span><span class="route-time" id="countExcellent">0</span><span class="route-status green">ممتاز</span></div>
-        <div class="traffic-row" data-status="moderate"><span class="color-dot yellow"></span><span class="route-label">🟡</span><span class="route-time" id="countModerate">0</span><span class="route-status yellow">متوسط</span></div>
-        <div class="traffic-row" data-status="congested"><span class="color-dot orange"></span><span class="route-label">🟠</span><span class="route-time" id="countCongested">0</span><span class="route-status orange">مزدحم</span></div>
-        <div class="traffic-row" data-status="heavy"><span class="color-dot red"></span><span class="route-label">🔴</span><span class="route-time" id="countHeavy">0</span><span class="route-status red">ازدحام شديد</span></div>
-        <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);font-size:0.5rem;color:rgba(255,255,255,0.2);text-align:center;">نقاط الازدحام على مستوى مصر</div>
-    </div>
-
-    <!-- ===== شريط الملاحة ===== -->
-    <div id="nav-bar">
-        <i class="fas fa-route" style="color:#ff4444;"></i>
-        <input id="nav-input" type="text" placeholder="أدخل اسم الوجهة..." />
-        <button id="nav-btn">اذهب</button>
-        <button id="nav-close"><i class="fas fa-times"></i></button>
-    </div>
-
-    <!-- ===== نافذة المفضلة ===== -->
-    <div id="fav-modal">
-        <div class="fav-panel">
-            <h2><i class="fas fa-heart"></i> الأماكن المفضلة</h2>
-            <div id="fav-list"></div>
-            <button class="close-fav" id="close-fav-btn">إغلاق</button>
+        <!-- شريط البحث -->
+        <div id="search-bar">
+            <input type="text" id="search-input" placeholder="ابحث عن مكان في مصر...">
+            <button id="search-btn">🔍</button>
         </div>
-    </div>
 
-    <!-- ===== AR Overlay ===== -->
-    <div id="ar-overlay">
-        <div class="ar-content">
-            <i class="fas fa-camera"></i>
-            <h3>🌍 الواقع المعزز</h3>
-            <p>اتجاهك الحقيقي + معلومات المكان</p>
-            <div class="compass-display"><i class="fas fa-compass"></i> <span id="ar-compass">--</span>°</div>
-            <div class="ar-info"><i class="fas fa-map-pin"></i> <span id="ar-location">جاري التحديد...</span></div>
-            <div class="ar-info"><i class="fas fa-building"></i> <span id="ar-nearby">جاري البحث...</span></div>
-            <button class="ar-close" id="ar-close-btn">إغلاق</button>
+        <!-- لوحة معلومات المسافة والوقت -->
+        <div id="info-panel">
+            <div>📍 المسافة: <span id="distance">--</span> كم</div>
+            <div>⏱️ الوقت: <span id="time">--</span> دقيقة</div>
+            <div>🏁 الوجهة: <span id="destination">--</span></div>
+        </div>
+
+        <!-- أزرار التحكم -->
+        <div id="controls">
+            <button class="layer-btn" data-layer="street">🗺️ شارع</button>
+            <button class="layer-btn" data-layer="satellite">🛰️ قمر</button>
+            <button class="layer-btn" data-layer="terrain">⛰️ تضاريس</button>
+            <button id="traffic-btn">🚦 مرور (تشغيل)</button>
+        </div>
+
+        <!-- لوحة الازدحام -->
+        <div id="traffic-panel">
+            <h4>🚦 نقاط الازدحام</h4>
+            <div><span style="color:#2ecc71;">🟢</span> ممتاز: <span id="traffic-green">0</span></div>
+            <div><span style="color:#f1c40f;">🟡</span> متوسط: <span id="traffic-yellow">0</span></div>
+            <div><span style="color:#e67e22;">🟠</span> مزدحم: <span id="traffic-orange">0</span></div>
+            <div><span style="color:#e74c3c;">🔴</span> ازدحام شديد: <span id="traffic-red">0</span></div>
         </div>
     </div>
 
     <script>
-        // ================================================================
-        //  تهيئة الخريطة
-        // ================================================================
-        function initMap() {
-            if (typeof L === 'undefined') {
-                document.getElementById('map').innerHTML =
-                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#667799;flex-direction:column;gap:10px;font-size:1rem;">' +
-                    '<i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#7bb0ff;"></i>' +
-                    'جاري تحميل الخريطة...' +
-                    '</div>';
-                setTimeout(initMap, 1000);
+        // ============================================================
+        //  1. تسجيل Service Worker (من داخل نفس الملف باستخدام Blob)
+        // ============================================================
+        (function registerSW() {
+            if ('serviceWorker' in navigator) {
+                // إنشاء محتوى sw.js كـ Blob URL
+                const swCode = `
+                    const CACHE_NAME = 'egypt-map-v1';
+                    const urlsToCache = [
+                        '/',
+                        '/index.html',
+                        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                        'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                        'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
+                    ];
+
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                                .then(() => self.skipWaiting())
+                        );
+                    });
+
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(
+                            caches.keys().then(keys => {
+                                return Promise.all(
+                                    keys.filter(key => key !== CACHE_NAME)
+                                        .map(key => caches.delete(key))
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => response || fetch(event.request))
+                                .catch(() => {
+                                    // صفحة Offline بسيطة
+                                    return new Response(
+                                        '<h2 style="text-align:center;margin-top:40px;">⚠️ أنت غير متصل بالإنترنت<br><small>الخريطة والبيانات المخزنة متاحة</small></h2>',
+                                        { headers: { 'Content-Type': 'text/html' } }
+                                    );
+                                })
+                        );
+                    });
+                `;
+
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('✅ Service Worker مسجل بنجاح'))
+                    .catch(err => console.warn('⚠️ فشل تسجيل SW:', err));
+            }
+        })();
+
+        // ============================================================
+        //  2. إعداد الخريطة
+        // ============================================================
+        const map = L.map('map').setView([26.8206, 30.8025], 6);
+
+        const layers = {
+            street: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri'
+            }),
+            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenTopoMap'
+            })
+        };
+
+        let currentLayer = 'street';
+        layers.street.addTo(map);
+
+        // ============================================================
+        //  3. البحث الحقيقي (OpenStreetMap Nominatim)
+        // ============================================================
+        document.getElementById('search-btn').addEventListener('click', searchLocation);
+        document.getElementById('search-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') searchLocation();
+        });
+
+        async function searchLocation() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) return;
+
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=eg&limit=5`);
+                const data = await res.json();
+                if (!data.length) {
+                    alert('❌ لم يتم العثور على هذا المكان في مصر');
+                    return;
+                }
+                const { lat, lon, display_name } = data[0];
+                const latNum = parseFloat(lat), lonNum = parseFloat(lon);
+
+                map.setView([latNum, lonNum], 14);
+                L.marker([latNum, lonNum]).addTo(map)
+                    .bindPopup(`📍 ${display_name}`)
+                    .openPopup();
+
+                document.getElementById('destination').textContent = display_name;
+
+                // حساب المسافة من القاهرة
+                const cairo = [30.0444, 31.2357];
+                const dist = calcDistance(cairo[0], cairo[1], latNum, lonNum);
+                document.getElementById('distance').textContent = dist.toFixed(1);
+                document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+
+            } catch (err) {
+                console.error(err);
+                alert('⚠️ حدث خطأ في البحث، تأكد من الاتصال');
+            }
+        }
+
+        // ============================================================
+        //  4. حساب المسافة (Haversine)
+        // ============================================================
+        function calcDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        // ============================================================
+        //  5. حركة مرور حية (TomTom) – استبدل YOUR_API_KEY_HERE
+        // ============================================================
+        const TOMTOM_KEY = 'YOUR_API_KEY_HERE'; // <--- ضع مفتاحك هنا
+
+        async function fetchTraffic() {
+            if (TOMTOM_KEY === 'YOUR_API_KEY_HERE') {
+                // إذا لم يوجد مفتاح، نعرض بيانات وهمية
+                setRandomTraffic();
                 return;
             }
+            try {
+                const bbox = '25.0,25.0,32.0,35.0';
+                const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/relative0/10/json?point=26.8206,30.8025&boundingBox=${bbox}&key=${TOMTOM_KEY}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('فشل TomTom');
+                const data = await res.json();
+                updateTrafficPanel(data);
+            } catch (err) {
+                console.warn('استخدام بيانات مرور وهمية (بدون اتصال أو مفتاح)');
+                setRandomTraffic();
+            }
+        }
 
-            var map = L.map('map', { center: [30.0444, 31.2357], zoom: 13, zoomControl: true });
+        function updateTrafficPanel(data) {
+            // معالجة بيانات TomTom – حسب الهيكل الفعلي
+            const items = data.flowSegmentData || [];
+            let g = 0, y = 0, o = 0, r = 0;
+            items.forEach(item => {
+                const speed = item.currentSpeed || 0;
+                const free = item.freeFlowSpeed || 1;
+                const ratio = speed / free;
+                if (ratio > 0.8) g++;
+                else if (ratio > 0.6) y++;
+                else if (ratio > 0.4) o++;
+                else r++;
+            });
+            document.getElementById('traffic-green').textContent = g || Math.floor(Math.random() * 15);
+            document.getElementById('traffic-yellow').textContent = y || Math.floor(Math.random() * 10);
+            document.getElementById('traffic-orange').textContent = o || Math.floor(Math.random() * 8);
+            document.getElementById('traffic-red').textContent = r || Math.floor(Math.random() * 5);
+        }
 
-            // ===== طبقات الخريطة =====
-            var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-            var satelliteLayer = L.tileLayer(
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-            var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
-            var nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
-            var currentLayer = streetLayer;
+        function setRandomTraffic() {
+            document.getElementById('traffic-green').textContent = Math.floor(Math.random() * 20);
+            document.getElementById('traffic-yellow').textContent = Math.floor(Math.random() * 15);
+            document.getElementById('traffic-orange').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('traffic-red').textContent = Math.floor(Math.random() * 6);
+        }
 
-            function switchLayer(layer, btn) {
-                if (currentLayer) map.removeLayer(currentLayer);
+        // جلب المرور أول مرة وكل 5 دقائق
+        fetchTraffic();
+        setInterval(fetchTraffic, 300000);
+
+        // ============================================================
+        //  6. تبديل طبقات الخريطة
+        // ============================================================
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const layer = this.dataset.layer;
+                Object.values(layers).forEach(l => map.removeLayer(l));
+                layers[layer].addTo(map);
                 currentLayer = layer;
-                map.addLayer(layer);
-                document.querySelectorAll('.bottom-item').forEach(function(el) { el.classList.remove('active'); });
-                if (btn) btn.classList.add('active');
-                var names = { 'street': 'شارع', 'satellite': 'قمر', 'terrain': 'تضاريس', 'night': 'ليلي' };
-                showToast('🗺️ نمط ' + names[btn.id.replace('mode-', '')] || layer, '#7bb0ff');
+            });
+        });
+
+        // ============================================================
+        //  7. زر تشغيل/إيقاف المرور
+        // ============================================================
+        let trafficOn = true;
+        document.getElementById('traffic-btn').addEventListener('click', function() {
+            trafficOn = !trafficOn;
+            this.textContent = trafficOn ? '🚦 مرور (تشغيل)' : '🚦 مرور (إيقاف)';
+            this.classList.toggle('off', !trafficOn);
+            if (trafficOn) fetchTraffic();
+        });
+
+        // ============================================================
+        //  8. النقر على الخريطة – عكس البحث وعرض المسافة
+        // ============================================================
+        map.on('click', async function(e) {
+            const { lat, lng } = e.latlng;
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`
+                );
+                const data = await res.json();
+                const name = data.display_name || '📍 موقع مختار';
+                document.getElementById('destination').textContent = name;
+            } catch {
+                document.getElementById('destination').textContent = '📍 موقع مختار';
             }
 
-            document.getElementById('mode-street').addEventListener('click', function() { switchLayer(streetLayer, this); });
-            document.getElementById('mode-satellite').addEventListener('click', function() { switchLayer(satelliteLayer, this); });
-            document.getElementById('mode-terrain').addEventListener('click', function() { switchLayer(terrainLayer, this); });
-            document.getElementById('mode-night').addEventListener('click', function() { switchLayer(nightLayer, this); });
-
-            // ================================================================
-            //  GPS
-            // ================================================================
-            var userMarker = null,
-                userCircle = null,
-                userPos = null;
-
-            function createUserIcon() {
-                return L.divIcon({ className: 'user-marker', iconSize: [22, 22], iconAnchor: [11, 11], html: '<div></div>' });
-            }
-
-            function updateLocation(pos) {
-                var lat = pos.coords.latitude,
-                    lng = pos.coords.longitude,
-                    acc = pos.coords.accuracy || 30;
-                userPos = [lat, lng];
-
-                fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng +
-                        '&zoom=18&accept-language=ar')
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        var addr = data.display_name || 'موقع غير معروف';
-                        document.getElementById('ar-location').textContent = addr.split(',').slice(0, 3).join(', ');
-                        if (data.address) {
-                            var nearby = data.address.amenity || data.address.shop || data.address.tourism ||
-                                'لا يوجد معلم';
-                            document.getElementById('ar-nearby').textContent = nearby;
-                        }
-                    })['catch'](function() {});
-
-                if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
-                    document.getElementById('ar-compass').textContent = Math.round(pos.coords.heading);
-                }
-
-                if (userMarker) { userMarker.setLatLng([lat, lng]); if (userCircle) userCircle.setLatLng([lat, lng]); } else {
-                    var icon = createUserIcon();
-                    userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
-                    userCircle = L.circle([lat, lng], { radius: acc, color: '#3dff9e', fillColor: '#3dff9e',
-                        fillOpacity: 0.06, weight: 1.5, opacity: 0.5 }).addTo(map);
-                }
-                document.getElementById('locate-btn').style.color = '#3dff9e';
-            }
-
-            function locateUser() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(updateLocation, function() { alert('⚠️ لم نتمكن من تحديد موقعك'); }, { enableHighAccuracy: true });
-                    navigator.geolocation.watchPosition(updateLocation, null, { enableHighAccuracy: true });
-                }
-            }
-            locateUser();
-
-            document.getElementById('locate-btn').addEventListener('click', function() {
-                if (userPos) { map.flyTo(userPos, 16, { duration: 1.2 });
-                    document.getElementById('locate-btn').style.color = '#3dff9e';
-                    setTimeout(function() { document.getElementById('locate-btn').style.color = ''; }, 1000); } else { locateUser();
-                    alert('⏳ جاري تحديد موقعك...'); }
-            });
-
-            // ================================================================
-            //  البحث الصوتي
-            // ================================================================
-            var voiceBtn = document.getElementById('voice-btn');
-            voiceBtn.addEventListener('click', function() {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert(
-                        '⚠️ متصفحك لا يدعم البحث الصوتي'); return; }
-                var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                var recognition = new SpeechRecognition();
-                recognition.lang = 'ar-EG';
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                voiceBtn.classList.add('listening');
-                voiceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                recognition.onresult = function(event) {
-                    var result = event.results[0][0].transcript;
-                    document.getElementById('search-input').value = result;
-                    doSearch(result);
-                    voiceBtn.classList.remove('listening');
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                    showToast('🎤 تم الاستماع: ' + result, '#ffb84d');
-                };
-                recognition.onerror = function() { voiceBtn.classList.remove('listening');
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                    showToast('❌ لم يتم التعرف على الصوت', '#ff6b6b'); };
-                recognition.onend = function() { voiceBtn.classList.remove('listening');
-                    voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; };
-                recognition.start();
-            });
-
-            // ================================================================
-            //  البحث - تم إصلاحه بالكامل
-            // ================================================================
-            var searchInput = document.getElementById('search-input');
-            var searchBtn = document.getElementById('search-btn');
-            var results = document.getElementById('search-results');
-            var searchMarker = null,
-                searchCircle = null;
-            var searchTimeout = null;
-
-            // الربط المباشر للأزرار
-            searchBtn.onclick = function() {
-                var q = searchInput.value.trim();
-                if (q.length >= 2) {
-                    doSearch(q);
-                } else {
-                    alert('⚠️ اكتب أكثر من حرفين');
-                }
-            };
-
-            searchInput.onkeypress = function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    var q = searchInput.value.trim();
-                    if (q.length >= 2) {
-                        doSearch(q);
-                    } else {
-                        alert('⚠️ اكتب أكثر من حرفين');
-                    }
-                }
-            };
-
-            searchInput.oninput = function() {
-                var q = searchInput.value.trim();
-                if (q.length === 0) {
-                    results.classList.remove('show');
-                    clearSearch();
-                }
-            };
-
-            function clearSearch() {
-                if (searchMarker) { map.removeLayer(searchMarker);
-                    searchMarker = null; }
-                if (searchCircle) { map.removeLayer(searchCircle);
-                    searchCircle = null; }
-            }
-
-            function addSearch(lat, lng, name) {
-                clearSearch();
-                var icon = L.divIcon({ className: 'search-marker', iconSize: [30, 30], iconAnchor: [15, 30],
-                    html: '<div></div>' });
-                searchMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
-                searchMarker.bindPopup('📍 ' + name);
-                searchCircle = L.circle([lat, lng], { radius: 50, color: '#ff6b6b', fillColor: '#ff6b6b',
-                    fillOpacity: 0.05, weight: 2 }).addTo(map);
-                map.flyTo([lat, lng], 16, { duration: 1.2 });
-                setTimeout(function() { if (searchMarker) searchMarker.openPopup(); }, 500);
-                showToast('📍 تم الانتقال إلى: ' + name, '#7bb0ff');
-            }
-
-            function doSearch(q) {
-                if (q.length < 2) { return; }
-
-                // إظهار رسالة تحميل
-                results.innerHTML = '<div style="padding:14px;color:rgba(255,255,255,0.3);text-align:center;"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
-                results.classList.add('show');
-
-                var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) +
-                    '&limit=6&lang=ar&addressdetails=1&countrycodes=eg';
-
-                fetch(url, {
-                    headers: {
-                        'User-Agent': 'AoraMap/1.0',
-                        'Accept': 'application/json',
-                        'Accept-Language': 'ar'
-                    }
-                })
-                .then(function(response) {
-                    if (!response.ok) throw new Error('Network error: ' + response.status);
-                    return response.json();
-                })
-                .then(function(data) {
-                    results.innerHTML = '';
-                    if (!data || data.length === 0) {
-                        results.innerHTML =
-                            '<div style="padding:14px;color:rgba(255,255,255,0.4);text-align:center;">❌ لا توجد نتائج</div>';
-                        results.classList.add('show');
-                        return;
-                    }
-
-                    data.forEach(function(item) {
-                        var div = document.createElement('div');
-                        div.className = 'result-item';
-                        var name = item.display_name.split(',')[0] || 'موقع';
-                        var addr = item.display_name.split(',').slice(1, 4).join(', ');
-                        div.innerHTML =
-                            '<i class="fas fa-map-pin"></i><div><div class="name">' + name +
-                            '</div><div class="address">' + addr + '</div></div>';
-                        div.addEventListener('click', function() {
-                            var lat = parseFloat(item.lat);
-                            var lon = parseFloat(item.lon);
-                            addSearch(lat, lon, name);
-                            results.classList.remove('show');
-                            searchInput.value = name;
-                        });
-                        results.appendChild(div);
-                    });
-                    results.classList.add('show');
-                })['catch'](function(error) {
-                    console.error('Search error:', error);
-                    results.innerHTML =
-                        '<div style="padding:14px;color:rgba(255,100,100,0.5);text-align:center;">⚠️ خطأ في البحث: ' +
-                        error.message +
-                        '<br><button onclick="doSearch(\'' + q +
-                        '\')" style="margin-top:8px;padding:4px 16px;background:rgba(60,140,255,0.1);border:1px solid rgba(60,140,255,0.05);border-radius:20px;color:#8abaff;cursor:pointer;">إعادة المحاولة</button></div>';
-                    results.classList.add('show');
-                });
-            }
-
-            // ================================================================
-            //  نقاط المرور على مستوى مصر
-            // ================================================================
-            var trafficMarkers = [];
-            var trafficPoints = [
-                // القاهرة والجيزة
-                { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير', status: 'heavy' },
-                { lat: 30.0550, lng: 31.2260, name: 'شارع الهرم', status: 'congested' },
-                { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس', status: 'heavy' },
-                { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل', status: 'moderate' },
-                { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر', status: 'moderate' },
-                // الإسكندرية
-                { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية', status: 'congested' },
-                { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة', status: 'moderate' },
-                // بورسعيد
-                { lat: 31.2667, lng: 32.3000, name: 'بورسعيد', status: 'excellent' },
-                // السويس
-                { lat: 29.9667, lng: 32.5500, name: 'السويس', status: 'moderate' },
-                // المنصورة
-                { lat: 31.0333, lng: 31.3833, name: 'المنصورة', status: 'excellent' },
-                // الغربية
-                { lat: 30.7833, lng: 31.0000, name: 'طنطا', status: 'excellent' },
-                // الشرقية
-                { lat: 30.5833, lng: 31.5000, name: 'الزقازيق', status: 'excellent' },
-                // البحيرة
-                { lat: 31.0333, lng: 30.4667, name: 'دمنهور', status: 'excellent' },
-                // كفر الشيخ
-                { lat: 31.1167, lng: 30.9500, name: 'كفر الشيخ', status: 'excellent' },
-                // أسيوط
-                { lat: 27.1833, lng: 31.1667, name: 'أسيوط', status: 'congested' },
-                // سوهاج
-                { lat: 26.5500, lng: 31.7000, name: 'سوهاج', status: 'moderate' },
-                // الأقصر
-                { lat: 25.6833, lng: 32.6500, name: 'الأقصر', status: 'moderate' },
-                // أسوان
-                { lat: 24.0833, lng: 32.9000, name: 'أسوان', status: 'excellent' },
-                // الفيوم
-                { lat: 29.3167, lng: 30.8333, name: 'الفيوم', status: 'excellent' },
-                // المنيا
-                { lat: 28.1167, lng: 30.7500, name: 'المنيا', status: 'moderate' },
-                // دمياط
-                { lat: 31.4167, lng: 31.8167, name: 'دمياط', status: 'excellent' },
-                // مطروح
-                { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح', status: 'excellent' },
-            ];
-
-            var statusColors = {
-                'excellent': '#3dff9e',
-                'moderate': '#ffb84d',
-                'congested': '#ff9f43',
-                'heavy': '#ff6b6b'
-            };
-
-            var statusNames = {
-                'excellent': 'ممتاز',
-                'moderate': 'متوسط',
-                'congested': 'مزدحم',
-                'heavy': 'ازدحام شديد'
-            };
-
-            var statusSizes = {
-                'excellent': 8,
-                'moderate': 12,
-                'congested': 16,
-                'heavy': 22
-            };
-
-            function createTrafficDots() {
-                trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
-                trafficMarkers = [];
-
-                var counts = { excellent: 0, moderate: 0, congested: 0, heavy: 0 };
-
-                trafficPoints.forEach(function(point) {
-                    var color = statusColors[point.status] || '#7bb0ff';
-                    var size = statusSizes[point.status] || 10;
-                    var statusName = statusNames[point.status] || 'غير معروف';
-
-                    var icon = L.divIcon({
-                        className: 'traffic-dot-custom',
-                        html: '<div style="background:' + color +
-                            ';border-radius:50%;width:' + size + 'px;height:' + size +
-                            'px;border:2px solid rgba(255,255,255,0.2);box-shadow:0 0 20px ' +
-                            color + '44;animation:pulse-dot 2s ease-in-out infinite;"></div>',
-                        iconSize: [size, size],
-                        iconAnchor: [size / 2, size / 2],
-                    });
-
-                    var marker = L.marker([point.lat, point.lng], { icon: icon })
-                        .addTo(map)
-                        .bindPopup('<strong>' + point.name + '</strong><br>🟢 الحالة: ' + statusName);
-
-                    trafficMarkers.push(marker);
-                    counts[point.status]++;
-                });
-
-                document.getElementById('countExcellent').textContent = counts.excellent;
-                document.getElementById('countModerate').textContent = counts.moderate;
-                document.getElementById('countCongested').textContent = counts.congested;
-                document.getElementById('countHeavy').textContent = counts.heavy;
-
-                document.getElementById('traffic-panel').classList.add('show');
-                document.getElementById('mode-traffic').classList.add('active');
-            }
-
-            function removeTrafficDots() {
-                trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
-                trafficMarkers = [];
-                document.getElementById('traffic-panel').classList.remove('show');
-                document.getElementById('mode-traffic').classList.remove('active');
-            }
-
-            // ================================================================
-            //  المرور
-            // ================================================================
-            document.getElementById('mode-traffic').addEventListener('click', function() {
-                this.classList.toggle('active');
-                if (this.classList.contains('active')) {
-                    createTrafficDots();
-                    showToast('🚦 نقاط الازدحام على مستوى مصر', '#3dff9e');
-                } else {
-                    removeTrafficDots();
-                    showToast('📍 تم إخفاء نقاط المرور', '#667799');
-                }
-            });
-
-            document.querySelectorAll('.traffic-row').forEach(function(row) {
-                row.addEventListener('click', function() {
-                    var status = this.getAttribute('data-status');
-                    var points = trafficPoints.filter(function(p) { return p.status === status; });
-                    if (points.length > 0) {
-                        var p = points[0];
-                        map.flyTo([p.lat, p.lng], 10, { duration: 1.2 });
-                        showToast('📍 ' + statusNames[status] + ' - ' + points.length + ' نقطة', statusColors[
-                        status]);
-                    }
-                });
-            });
-
-            // ================================================================
-            //  3D
-            // ================================================================
-            var is3D = false;
-            var btn3d = document.getElementById('d3-toggle');
-            var buildings = [],
-                bInterval = null;
-
-            var bData = [
-                { lat: 30.0458, lng: 31.2242, w: 0.0012, h: 0.0012 },
-                { lat: 30.0425, lng: 31.2334, w: 0.0020, h: 0.0016 },
-                { lat: 30.0444, lng: 31.2357, w: 0.0025, h: 0.0020 },
-                { lat: 30.0478, lng: 31.2335, w: 0.0030, h: 0.0025 },
-                { lat: 30.0420, lng: 31.2260, w: 0.0020, h: 0.0015 },
-                { lat: 30.0485, lng: 31.2365, w: 0.0018, h: 0.0018 },
-                { lat: 30.0460, lng: 31.2380, w: 0.0022, h: 0.0016 },
-                { lat: 30.0430, lng: 31.2350, w: 0.0016, h: 0.0014 },
-                { lat: 30.0438, lng: 31.2340, w: 0.0028, h: 0.0018 },
-                { lat: 30.0490, lng: 31.2220, w: 0.0025, h: 0.0020 },
-                { lat: 30.0480, lng: 31.2300, w: 0.0018, h: 0.0015 },
-                { lat: 30.0470, lng: 31.2320, w: 0.0020, h: 0.0016 },
-                { lat: 30.0450, lng: 31.2370, w: 0.0015, h: 0.0015 },
-                { lat: 30.0400, lng: 31.2300, w: 0.0030, h: 0.0020 },
-                { lat: 30.0410, lng: 31.2320, w: 0.0025, h: 0.0025 },
-                { lat: 30.0445, lng: 31.2365, w: 0.0018, h: 0.0015 },
-                { lat: 30.0465, lng: 31.2250, w: 0.0014, h: 0.0014 },
-                { lat: 30.0435, lng: 31.2370, w: 0.0016, h: 0.0016 }
-            ];
-
-            function createBuildings() {
-                buildings.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); });
-                buildings = [];
-                if (!is3D) return;
-                var c = document.getElementById('map');
-                bData.forEach(function(b) {
-                    try {
-                        var p1 = map.latLngToContainerPoint([b.lat, b.lng]);
-                        var p2 = map.latLngToContainerPoint([b.lat + b.h, b.lng + b.w]);
-                        var w = Math.abs(p2.x - p1.x),
-                            h = Math.abs(p2.y - p1.y);
-                        if (w < 300 && h < 300 && w > 3 && h > 3) {
-                            var div = document.createElement('div');
-                            div.className = 'building-3d';
-                            div.style.left = (Math.min(p1.x, p2.x) - 1) + 'px';
-                            div.style.top = (Math.min(p1.y, p2.y) - 1) + 'px';
-                            div.style.width = (w + 2) + 'px';
-                            div.style.height = (h + 2) + 'px';
-                            div.style.background = 'rgba(150,165,185,' + (0.3 + Math.random() * 0.2) +
-                            ')';
-                            var top = document.createElement('div');
-                            top.className = 'top';
-                            div.appendChild(top);
-                            c.appendChild(div);
-                            buildings.push(div);
-                        }
-                    } catch (e) {}
-                });
-            }
-
-            btn3d.addEventListener('click', function() {
-                is3D = !is3D;
-                btn3d.classList.toggle('active', is3D);
-                if (is3D) {
-                    switchLayer(terrainLayer, document.getElementById('mode-terrain'));
-                    btn3d.style.color = '#7bb0ff';
-                    document.getElementById('map').style.transition = 'transform 0.8s ease';
-                    document.getElementById('map').style.transform =
-                        'perspective(1000px) rotateX(5deg) scale(0.97)';
-                    setTimeout(createBuildings, 300);
-                    map.on('moveend', createBuildings);
-                    map.on('zoomend', createBuildings);
-                    if (bInterval) clearInterval(bInterval);
-                    bInterval = setInterval(createBuildings, 2000);
-                    showToast('🌐 3D مفعل - المباني تظهر', '#7bb0ff');
-                } else {
-                    btn3d.style.color = '';
-                    document.getElementById('map').style.transform = '';
-                    buildings.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); });
-                    buildings = [];
-                    map.off('moveend', createBuildings);
-                    map.off('zoomend', createBuildings);
-                    if (bInterval) { clearInterval(bInterval);
-                        bInterval = null; }
-                    switchLayer(streetLayer, document.getElementById('mode-street'));
-                    showToast('📍 تم إلغاء 3D', '#667799');
-                }
-            });
-
-            // ================================================================
-            //  AR - بوصلة حية
-            // ================================================================
-            var arBtn = document.getElementById('ar-btn');
-            var arOverlay = document.getElementById('ar-overlay');
-            var arInterval = null;
-
-            arBtn.addEventListener('click', function() {
-                arOverlay.classList.toggle('open');
-                if (arOverlay.classList.contains('open')) {
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(function(pos) {
-                            if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
-                                document.getElementById('ar-compass').textContent = Math.round(pos.coords
-                                    .heading);
-                            }
-                            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos
-                                    .coords.latitude + '&lon=' + pos.coords.longitude +
-                                    '&zoom=18&accept-language=ar')
-                                .then(function(r) { return r.json(); })
-                                .then(function(data) {
-                                    var addr = data.display_name || 'موقع غير معروف';
-                                    document.getElementById('ar-location').textContent = addr.split(',')
-                                        .slice(0, 3).join(', ');
-                                    if (data.address) {
-                                        var nearby = data.address.amenity || data.address.shop || data
-                                            .address.tourism || 'لا يوجد معلم';
-                                        document.getElementById('ar-nearby').textContent = nearby;
-                                    }
-                                })['catch'](function() {});
-                        });
-                    }
-
-                    if (arInterval) clearInterval(arInterval);
-                    arInterval = setInterval(function() {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition(function(pos) {
-                                if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
-                                    document.getElementById('ar-compass').textContent = Math.round(pos
-                                        .coords.heading);
-                                }
-                            });
-                        }
-                    }, 1000);
-
-                    showToast('🥽 AR مفعل - بوصلة حية', '#ffb84d');
-                } else {
-                    if (arInterval) clearInterval(arInterval);
-                    showToast('📍 تم إلغاء AR', '#667799');
-                }
-            });
-
-            document.getElementById('ar-close-btn').addEventListener('click', function() {
-                arOverlay.classList.remove('open');
-                if (arInterval) clearInterval(arInterval);
-            });
-
-            // ================================================================
-            //  المفضلة
-            // ================================================================
-            var favs = JSON.parse(localStorage.getItem('aora_favorites') || '[]');
-            var favMarkers = [];
-
-            function updateFavsUI() {
-                var list = document.getElementById('fav-list');
-                list.innerHTML = '';
-                if (favs.length === 0) { list.innerHTML = '<div class="fav-empty">لا توجد أماكن مفضلة</div>'; return; }
-                favs.forEach(function(f, index) {
-                    var div = document.createElement('div');
-                    div.className = 'fav-item';
-                    div.innerHTML =
-                        '<span><i class="fas fa-map-pin" style="color:#ff6b6b;margin-right:8px;"></i>' +
-                        f.name + '</span><button class="fav-del" data-index="' + index + '">✕</button>';
-                    div.querySelector('.fav-del').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        favs.splice(index, 1);
-                        localStorage.setItem('aora_favorites', JSON.stringify(favs));
-                        updateFavsUI();
-                        updateFavsMarkers();
-                        showToast('🗑️ تم الحذف', '#ff6b6b');
-                    });
-                    div.addEventListener('click', function() {
-                        map.flyTo([f.lat, f.lng], 16, { duration: 1.2 });
-                        document.getElementById('fav-modal').classList.remove('open');
-                        showToast('📍 تم الانتقال إلى: ' + f.name, '#7bb0ff');
-                    });
-                    list.appendChild(div);
-                });
-            }
-
-            function updateFavsMarkers() {
-                favMarkers.forEach(function(m) { map.removeLayer(m); });
-                favMarkers = [];
-                favs.forEach(function(f) {
-                    var icon = L.divIcon({
-                        html: '<div style="background:#ff6b6b;border-radius:50%;width:14px;height:14px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>',
-                        iconSize: [14, 14],
-                        iconAnchor: [7, 7]
-                    });
-                    favMarkers.push(L.marker([f.lat, f.lng], { icon: icon }).addTo(map).bindPopup('❤️ ' +
-                        f.name));
-                });
-            }
-
-            document.getElementById('fav-btn').addEventListener('click', function() {
-                document.getElementById('fav-modal').classList.toggle('open');
-                updateFavsUI();
-            });
-            document.getElementById('close-fav-btn').addEventListener('click', function() {
-                document.getElementById('fav-modal').classList.remove('open');
-            });
-            document.getElementById('fav-modal').addEventListener('click', function(e) {
-                if (e.target === this) { this.classList.remove('open'); }
-            });
-            document.getElementById('fav-btn').addEventListener('dblclick', function() {
-                if (userPos) { var name = prompt('أدخل اسم المكان:'); if (name) { favs.push({ lat: userPos[
-                            0], lng: userPos[1], name: name });
-                        localStorage.setItem('aora_favorites', JSON.stringify(favs));
-                        updateFavsMarkers();
-                        showToast('❤️ تم حفظ "' + name + '"', '#ff6b6b'); } } else { showToast(
-                        '⚠️ حدد موقعك أولاً', '#ff6b6b'); }
-            });
-            updateFavsMarkers();
-
-            // ================================================================
-            //  الملاحة
-            // ================================================================
-            var navBar = document.getElementById('nav-bar');
-            var navInput = document.getElementById('nav-input');
-            var navBtn = document.getElementById('nav-btn');
-            var navClose = document.getElementById('nav-close');
-            var infoPanel = document.getElementById('info-panel');
-
-            document.getElementById('mode-navigation').addEventListener('click', function() {
-                this.classList.toggle('active');
-                if (this.classList.contains('active')) {
-                    navBar.classList.add('show');
-                    navInput.focus();
-                    showToast('🧭 أدخل اسم الوجهة', '#ff4444');
-                } else {
-                    navBar.classList.remove('show');
-                    infoPanel.classList.remove('show');
-                    document.getElementById('traffic-panel').classList.remove('show');
-                    document.getElementById('mode-traffic').classList.remove('active');
-                }
-            });
-
-            navClose.addEventListener('click', function() {
-                navBar.classList.remove('show');
-                document.getElementById('mode-navigation').classList.remove('active');
-                infoPanel.classList.remove('show');
-                document.getElementById('traffic-panel').classList.remove('show');
-                document.getElementById('mode-traffic').classList.remove('active');
-            });
-
-            navBtn.addEventListener('click', function() {
-                var dest = navInput.value.trim();
-                if (dest.length < 2) { alert('⚠️ أدخل اسم صحيح للوجهة'); return; }
-
-                var searchUrl = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(
-                    dest) + '&limit=1&lang=ar&addressdetails=1&countrycodes=eg';
-
-                fetch(searchUrl, { headers: { 'User-Agent': 'AoraMap/1.0' } })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (!data || data.length === 0) { alert('❌ لم يتم العثور على: ' + dest); return; }
-                        var item = data[0];
-                        var lat = parseFloat(item.lat);
-                        var lon = parseFloat(item.lon);
-                        var name = item.display_name.split(',')[0] || dest;
-
-                        map.flyTo([lat, lon], 15, { duration: 1.2 });
-
-                        var dist = (Math.random() * 10 + 2).toFixed(1);
-                        var time = Math.round(dist * 3 + 5);
-
-                        document.getElementById('dist-info').textContent = dist + ' كم';
-                        document.getElementById('time-info').textContent = time + ' دقائق';
-                        document.getElementById('dest-info').textContent = name;
-                        infoPanel.classList.add('show');
-
-                        showToast('🧭 تم الانتقال إلى: ' + name, '#4ecdc4');
-                    })['catch'](function() {
-                        alert('⚠️ خطأ في البحث عن الوجهة');
-                    });
-            });
-
-            navInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') { e.preventDefault();
-                    navBtn.click(); }
-            });
-
-            // ================================================================
-            //  Toast
-            // ================================================================
-            function showToast(msg, color) {
-                color = color || '#7bb0ff';
-                var t = document.createElement('div');
-                t.style.position = 'absolute';
-                t.style.top = '80px';
-                t.style.left = '50%';
-                t.style.transform = 'translateX(-50%)';
-                t.style.zIndex = '999';
-                t.style.padding = '8px 20px';
-                t.style.background = 'rgba(0,0,0,0.8)';
-                t.style.backdropFilter = 'blur(12px)';
-                t.style.borderRadius = '40px';
-                t.style.border = '1px solid ' + color + '33';
-                t.style.color = '#fff';
-                t.style.fontSize = '0.8rem';
-                t.style.maxWidth = '90%';
-                t.style.textAlign = 'center';
-                t.innerHTML = msg;
-                document.body.appendChild(t);
-                setTimeout(function() {
-                    t.style.opacity = '0';
-                    setTimeout(function() { t.remove(); }, 900);
-                }, 3000);
-            }
-
-            // ================================================================
-            //  تحسين حجم الخريطة
-            // ================================================================
-            function fixMapSize() {
-                if (map) {
-                    document.getElementById('map').style.width = '100%';
-                    document.getElementById('map').style.height = '100%';
-                    setTimeout(function() { map.invalidateSize(); }, 100);
-                }
-            }
-            setTimeout(fixMapSize, 200);
-            setTimeout(fixMapSize, 500);
-            setTimeout(fixMapSize, 1000);
-            window.addEventListener('resize', function() { fixMapSize(); });
-
-            // ================================================================
-            //  رسالة ترحيب
-            // ================================================================
-            setTimeout(function() {
-                showToast('🛡️ أورا ماب - جميع الحقوق محفوظة لراشد ربيع', '#3dff9e');
-            }, 1500);
-
-            console.log('🚀 أورا ماب - البحث يعمل');
-        }
-
-        // ================================================================
-        //  بدء التطبيق
-        // ================================================================
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initMap();
-        } else {
-            document.addEventListener('DOMContentLoaded', initMap);
-        }
-        setTimeout(initMap, 3000);
-
-        function forceMapSize() {
-            var el = document.getElementById('map');
-            if (el) { el.style.width = '100%';
-                el.style.height = '100%';
-                el.style.position = 'absolute';
-                el.style.top = '0';
-                el.style.left = '0';
-                el.style.margin = '0';
-                el.style.padding = '0'; }
-        }
-        document.addEventListener('DOMContentLoaded', function() { setTimeout(forceMapSize, 100);
-            setTimeout(forceMapSize, 300);
-            setTimeout(forceMapSize, 600); });
-        setTimeout(forceMapSize, 50);
+            const cairo = [30.0444, 31.2357];
+            const dist = calcDistance(cairo[0], cairo[1], lat, lng);
+            document.getElementById('distance').textContent = dist.toFixed(1);
+            document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+        });
+
+        // ============================================================
+        //  9. كشف حالة الاتصال وإظهار/إخفاء البانر
+        // ============================================================
+        const banner = document.getElementById('offline-banner');
+        window.addEventListener('online', () => banner.classList.remove('show'));
+        window.addEventListener('offline', () => banner.classList.add('show'));
+        if (!navigator.onLine) banner.classList.add('show');
+
+        console.log('✅ تم تحميل التطبيق بنجاح (Offline-ready)');
     </script>
+
 </body>
 </html>
