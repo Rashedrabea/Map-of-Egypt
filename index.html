@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>أورا ماب - الخريطة المتطورة</title>
+    <title>أورا ماب - الإصدار المتطور</title>
 
     <!-- ===== Leaflet ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -19,6 +19,7 @@
 
         #map { height: 100vh; width: 100vw; background: #1a1f2e; position: absolute; top: 0; left: 0; z-index: 0; }
 
+        /* ===== شريط البحث ===== */
         #search-bar {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; display: flex; gap: 8px;
@@ -31,9 +32,10 @@
         #search-btn { background: rgba(60,140,255,0.15); color: #8abaff; border: 1px solid rgba(60,140,255,0.08); padding: 10px 20px; border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
         #search-btn:hover { background: rgba(60,140,255,0.25); }
 
+        /* ===== اللوحة السفلية ===== */
         #bottom-bar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 999; width: min(96%, 750px); padding: 10px 12px;
+            z-index: 999; width: min(96%, 800px); padding: 10px 12px;
             display: flex; align-items: center; justify-content: space-around;
             background: rgba(10,14,24,0.92); backdrop-filter: blur(28px);
             border: 1px solid rgba(255,255,255,0.08); border-radius: 60px;
@@ -42,17 +44,17 @@
         }
         .bottom-item {
             display: flex; flex-direction: column; align-items: center; gap: 2px;
-            padding: 4px 10px; border-radius: 30px; background: rgba(255,255,255,0.03);
-            cursor: pointer; color: #8899bb; font-size: 0.55rem; font-weight: 500;
+            padding: 4px 8px; border-radius: 30px; background: rgba(255,255,255,0.03);
+            cursor: pointer; color: #8899bb; font-size: 0.5rem; font-weight: 500;
             border: 2px solid transparent; transition: 0.3s ease;
-            user-select: none; min-width: 44px; min-height: 44px; justify-content: center;
+            user-select: none; min-width: 40px; min-height: 40px; justify-content: center;
         }
-        .bottom-item i { font-size: 1.1rem; color: #7bb0ff; transition: 0.3s; }
+        .bottom-item i { font-size: 1rem; color: #7bb0ff; transition: 0.3s; }
         .bottom-item:active { transform: scale(0.92); }
         .bottom-item.active { background: rgba(60,130,255,0.12); border-color: #4a9eff; color: #ffffff; }
         .bottom-item.active i { color: #4a9eff; }
         .bottom-item.active span { color: #4a9eff; }
-        .bottom-item span { font-size: 0.5rem; color: #667799; transition: 0.3s; }
+        .bottom-item span { font-size: 0.45rem; color: #667799; transition: 0.3s; }
         .bottom-item#mode-navigation.active { background: rgba(255,50,50,0.15); border-color: #ff3333; }
         .bottom-item#mode-navigation.active i { color: #ff3333; }
         .bottom-item#mode-navigation.active span { color: #ff3333; }
@@ -60,6 +62,7 @@
         .bottom-item#mode-traffic.active i { color: #3dff9e; }
         .bottom-item#mode-traffic.active span { color: #3dff9e; }
 
+        /* ===== لوحة المعلومات ===== */
         #info-panel {
             position: absolute; bottom: 100px; right: 15px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
@@ -68,9 +71,10 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
         #info-panel.show { display: block; }
-        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.75rem; color: #b0c8e8; }
-        #info-panel .info-row i { color: #7bb0ff; width: 18px; font-size: 0.75rem; }
+        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.7rem; color: #b0c8e8; }
+        #info-panel .info-row i { color: #7bb0ff; width: 16px; font-size: 0.7rem; }
 
+        /* ===== لوحة المرور ===== */
         #traffic-panel {
             position: absolute; top: 80px; right: 15px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
@@ -88,6 +92,7 @@
         .traffic-row .dot.red { background: #ff6b6b; }
         .traffic-row .count { margin-left: auto; font-weight: bold; color: #e8f0ff; }
 
+        /* ===== مؤشر GPS ===== */
         .gps-marker {
             width: 30px;
             height: 30px;
@@ -120,13 +125,85 @@
             100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
 
+        /* ===== Memory Lane ===== */
+        #memory-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
+        }
+        #memory-modal.open { display: flex; }
+        .memory-panel {
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
+            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+        .memory-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .memory-panel h2 i { color: #ffb84d; }
+        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .memory-item i { color: #ffb84d; }
+        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+        .memory-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-memory { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
+        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
+        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
+        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
+
+        /* ===== نافذة المفضلة ===== */
+        #fav-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
+        }
+        #fav-modal.open { display: flex; }
+        .fav-panel {
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
+            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .fav-panel h2 i { color: #ff6b6b; }
+        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
+        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
+        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+
+        /* ===== AR Overlay ===== */
+        #ar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            justify-content: center; align-items: center; flex-direction: column; color: #fff;
+        }
+        #ar-overlay.open { display: flex; }
+        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
+        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
+        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
+        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
+        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
+        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
+
+        /* ===== حالة الاتصال ===== */
+        #status-bar {
+            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
+            z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem;
+            color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap;
+            pointer-events: none; border: 1px solid rgba(255,255,255,0.02);
+            display: none;
+        }
+        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
+        #status-bar.offline { border-color: rgba(255,107,107,0.1); color: rgba(255,107,107,0.3); }
+
+        /* ===== Leaflet ===== */
         .leaflet-control-attribution { display: none !important; }
         .leaflet-control-zoom { display: none !important; }
 
         @media (max-width: 480px) {
             #bottom-bar { bottom: 12px; padding: 6px 8px; border-radius: 40px; min-height: 48px; gap: 2px; }
-            .bottom-item { padding: 4px 8px; min-width: 38px; min-height: 38px; }
-            .bottom-item i { font-size: 0.85rem; }
+            .bottom-item { padding: 3px 6px; min-width: 34px; min-height: 34px; }
+            .bottom-item i { font-size: 0.8rem; }
             .bottom-item span { font-size: 0.4rem; }
             #search-bar { top: 10px; padding: 4px 10px; }
             #search-input { font-size: 13px; padding: 8px 12px; }
@@ -134,18 +211,28 @@
             #info-panel { bottom: 80px; right: 10px; padding: 8px 12px; min-width: 130px; }
             #info-panel .info-row { font-size: 0.6rem; }
             #traffic-panel { top: 70px; right: 10px; padding: 8px 12px; min-width: 100px; }
+            #status-bar { bottom: 75px; font-size: 0.4rem; padding: 2px 12px; }
+            .memory-panel, .fav-panel { padding: 20px 16px; width: 94%; }
+            #ar-overlay .ar-content i { font-size: 3rem; }
+            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== الخريطة ===== -->
     <div id="map"></div>
 
+    <!-- ===== شريط البحث ===== -->
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
         <button id="search-btn">🔍</button>
     </div>
 
+    <!-- ===== حالة الاتصال ===== -->
+    <div id="status-bar" class="online">📡 متصل</div>
+
+    <!-- ===== لوحة المعلومات ===== -->
     <div id="info-panel">
         <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
         <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
@@ -154,6 +241,7 @@
         <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
     </div>
 
+    <!-- ===== لوحة المرور ===== -->
     <div id="traffic-panel">
         <h4>🚦 نقاط الازدحام</h4>
         <div class="traffic-row"><span class="dot green"></span> ممتاز <span class="count" id="traffic-green">0</span></div>
@@ -162,6 +250,7 @@
         <div class="traffic-row"><span class="dot red"></span> ازدحام شديد <span class="count" id="traffic-red">0</span></div>
     </div>
 
+    <!-- ===== اللوحة السفلية ===== -->
     <div id="bottom-bar">
         <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
         <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
@@ -170,6 +259,45 @@
         <div class="bottom-item" id="mode-navigation"><i class="fas fa-route"></i><span>ملاحة</span></div>
         <div class="bottom-item" id="mode-traffic"><i class="fas fa-car"></i><span>مرور</span></div>
         <div class="bottom-item" id="mode-gps"><i class="fas fa-location-crosshairs"></i><span>موقعي</span></div>
+        <div class="bottom-item" id="mode-fav"><i class="fas fa-heart"></i><span>مفضلة</span></div>
+        <div class="bottom-item" id="mode-memory"><i class="fas fa-clock-rotate-left"></i><span>ذكريات</span></div>
+        <div class="bottom-item" id="mode-ar"><i class="fas fa-vr-cardboard"></i><span>AR</span></div>
+        <div class="bottom-item" id="mode-share"><i class="fas fa-share-alt"></i><span>مشاركة</span></div>
+    </div>
+
+    <!-- ===== نافذة المفضلة ===== -->
+    <div id="fav-modal">
+        <div class="fav-panel">
+            <h2><i class="fas fa-heart"></i> الأماكن المفضلة</h2>
+            <div id="fav-list"></div>
+            <button class="close-fav" id="close-fav-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ===== نافذة الذكريات ===== -->
+    <div id="memory-modal">
+        <div class="memory-panel">
+            <h2><i class="fas fa-clock-rotate-left"></i> مسار الذكريات</h2>
+            <div id="memory-list"></div>
+            <div class="memory-add">
+                <input id="memory-input" placeholder="أضف ذكرى جديدة..." />
+                <button id="memory-add-btn"><i class="fas fa-plus"></i></button>
+            </div>
+            <button class="close-memory" id="close-memory-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ===== AR Overlay ===== -->
+    <div id="ar-overlay">
+        <div class="ar-content">
+            <i class="fas fa-camera"></i>
+            <h3>🌍 الواقع المعزز</h3>
+            <p>اتجاهك الحقيقي + معلومات المكان</p>
+            <div class="compass-display"><i class="fas fa-compass"></i> <span id="ar-compass">--</span>°</div>
+            <div class="ar-info"><i class="fas fa-map-pin"></i> <span id="ar-location">جاري التحديد...</span></div>
+            <div class="ar-info"><i class="fas fa-building"></i> <span id="ar-nearby">جاري البحث...</span></div>
+            <button class="ar-close" id="ar-close-btn">إغلاق</button>
+        </div>
     </div>
 
     <script>
@@ -199,9 +327,6 @@
 
         var currentLayer = streetLayer;
 
-        // ================================================================
-        //  تبديل الأنماط (تعمل بشكل كامل)
-        // ================================================================
         function switchLayer(layer, btn) {
             if (currentLayer) map.removeLayer(currentLayer);
             currentLayer = layer;
@@ -703,7 +828,7 @@
             this.classList.toggle('active', navMode);
 
             if (navMode) {
-                var dest = prompt('📍 أدخل اسم الوجهة (مثال: ميدان التحرير، مطعم...):');
+                var dest = prompt('📍 أدخل اسم الوجهة:');
                 if (!dest) {
                     navMode = false;
                     this.classList.remove('active');
@@ -717,9 +842,241 @@
         });
 
         // ================================================================
+        //  المفضلة - ميزة جديدة
+        // ================================================================
+        var favs = JSON.parse(localStorage.getItem('aora_favorites') || '[]');
+        var favMarkers = [];
+
+        function updateFavsUI() {
+            var list = document.getElementById('fav-list');
+            list.innerHTML = '';
+            if (favs.length === 0) {
+                list.innerHTML = '<div class="fav-empty">لا توجد أماكن مفضلة</div>';
+                return;
+            }
+            favs.forEach(function(f, index) {
+                var div = document.createElement('div');
+                div.className = 'fav-item';
+                div.innerHTML =
+                    '<span><i class="fas fa-map-pin" style="color:#ff6b6b;margin-right:8px;"></i>' + f
+                    .name + '</span>' +
+                    '<button class="fav-del" data-index="' + index + '">✕</button>';
+                div.querySelector('.fav-del').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    favs.splice(index, 1);
+                    localStorage.setItem('aora_favorites', JSON.stringify(favs));
+                    updateFavsUI();
+                    updateFavsMarkers();
+                    showToast('🗑️ تم الحذف', '#ff6b6b');
+                });
+                div.addEventListener('click', function() {
+                    map.flyTo([f.lat, f.lng], 16, { duration: 1.2 });
+                    document.getElementById('fav-modal').classList.remove('open');
+                    showToast('📍 تم الانتقال إلى: ' + f.name, '#7bb0ff');
+                });
+                list.appendChild(div);
+            });
+        }
+
+        function updateFavsMarkers() {
+            favMarkers.forEach(function(m) { map.removeLayer(m); });
+            favMarkers = [];
+            favs.forEach(function(f) {
+                var icon = L.divIcon({
+                    html: '<div style="background:#ff6b6b;border-radius:50%;width:14px;height:14px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+                var m = L.marker([f.lat, f.lng], { icon: icon }).addTo(map).bindPopup('❤️ ' + f.name);
+                favMarkers.push(m);
+            });
+        }
+
+        document.getElementById('mode-fav').addEventListener('click', function() {
+            document.getElementById('fav-modal').classList.toggle('open');
+            updateFavsUI();
+        });
+
+        document.getElementById('close-fav-btn').addEventListener('click', function() {
+            document.getElementById('fav-modal').classList.remove('open');
+        });
+
+        document.getElementById('fav-modal').addEventListener('click', function(e) {
+            if (e.target === this) { this.classList.remove('open'); }
+        });
+
+        // إضافة للمفضلة (نقر مزدوج على زر المفضلة في اللوحة)
+        document.getElementById('mode-fav').addEventListener('dblclick', function() {
+            if (userPos) {
+                var name = prompt('أدخل اسم المكان:');
+                if (name) {
+                    favs.push({ lat: userPos[0], lng: userPos[1], name: name });
+                    localStorage.setItem('aora_favorites', JSON.stringify(favs));
+                    updateFavsMarkers();
+                    showToast('❤️ تم حفظ "' + name + '"', '#ff6b6b');
+                }
+            } else {
+                showToast('⚠️ حدد موقعك أولاً', '#ff6b6b');
+            }
+        });
+
+        updateFavsMarkers();
+
+        // ================================================================
+        //  Memory Lane - ميزة جديدة
+        // ================================================================
+        var memories = JSON.parse(localStorage.getItem('aora_memories') || '[]');
+
+        function updateMemoryUI() {
+            var list = document.getElementById('memory-list');
+            list.innerHTML = '';
+            if (memories.length === 0) {
+                list.innerHTML = '<div class="memory-empty">📜 لا توجد ذكريات بعد<br>أضف ذكرى جديدة!</div>';
+                return;
+            }
+            var sorted = memories.slice().reverse();
+            sorted.forEach(function(m) {
+                var div = document.createElement('div');
+                div.className = 'memory-item';
+                var date = new Date(m.date).toLocaleDateString('ar-EG');
+                div.innerHTML =
+                    '<i class="fas fa-clock"></i><span>' + m.text + '</span><span class="memory-date">' +
+                    date + '</span>';
+                if (m.lat && m.lng) {
+                    div.addEventListener('click', function() {
+                        map.flyTo([m.lat, m.lng], 15, { duration: 1.2 });
+                        document.getElementById('memory-modal').classList.remove('open');
+                        showToast('📍 تم الانتقال إلى الذكرى', '#ffb84d');
+                    });
+                }
+                list.appendChild(div);
+            });
+        }
+
+        document.getElementById('mode-memory').addEventListener('click', function() {
+            document.getElementById('memory-modal').classList.toggle('open');
+            updateMemoryUI();
+        });
+
+        document.getElementById('close-memory-btn').addEventListener('click', function() {
+            document.getElementById('memory-modal').classList.remove('open');
+        });
+
+        document.getElementById('memory-modal').addEventListener('click', function(e) {
+            if (e.target === this) { this.classList.remove('open'); }
+        });
+
+        document.getElementById('memory-add-btn').addEventListener('click', function() {
+            var input = document.getElementById('memory-input');
+            var text = input.value.trim();
+            if (text.length === 0) {
+                showToast('⚠️ أدخل نص الذكرى', '#ff6b6b');
+                return;
+            }
+            var memory = {
+                text: text,
+                date: new Date().toISOString(),
+                lat: userPos ? userPos[0] : null,
+                lng: userPos ? userPos[1] : null
+            };
+            memories.push(memory);
+            localStorage.setItem('aora_memories', JSON.stringify(memories));
+            input.value = '';
+            updateMemoryUI();
+            showToast('📜 تم إضافة الذكرى: ' + text, '#ffb84d');
+        });
+
+        document.getElementById('memory-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('memory-add-btn').click();
+            }
+        });
+
+        // ================================================================
+        //  AR - الواقع المعزز
+        // ================================================================
+        var arBtn = document.getElementById('mode-ar');
+        var arOverlay = document.getElementById('ar-overlay');
+        var arInterval = null;
+
+        arBtn.addEventListener('click', function() {
+            arOverlay.classList.toggle('open');
+            if (arOverlay.classList.contains('open')) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
+                            document.getElementById('ar-compass').textContent = Math.round(pos.coords
+                            .heading);
+                        }
+                        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos
+                                .coords.latitude + '&lon=' + pos.coords.longitude +
+                                '&zoom=18&accept-language=ar')
+                            .then(function(r) { return r.json(); })
+                            .then(function(data) {
+                                var addr = data.display_name || 'موقع غير معروف';
+                                document.getElementById('ar-location').textContent = addr.split(',')
+                                    .slice(0, 3).join(', ');
+                                if (data.address) {
+                                    var nearby = data.address.amenity || data.address.shop || data
+                                        .address.tourism || 'لا يوجد معلم';
+                                    document.getElementById('ar-nearby').textContent = nearby;
+                                }
+                            })['catch'](function() {});
+                    });
+                }
+                if (arInterval) clearInterval(arInterval);
+                arInterval = setInterval(function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
+                                document.getElementById('ar-compass').textContent = Math.round(pos
+                                    .coords.heading);
+                            }
+                        });
+                    }
+                }, 2000);
+                showToast('🥽 AR مفعل - بوصلة تعمل', '#ffb84d');
+            } else {
+                if (arInterval) clearInterval(arInterval);
+                showToast('📍 تم إلغاء AR', '#667799');
+            }
+        });
+
+        document.getElementById('ar-close-btn').addEventListener('click', function() {
+            arOverlay.classList.remove('open');
+            if (arInterval) clearInterval(arInterval);
+        });
+
+        // ================================================================
+        //  مشاركة الموقع - ميزة جديدة
+        // ================================================================
+        document.getElementById('mode-share').addEventListener('click', function() {
+            if (userPos) {
+                var url = 'https://www.openstreetmap.org/?mlat=' + userPos[0] + '&mlon=' + userPos[1] +
+                    '&zoom=16';
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'موقعي على أورا ماب',
+                        text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1].toFixed(4),
+                        url: url
+                    })['catch'](function() {});
+                } else {
+                    navigator.clipboard.writeText(url).then(function() {
+                        showToast('📋 تم نسخ رابط الموقع', '#7bb0ff');
+                    })['catch'](function() {
+                        prompt('انسخ الرابط:', url);
+                    });
+                }
+            } else {
+                showToast('⚠️ حدد موقعك أولاً', '#ff6b6b');
+            }
+        });
+
+        // ================================================================
         //  Toast
         // ================================================================
-        function showToast(msg) {
+        function showToast(msg, color) {
+            color = color || '#7bb0ff';
             var t = document.createElement('div');
             t.style.position = 'absolute';
             t.style.top = '80px';
@@ -730,7 +1087,7 @@
             t.style.background = 'rgba(0,0,0,0.8)';
             t.style.backdropFilter = 'blur(12px)';
             t.style.borderRadius = '40px';
-            t.style.border = '1px solid rgba(255,255,255,0.05)';
+            t.style.border = '1px solid ' + color + '33';
             t.style.color = '#fff';
             t.style.fontSize = '0.8rem';
             t.style.maxWidth = '90%';
@@ -744,14 +1101,34 @@
         }
 
         // ================================================================
+        //  حالة الاتصال
+        // ================================================================
+        var statusBar = document.getElementById('status-bar');
+
+        function updateStatus() {
+            if (navigator.onLine) {
+                statusBar.className = 'online';
+                statusBar.textContent = '📡 متصل';
+            } else {
+                statusBar.className = 'offline';
+                statusBar.textContent = '📡 غير متصل - وضع Offline';
+            }
+            statusBar.style.display = 'block';
+        }
+
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+
+        // ================================================================
         //  تحسين حجم الخريطة
         // ================================================================
         setTimeout(function() {
             map.invalidateSize();
         }, 500);
 
-        console.log('🚀 أورا ماب - جميع الميزات تعمل');
-        console.log('📍 تبديل الأنماط يعمل بشكل كامل');
+        console.log('🚀 أورا ماب - الإصدار المتطور');
+        console.log('📌 الميزات الجديدة: مفضلة، ذكريات، AR، مشاركة');
     </script>
 </body>
 </html>
