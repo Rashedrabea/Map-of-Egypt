@@ -127,7 +127,7 @@
         #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.65rem; color: #b0c8e8; }
         #info-panel .info-row i { color: #7bb0ff; width: 14px; font-size: 0.65rem; }
 
-        /* ===== لوحة المرور ===== */
+        /* ===== لوحة المرور - نقاط ===== */
         #traffic-panel {
             position: absolute; bottom: 200px; right: 12px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
@@ -151,22 +151,6 @@
         .traffic-row .route-status.yellow { background: rgba(255,184,77,0.1); color: #ffb84d; }
         .traffic-row .route-status.orange { background: rgba(255,159,67,0.1); color: #ff9f43; }
         .traffic-row .route-status.red { background: rgba(255,107,107,0.1); color: #ff6b6b; }
-
-        /* ===== نقاط المرور - نمط الدوائر ===== */
-        .traffic-dot {
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            animation: pulse-dot 2s ease-in-out infinite;
-            position: absolute;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
 
         /* ===== شريط الملاحة ===== */
         #nav-bar {
@@ -454,14 +438,44 @@
             });
 
             // ================================================================
-            //  البحث - إصلاح خطأ البحث
+            //  البحث - تم إصلاحه بالكامل
             // ================================================================
             var searchInput = document.getElementById('search-input');
             var searchBtn = document.getElementById('search-btn');
             var results = document.getElementById('search-results');
             var searchMarker = null,
-                searchCircle = null,
-                searchTimeout = null;
+                searchCircle = null;
+            var searchTimeout = null;
+
+            // الربط المباشر للأزرار
+            searchBtn.onclick = function() {
+                var q = searchInput.value.trim();
+                if (q.length >= 2) {
+                    doSearch(q);
+                } else {
+                    alert('⚠️ اكتب أكثر من حرفين');
+                }
+            };
+
+            searchInput.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    var q = searchInput.value.trim();
+                    if (q.length >= 2) {
+                        doSearch(q);
+                    } else {
+                        alert('⚠️ اكتب أكثر من حرفين');
+                    }
+                }
+            };
+
+            searchInput.oninput = function() {
+                var q = searchInput.value.trim();
+                if (q.length === 0) {
+                    results.classList.remove('show');
+                    clearSearch();
+                }
+            };
 
             function clearSearch() {
                 if (searchMarker) { map.removeLayer(searchMarker);
@@ -480,10 +494,15 @@
                     fillOpacity: 0.05, weight: 2 }).addTo(map);
                 map.flyTo([lat, lng], 16, { duration: 1.2 });
                 setTimeout(function() { if (searchMarker) searchMarker.openPopup(); }, 500);
+                showToast('📍 تم الانتقال إلى: ' + name, '#7bb0ff');
             }
 
             function doSearch(q) {
-                if (q.length < 2) { results.classList.remove('show'); return; }
+                if (q.length < 2) { return; }
+
+                // إظهار رسالة تحميل
+                results.innerHTML = '<div style="padding:14px;color:rgba(255,255,255,0.3);text-align:center;"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
+                results.classList.add('show');
 
                 var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) +
                     '&limit=6&lang=ar&addressdetails=1&countrycodes=eg';
@@ -522,7 +541,6 @@
                             addSearch(lat, lon, name);
                             results.classList.remove('show');
                             searchInput.value = name;
-                            showToast('📍 تم الانتقال إلى: ' + name, '#7bb0ff');
                         });
                         results.appendChild(div);
                     });
@@ -538,28 +556,10 @@
                 });
             }
 
-            searchBtn.addEventListener('click', function() { doSearch(searchInput.value); });
-            searchInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault();
-                    doSearch(searchInput.value); } });
-            searchInput.addEventListener('input', function() {
-                if (searchTimeout) clearTimeout(searchTimeout);
-                var q = searchInput.value.trim();
-                if (q.length === 0) { results.classList.remove('show');
-                    clearSearch(); return; }
-                if (q.length >= 2) { searchTimeout = setTimeout(function() { doSearch(q); }, 500); }
-            });
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('#search-container') && !e.target.closest('#search-results')) { results.classList
-                        .remove('show'); }
-            });
-
             // ================================================================
             //  نقاط المرور على مستوى مصر
             // ================================================================
-            var trafficDots = [];
-            var trafficDotMarkers = [];
-
-            // نقاط الازدحام في مدن مصر
+            var trafficMarkers = [];
             var trafficPoints = [
                 // القاهرة والجيزة
                 { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير', status: 'heavy' },
@@ -567,62 +567,37 @@
                 { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس', status: 'heavy' },
                 { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل', status: 'moderate' },
                 { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر', status: 'moderate' },
-
                 // الإسكندرية
                 { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية', status: 'congested' },
                 { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة', status: 'moderate' },
-
                 // بورسعيد
                 { lat: 31.2667, lng: 32.3000, name: 'بورسعيد', status: 'excellent' },
-
                 // السويس
                 { lat: 29.9667, lng: 32.5500, name: 'السويس', status: 'moderate' },
-
                 // المنصورة
                 { lat: 31.0333, lng: 31.3833, name: 'المنصورة', status: 'excellent' },
-
-                // المنوفية
-                { lat: 30.5167, lng: 31.0000, name: 'شبين الكوم', status: 'excellent' },
-
                 // الغربية
                 { lat: 30.7833, lng: 31.0000, name: 'طنطا', status: 'excellent' },
-
                 // الشرقية
                 { lat: 30.5833, lng: 31.5000, name: 'الزقازيق', status: 'excellent' },
-
                 // البحيرة
                 { lat: 31.0333, lng: 30.4667, name: 'دمنهور', status: 'excellent' },
-
                 // كفر الشيخ
                 { lat: 31.1167, lng: 30.9500, name: 'كفر الشيخ', status: 'excellent' },
-
                 // أسيوط
                 { lat: 27.1833, lng: 31.1667, name: 'أسيوط', status: 'congested' },
-
                 // سوهاج
                 { lat: 26.5500, lng: 31.7000, name: 'سوهاج', status: 'moderate' },
-
-                // قنا
-                { lat: 26.1667, lng: 32.7167, name: 'قنا', status: 'excellent' },
-
                 // الأقصر
                 { lat: 25.6833, lng: 32.6500, name: 'الأقصر', status: 'moderate' },
-
                 // أسوان
                 { lat: 24.0833, lng: 32.9000, name: 'أسوان', status: 'excellent' },
-
                 // الفيوم
                 { lat: 29.3167, lng: 30.8333, name: 'الفيوم', status: 'excellent' },
-
-                // بني سويف
-                { lat: 29.0833, lng: 31.0833, name: 'بني سويف', status: 'excellent' },
-
                 // المنيا
                 { lat: 28.1167, lng: 30.7500, name: 'المنيا', status: 'moderate' },
-
                 // دمياط
                 { lat: 31.4167, lng: 31.8167, name: 'دمياط', status: 'excellent' },
-
                 // مطروح
                 { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح', status: 'excellent' },
             ];
@@ -648,10 +623,7 @@
                 'heavy': 22
             };
 
-            var trafficMarkers = [];
-
             function createTrafficDots() {
-                // إزالة النقاط القديمة
                 trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
                 trafficMarkers = [];
 
@@ -662,7 +634,6 @@
                     var size = statusSizes[point.status] || 10;
                     var statusName = statusNames[point.status] || 'غير معروف';
 
-                    // إنشاء أيقونة دائرية ملونة
                     var icon = L.divIcon({
                         className: 'traffic-dot-custom',
                         html: '<div style="background:' + color +
@@ -681,13 +652,11 @@
                     counts[point.status]++;
                 });
 
-                // تحديث العدادات في اللوحة
                 document.getElementById('countExcellent').textContent = counts.excellent;
                 document.getElementById('countModerate').textContent = counts.moderate;
                 document.getElementById('countCongested').textContent = counts.congested;
                 document.getElementById('countHeavy').textContent = counts.heavy;
 
-                // عرض لوحة المرور
                 document.getElementById('traffic-panel').classList.add('show');
                 document.getElementById('mode-traffic').classList.add('active');
             }
@@ -713,13 +682,11 @@
                 }
             });
 
-            // النقر على الصفوف في لوحة المرور
             document.querySelectorAll('.traffic-row').forEach(function(row) {
                 row.addEventListener('click', function() {
                     var status = this.getAttribute('data-status');
                     var points = trafficPoints.filter(function(p) { return p.status === status; });
                     if (points.length > 0) {
-                        // الانتقال إلى أول نقطة من هذا النوع
                         var p = points[0];
                         map.flyTo([p.lat, p.lng], 10, { duration: 1.2 });
                         showToast('📍 ' + statusNames[status] + ' - ' + points.length + ' نقطة', statusColors[
@@ -1058,8 +1025,7 @@
                 showToast('🛡️ أورا ماب - جميع الحقوق محفوظة لراشد ربيع', '#3dff9e');
             }, 1500);
 
-            console.log('🚀 أورا ماب - جميع الميزات تعمل');
-            console.log('📍 نقاط المرور على مستوى مصر');
+            console.log('🚀 أورا ماب - البحث يعمل');
         }
 
         // ================================================================
