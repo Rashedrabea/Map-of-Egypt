@@ -6,8 +6,8 @@
     <title>أورا ماب</title>
 
     <!-- ===== Leaflet ===== -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js">
     </script>
 
     <!-- ===== Font Awesome ===== -->
@@ -29,7 +29,7 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
-        /* الخريطة - تأخذ كامل الشاشة */
+        /* ===== الخريطة - تأخذ كامل الشاشة ===== */
         #map {
             position: absolute;
             top: 0;
@@ -517,135 +517,126 @@
 
     <script>
         // ================================================================
-        //  التأكد من تحميل Leaflet
+        //  الطريقة الأكثر أماناً - استخدام iframe كحل احتياطي
+        // ================================================================
+
+        // أولاً: نحاول استخدام Leaflet
+        function tryLeaflet() {
+            if (typeof L !== 'undefined') {
+                try {
+                    var map = L.map('map', {
+                        center: [30.0444, 31.2357],
+                        zoom: 13,
+                        zoomControl: true,
+                    });
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+
+                    console.log('✅ الخريطة ظهرت باستخدام Leaflet');
+                    return true;
+                } catch (e) {
+                    console.log('❌ خطأ في Leaflet:', e);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // ثانياً: إذا فشل Leaflet، نستخدم iframe
+        function useIframeFallback() {
+            var mapDiv = document.getElementById('map');
+            mapDiv.innerHTML = '';
+
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=31.1%2C29.9%2C31.4%2C30.2&amp;layer=mapnik&amp;marker=30.0444%2C31.2357';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.zIndex = '0';
+            iframe.loading = 'lazy';
+
+            mapDiv.appendChild(iframe);
+            console.log('✅ الخريطة ظهرت باستخدام iframe (حل بديل)');
+
+            // إظهار رسالة للمستخدم
+            showToast('🗺️ الخريطة تعمل (وضع بديل)', '#ffb84d');
+        }
+
+        // ================================================================
+        //  تشغيل الخريطة
         // ================================================================
         function initMap() {
-            if (typeof L === 'undefined') {
-                document.getElementById('map').innerHTML =
-                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#667799;flex-direction:column;gap:10px;font-size:1rem;">' +
-                    '<i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#7bb0ff;"></i>' +
-                    'جاري تحميل الخريطة...' +
-                    '</div>';
-                setTimeout(initMap, 1000);
-                return;
+            // المحاولة الأولى: Leaflet
+            var success = tryLeaflet();
+
+            // إذا فشل، استخدم iframe بعد 2 ثانية
+            if (!success) {
+                console.log('⚠️ Leaflet فشل، استخدام iframe بديل');
+                setTimeout(useIframeFallback, 2000);
             }
 
             // ================================================================
-            //  إنشاء الخريطة
+            //  حتى لو نجح Leaflet، نضيف زر لتحديث الخريطة
             // ================================================================
-            var map = L.map('map', {
-                center: [30.0444, 31.2357],
-                zoom: 13,
-                zoomControl: true,
+            document.getElementById('search-btn').addEventListener('dblclick', function() {
+                location.reload();
             });
+        }
 
-            // طبقة الشارع
-            var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+        // ================================================================
+        //  بدء التطبيق
+        // ================================================================
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initMap();
+        } else {
+            document.addEventListener('DOMContentLoaded', initMap);
+        }
 
-            // طبقات أخرى
-            var satelliteLayer = L.tileLayer(
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19
-                });
-
-            var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
-
-            var nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
-
-            var currentLayer = streetLayer;
-
-            // ================================================================
-            //  تبديل الأنماط
-            // ================================================================
-            function switchLayer(layer, btn) {
-                if (currentLayer) map.removeLayer(currentLayer);
-                currentLayer = layer;
-                map.addLayer(layer);
-                document.querySelectorAll('.bottom-item').forEach(function(el) {
-                    el.classList.remove('active');
-                });
-                if (btn) btn.classList.add('active');
+        // محاولة إضافية بعد 3 ثواني
+        setTimeout(function() {
+            var mapDiv = document.getElementById('map');
+            if (mapDiv && mapDiv.innerHTML === '') {
+                useIframeFallback();
             }
+        }, 3000);
 
-            document.getElementById('mode-street').addEventListener('click', function() {
-                switchLayer(streetLayer, this);
-            });
-            document.getElementById('mode-satellite').addEventListener('click', function() {
-                switchLayer(satelliteLayer, this);
-            });
-            document.getElementById('mode-terrain').addEventListener('click', function() {
-                switchLayer(terrainLayer, this);
-            });
-            document.getElementById('mode-night').addEventListener('click', function() {
-                switchLayer(nightLayer, this);
-            });
+        // ================================================================
+        //  بعد تحميل الخريطة (سواء Leaflet أو iframe)
+        // ================================================================
+        function showToast(msg, color) {
+            color = color || '#7bb0ff';
+            var t = document.createElement('div');
+            t.style.position = 'fixed';
+            t.style.top = '80px';
+            t.style.left = '50%';
+            t.style.transform = 'translateX(-50%)';
+            t.style.zIndex = '999';
+            t.style.padding = '8px 20px';
+            t.style.background = 'rgba(0,0,0,0.8)';
+            t.style.backdropFilter = 'blur(12px)';
+            t.style.borderRadius = '40px';
+            t.style.border = '1px solid ' + color + '33';
+            t.style.color = '#fff';
+            t.style.fontSize = '0.8rem';
+            t.style.maxWidth = '90%';
+            t.style.textAlign = 'center';
+            t.innerHTML = msg;
+            document.body.appendChild(t);
+            setTimeout(function() {
+                t.style.opacity = '0';
+                setTimeout(function() { t.remove(); }, 900);
+            }, 3000);
+        }
 
-            // ================================================================
-            //  GPS
-            // ================================================================
-            var userMarker = null,
-                userCircle = null,
-                userPos = null;
+        // رسالة ترحيب
+        setTimeout(function() {
+            showToast('🛡️ أورا ماب - خصوصية مطلقة', '#3dff9e');
+        }, 1500);
 
-            function createUserIcon() {
-                return L.divIcon({
-                    className: 'user-marker',
-                    iconSize: [22, 22],
-                    iconAnchor: [11, 11],
-                    html: '<div></div>'
-                });
-            }
-
-            function updateLocation(pos) {
-                var lat = pos.coords.latitude;
-                var lng = pos.coords.longitude;
-                var acc = pos.coords.accuracy || 30;
-                userPos = [lat, lng];
-
-                if (userMarker) {
-                    userMarker.setLatLng([lat, lng]);
-                    if (userCircle) userCircle.setLatLng([lat, lng]);
-                } else {
-                    var icon = createUserIcon();
-                    userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
-                    userCircle = L.circle([lat, lng], {
-                        radius: acc,
-                        color: '#3dff9e',
-                        fillColor: '#3dff9e',
-                        fillOpacity: 0.06,
-                        weight: 1.5,
-                        opacity: 0.5,
-                    }).addTo(map);
-                }
-            }
-
-            function locateUser() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(updateLocation, function() {
-                        alert('⚠️ لم نتمكن من تحديد موقعك');
-                    }, { enableHighAccuracy: true });
-                    navigator.geolocation.watchPosition(updateLocation, null, { enableHighAccuracy: true });
-                }
-            }
-            locateUser();
-
-            document.getElementById('locate-btn').addEventListener('click', function() {
-                if (userPos) {
-                    map.flyTo(userPos, 16, { duration: 1.2 });
-                    document.getElementById('locate-btn').style.color = '#3dff9e';
-                    setTimeout(function() { document.getElementById('locate-btn').style.color = ''; }, 1000);
-                } else {
-                    locateUser();
-                    alert('⏳ جاري تحديد موقعك...');
-                }
-            });
-
-            // ================================================================
-            //  البحث
-            // ================================================================
-            var searchInput = document.getElementById('search-input');
-            var searchBtn = document.getElementById('search-btn');
-      
+        console.log('🚀 أورا ماب - جاهزة');
+    </script>
+</body>
+</html>
