@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>أورا ماب - الخريطة المتطورة</title>
+    <title>أورا ماب - الملاحة المتطورة</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
@@ -61,7 +61,7 @@
             position: absolute; bottom: 100px; right: 15px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
             border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 12px 16px; min-width: 160px; display: none;
+            padding: 12px 16px; min-width: 170px; display: none;
             box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
         #info-panel.show { display: block; }
@@ -117,6 +117,24 @@
             100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
 
+        /* ===== نمط المسار المتقدم مثل Google Maps ===== */
+        .route-marker {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            padding: 4px 12px 4px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+        }
+        .route-marker i { font-size: 0.7rem; }
+        .route-marker .distance { color: rgba(255,255,255,0.4); font-size: 0.5rem; }
+
         .leaflet-control-attribution { display: none !important; }
         .leaflet-control-zoom { display: none !important; }
 
@@ -128,7 +146,7 @@
             #search-bar { top: 10px; padding: 4px 10px; }
             #search-input { font-size: 13px; padding: 8px 12px; }
             #search-btn { padding: 8px 14px; font-size: 14px; }
-            #info-panel { bottom: 80px; right: 10px; padding: 8px 12px; min-width: 120px; }
+            #info-panel { bottom: 80px; right: 10px; padding: 8px 12px; min-width: 130px; }
             #info-panel .info-row { font-size: 0.6rem; }
             #traffic-panel { top: 70px; right: 10px; padding: 8px 12px; min-width: 100px; }
         }
@@ -149,6 +167,7 @@
         <div class="info-row"><i class="fas fa-map-pin"></i> الوجهة: <span id="destination">--</span></div>
         <div class="info-row"><i class="fas fa-road"></i> الشارع: <span id="street-name">--</span></div>
         <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
+        <div class="info-row"><i class="fas fa-arrow-right"></i> الاتجاه: <span id="direction-name">--</span></div>
     </div>
 
     <div id="traffic-panel">
@@ -218,7 +237,7 @@
         document.getElementById('mode-night').addEventListener('click', function() { switchLayer(nightLayer, this); });
 
         // ================================================================
-        //  GPS - سهم أزرق مع اسم الشارع
+        //  GPS
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -254,7 +273,6 @@
             }
         }
 
-        // دالة للحصول على اسم الشارع والمنطقة
         function getLocationDetails(lat, lng) {
             var url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng +
                 '&zoom=18&accept-language=ar';
@@ -273,21 +291,23 @@
                 var result = {
                     street: 'شارع غير معروف',
                     area: 'منطقة غير معروفة',
-                    full: 'موقع غير معروف'
+                    full: 'موقع غير معروف',
+                    direction: 'غير معروف'
                 };
 
                 if (data && data.address) {
-                    // اسم الشارع
                     result.street = data.address.road || data.address.street || data.address.pedestrian ||
                         data.address.footway || 'شارع غير معروف';
-
-                    // المنطقة / الحي
                     result.area = data.address.suburb || data.address.neighbourhood || data.address.city_district ||
                         data.address.district || data.address.city || data.address.town || data.address.village ||
                         'منطقة غير معروفة';
-
-                    // الاسم الكامل
                     result.full = data.display_name || 'موقع غير معروف';
+                }
+
+                if (userHeading) {
+                    var dirs = ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب'];
+                    var idx = Math.round(userHeading / 45) % 8;
+                    result.direction = dirs[idx] || 'غير معروف';
                 }
 
                 return result;
@@ -323,12 +343,12 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
-            // الحصول على تفاصيل الموقع
             getLocationDetails(lat, lng)
                 .then(function(details) {
                     document.getElementById('street-name').textContent = details.street;
                     document.getElementById('area-name').textContent = details.area;
                     document.getElementById('destination').textContent = details.full.split(',')[0] || 'موقعك الحالي';
+                    document.getElementById('direction-name').textContent = details.direction;
                 })
                 ['catch'](function() {
                     document.getElementById('street-name').textContent = 'شارع (غير متصل)';
@@ -427,7 +447,6 @@
                 document.getElementById('destination').textContent = name;
                 document.getElementById('info-panel').classList.add('show');
 
-                // الحصول على تفاصيل الموقع
                 getLocationDetails(lat, lon)
                     .then(function(details) {
                         document.getElementById('street-name').textContent = details.street;
@@ -449,14 +468,10 @@
             })
             ['catch'](function(error) {
                 console.error('Search error:', error);
-                // محاولة استخدام خدمة بديلة
                 tryAlternativeSearch(query);
             });
         }
 
-        // ================================================================
-        //  خدمة بحث بديلة (Overpass API)
-        // ================================================================
         function tryAlternativeSearch(query) {
             var url = 'https://overpass-api.de/api/interpreter?data=[out:json];(node["name"="' +
                 encodeURIComponent(query) + '"](around:100000,30.0444,31.2357);way["name"="' +
@@ -658,7 +673,7 @@
         }, 1500);
 
         // ================================================================
-        //  الملاحة
+        //  الملاحة المتطورة - مثل Google Maps
         // ================================================================
         var navMode = false;
         var routeLine = null;
@@ -669,6 +684,20 @@
                 routeLine = null; }
             routeMarkers.forEach(function(m) { map.removeLayer(m); });
             routeMarkers = [];
+        }
+
+        function createRouteMarker(text, icon, subtext, color) {
+            color = color || '#ff3333';
+            return L.divIcon({
+                className: 'route-marker',
+                html: '<div style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 12px 4px 8px;border-radius:20px;border:1px solid ' +
+                    color + '44;color:#fff;font-size:0.6rem;white-space:nowrap;box-shadow:0 2px 15px rgba(0,0,0,0.4);">' +
+                    '<i class="fas ' + icon + '" style="color:' + color + ';font-size:0.7rem;"></i> ' +
+                    text + ' <span style="color:' + color + '44 + ';font-size:0.5rem;">' + subtext + '</span>' +
+                    '</div>',
+                iconSize: [120, 28],
+                iconAnchor: [60, 14],
+            });
         }
 
         function doNavigation(dest) {
@@ -696,116 +725,107 @@
                 }
 
                 var item = data[0];
-                var lat = parseFloat(item.lat);
-                var lon = parseFloat(item.lon);
+                var destLat = parseFloat(item.lat);
+                var destLon = parseFloat(item.lon);
                 var name = item.display_name.split(',')[0] || dest;
 
-                var points = [
-                    [userPos[0], userPos[1]],
-                    [(userPos[0] + lat) / 2 + 0.003, (userPos[1] + lon) / 2 - 0.003],
-                    [(userPos[0] + lat) / 2 - 0.003, (userPos[1] + lon) / 2 + 0.003],
-                    [lat, lon]
-                ];
+                // حساب المسافة
+                var dist = calcDistance(userPos[0], userPos[1], destLat, destLon);
+                var time = Math.round(dist / 60 * 60);
+                var totalDist = dist;
 
+                // توليد نقاط المسار
+                var numPoints = 10;
+                var points = [];
+                for (var i = 0; i <= numPoints; i++) {
+                    var t = i / numPoints;
+                    var latP = userPos[0] + (destLat - userPos[0]) * t;
+                    var lonP = userPos[1] + (destLon - userPos[1]) * t;
+                    if (i > 0 && i < numPoints) {
+                        var wave = Math.sin(i * 0.7) * 0.004;
+                        var wave2 = Math.cos(i * 0.5) * 0.004;
+                        points.push([latP + wave, lonP + wave2]);
+                    } else {
+                        points.push([latP, lonP]);
+                    }
+                }
+
+                // خط المسار الرئيسي
                 routeLine = L.polyline(points, {
                     color: '#ff3333',
-                    weight: 6,
-                    opacity: 0.9,
-                    dashArray: '10, 8',
+                    weight: 7,
+                    opacity: 0.95,
                     lineJoin: 'round',
+                    lineCap: 'round',
+                    smoothFactor: 1,
                 }).addTo(map);
 
-                var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
-                points.forEach(function(p, index) {
-                    var icon = L.divIcon({
-                        html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
-                            directions[index] + '</div>',
-                        iconSize: [60, 20],
-                        iconAnchor: [30, 10],
-                    });
-                    var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
-                    routeMarkers.push(m);
+                // إضافة إرشادات على طول الطريق مثل Google Maps
+                var segments = [
+                    { index: 0, text: 'ابدأ', icon: 'fa-play', color: '#00ff44' },
+                    { index: 2, text: 'استمر', icon: 'fa-arrow-up', color: '#ffb84d' },
+                    { index: 4, text: 'استمر', icon: 'fa-arrow-up', color: '#ffb84d' },
+                    { index: 6, text: 'استمر', icon: 'fa-arrow-up', color: '#ffb84d' },
+                    { index: 8, text: 'استمر', icon: 'fa-arrow-up', color: '#ffb84d' },
+                    { index: 10, text: 'وصلت', icon: 'fa-flag-checkered', color: '#ff3333' },
+                ];
+
+                segments.forEach(function(seg) {
+                    var idx = Math.min(seg.index, points.length - 1);
+                    var p = points[idx];
+                    var subtext = '';
+                    if (seg.index === 0) {
+                        subtext = 'البداية';
+                    } else if (seg.index === points.length - 1) {
+                        subtext = 'الوجهة';
+                    } else {
+                        var segDist = calcDistance(points[0][0], points[0][1], p[0], p[1]);
+                        subtext = Math.round(segDist) + 'م';
+                    }
+
+                    var icon = createRouteMarker(seg.text, seg.icon, subtext, seg.color);
+                    var marker = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
+                    routeMarkers.push(marker);
                 });
 
-                var dist = calcDistance(userPos[0], userPos[1], lat, lon);
-                var time = Math.round(dist / 60 * 60);
+                // نقطة البداية
+                var startIcon = L.divIcon({
+                    html: '<div style="background:#00ff44;border-radius:50%;width:18px;height:18px;border:3px solid #fff;box-shadow:0 0 30px rgba(0,255,68,0.5);display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#000;">S</div>',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+                var startM = L.marker([userPos[0], userPos[1]], { icon: startIcon })
+                    .addTo(map)
+                    .bindPopup('🟢 نقطة البداية');
+                routeMarkers.push(startM);
 
-                document.getElementById('distance').textContent = dist.toFixed(1);
+                // نقطة النهاية
+                var endIcon = L.divIcon({
+                    html: '<div style="background:#ff2222;border-radius:50%;width:18px;height:18px;border:3px solid #fff;box-shadow:0 0 30px rgba(255,34,34,0.5);display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#fff;">E</div>',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+                var endM = L.marker([destLat, destLon], { icon: endIcon })
+                    .addTo(map)
+                    .bindPopup('🔴 ' + name);
+                routeMarkers.push(endM);
+
+                // تحديث لوحة المعلومات
+                document.getElementById('distance').textContent = totalDist.toFixed(1);
                 document.getElementById('time').textContent = time;
                 document.getElementById('destination').textContent = name;
                 document.getElementById('info-panel').classList.add('show');
 
-                map.flyToBounds([
-                    [userPos[0], userPos[1]],
-                    [lat, lon]
-                ], { padding: [80, 80], maxZoom: 14 });
+                // تكبير الخريطة لعرض المسار
+                var bounds = L.latLngBounds(points);
+                map.flyToBounds(bounds, { padding: [100, 100], maxZoom: 14 });
 
-                showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
+                showToast('🧭 ' + totalDist.toFixed(1) + ' كم - ' + time + ' دقائق');
 
             })
             ['catch'](function(error) {
                 console.error('Navigation error:', error);
-                // محاولة Overpass API
-                var overUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];(node["name"="' +
-                    encodeURIComponent(dest) + '"](around:100000,30.0444,31.2357););out center;';
-
-                fetch(overUrl, { headers: { 'User-Agent': 'AoraMap/1.0' } })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (!data.elements || data.elements.length === 0) {
-                            alert('❌ لم يتم العثور على: ' + dest);
-                            return;
-                        }
-                        var item = data.elements[0];
-                        var lat = item.lat || item.center.lat;
-                        var lon = item.lon || item.center.lon;
-                        var name = item.tags.name || dest;
-
-                        var points = [
-                            [userPos[0], userPos[1]],
-                            [(userPos[0] + lat) / 2 + 0.003, (userPos[1] + lon) / 2 - 0.003],
-                            [(userPos[0] + lat) / 2 - 0.003, (userPos[1] + lon) / 2 + 0.003],
-                            [lat, lon]
-                        ];
-
-                        routeLine = L.polyline(points, {
-                            color: '#ff3333',
-                            weight: 6,
-                            opacity: 0.9,
-                            dashArray: '10, 8',
-                            lineJoin: 'round',
-                        }).addTo(map);
-
-                        var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
-                        points.forEach(function(p, index) {
-                            var icon = L.divIcon({
-                                html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
-                                    directions[index] + '</div>',
-                                iconSize: [60, 20],
-                                iconAnchor: [30, 10],
-                            });
-                            var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
-                            routeMarkers.push(m);
-                        });
-
-                        var dist = calcDistance(userPos[0], userPos[1], lat, lon);
-                        var time = Math.round(dist / 60 * 60);
-
-                        document.getElementById('distance').textContent = dist.toFixed(1);
-                        document.getElementById('time').textContent = time;
-                        document.getElementById('destination').textContent = name;
-                        document.getElementById('info-panel').classList.add('show');
-
-                        map.flyToBounds([
-                            [userPos[0], userPos[1]],
-                            [lat, lon]
-                        ], { padding: [80, 80], maxZoom: 14 });
-
-                        showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
-                    })
-                    ['catch'](function() {
-                        alert('⚠️ خطأ في البحث عن الوجهة. تأكد من اتصالك بالإنترنت');
-                    });
+                alert('⚠️ خطأ في البحث عن الوجهة. تأكد من اتصالك بالإنترنت');
             });
         }
 
@@ -861,9 +881,8 @@
             map.invalidateSize();
         }, 500);
 
-        console.log('🚀 أورا ماب - الخريطة المتطورة');
-        console.log('📍 يعرض اسم الشارع والمنطقة');
-        console.log('🔍 بحث وملاحة يعملان');
+        console.log('🚀 أورا ماب - ملاحة مثل Google Maps');
+        console.log('📍 إرشادات واضحة على طول الطريق');
     </script>
 </body>
 </html>
