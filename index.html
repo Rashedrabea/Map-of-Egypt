@@ -5,16 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>أورا ماب - الملاحة المتطورة</title>
 
-    <!-- ===== Leaflet ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
     </script>
-
-    <!-- ===== Leaflet Rotated Marker ===== -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-rotatedmarker/0.2.0/leaflet.rotatedMarker.js">
-    </script>
-
-    <!-- ===== Font Awesome ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
@@ -96,7 +89,7 @@
         .traffic-row .dot.red { background: #ff6b6b; }
         .traffic-row .count { margin-left: auto; font-weight: bold; color: #e8f0ff; }
 
-        /* ===== مؤشر GPS ===== */
+        /* ===== مؤشر GPS - أزرق ===== */
         .gps-marker {
             width: 30px;
             height: 30px;
@@ -108,9 +101,9 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 28px;
-            color: #3dff9e;
-            text-shadow: 0 0 20px rgba(61, 255, 158, 0.5);
-            filter: drop-shadow(0 0 10px rgba(61, 255, 158, 0.3));
+            color: #4a9eff;
+            text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+            filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.3));
         }
         .gps-marker .pulse {
             position: absolute;
@@ -120,8 +113,8 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(61, 255, 158, 0.1);
-            border: 2px solid rgba(61, 255, 158, 0.2);
+            background: rgba(74, 158, 255, 0.1);
+            border: 2px solid rgba(74, 158, 255, 0.2);
             animation: pulse-ring 2s ease-out infinite;
         }
         @keyframes pulse-ring {
@@ -144,7 +137,6 @@
         .leaflet-control-attribution { display: none !important; }
         .leaflet-control-zoom { display: none !important; }
 
-        /* ===== استجابة ===== */
         @media (max-width: 480px) {
             #bottom-bar { bottom: 12px; padding: 6px 8px; border-radius: 40px; min-height: 48px; gap: 2px; }
             .bottom-item { padding: 4px 8px; min-width: 38px; min-height: 38px; }
@@ -161,19 +153,15 @@
 </head>
 <body>
 
-    <!-- ===== الخريطة ===== -->
     <div id="map"></div>
 
-    <!-- ===== شريط البحث ===== -->
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
         <button id="search-btn">🔍</button>
     </div>
 
-    <!-- ===== حالة الاتصال ===== -->
     <div id="status-bar" class="online">📡 متصل</div>
 
-    <!-- ===== لوحة المعلومات ===== -->
     <div id="info-panel">
         <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
         <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
@@ -181,7 +169,6 @@
         <div class="info-row"><i class="fas fa-road"></i> الشارع: <span id="street-name">--</span></div>
     </div>
 
-    <!-- ===== لوحة المرور ===== -->
     <div id="traffic-panel">
         <h4>🚦 نقاط الازدحام</h4>
         <div class="traffic-row"><span class="dot green"></span> ممتاز <span class="count" id="traffic-green">0</span></div>
@@ -190,7 +177,6 @@
         <div class="traffic-row"><span class="dot red"></span> ازدحام شديد <span class="count" id="traffic-red">0</span></div>
     </div>
 
-    <!-- ===== اللوحة السفلية ===== -->
     <div id="bottom-bar">
         <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
         <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
@@ -219,7 +205,6 @@
             zoomControl: false,
         });
 
-        // ===== طبقات الخريطة =====
         var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
@@ -236,35 +221,22 @@
 
         var currentLayer = streetLayer;
 
-        // ================================================================
-        //  تبديل الأنماط
-        // ================================================================
         function switchLayer(layer, btn) {
             if (currentLayer) map.removeLayer(currentLayer);
             currentLayer = layer;
             map.addLayer(layer);
-            document.querySelectorAll('.bottom-item').forEach(function(el) {
-                el.classList.remove('active');
-            });
+            document.querySelectorAll('.bottom-item').forEach(function(el) { el.classList.remove('active'); });
             if (btn) btn.classList.add('active');
             showToast('🗺️ تم تغيير النمط');
         }
 
-        document.getElementById('mode-street').addEventListener('click', function() {
-            switchLayer(streetLayer, this);
-        });
-        document.getElementById('mode-satellite').addEventListener('click', function() {
-            switchLayer(satelliteLayer, this);
-        });
-        document.getElementById('mode-terrain').addEventListener('click', function() {
-            switchLayer(terrainLayer, this);
-        });
-        document.getElementById('mode-night').addEventListener('click', function() {
-            switchLayer(nightLayer, this);
-        });
+        document.getElementById('mode-street').addEventListener('click', function() { switchLayer(streetLayer, this); });
+        document.getElementById('mode-satellite').addEventListener('click', function() { switchLayer(satelliteLayer, this); });
+        document.getElementById('mode-terrain').addEventListener('click', function() { switchLayer(terrainLayer, this); });
+        document.getElementById('mode-night').addEventListener('click', function() { switchLayer(nightLayer, this); });
 
         // ================================================================
-        //  GPS - سهم متحرك مع الاتجاه
+        //  GPS - سهم أزرق متحرك
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -312,15 +284,14 @@
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
-                // تحديث اتجاه السهم
                 updateGPSIcon(heading);
             } else {
                 var icon = createGPSIcon(heading);
                 userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
                 userCircle = L.circle([lat, lng], {
                     radius: acc,
-                    color: '#3dff9e',
-                    fillColor: '#3dff9e',
+                    color: '#4a9eff',
+                    fillColor: '#4a9eff',
                     fillOpacity: 0.06,
                     weight: 1.5,
                     opacity: 0.5,
@@ -330,7 +301,6 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
-            // تحديث اسم الشارع
             if (navigator.onLine) {
                 fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng +
                         '&zoom=18&accept-language=ar')
@@ -338,15 +308,14 @@
                     .then(function(data) {
                         var addr = data.display_name || 'موقعك الحالي';
                         var parts = addr.split(',');
-                        var street = parts[0] || 'شارع غير معروف';
-                        document.getElementById('street-name').textContent = street;
+                        document.getElementById('street-name').textContent = parts[0] || 'شارع غير معروف';
                         document.getElementById('destination').textContent = parts.slice(0, 3).join(', ');
                     })['catch'](function() {});
             } else {
                 document.getElementById('street-name').textContent = 'شارع (غير متصل)';
             }
 
-            document.getElementById('mode-gps').style.color = '#3dff9e';
+            document.getElementById('mode-gps').style.color = '#4a9eff';
             document.getElementById('mode-gps').classList.add('active');
         }
 
@@ -375,7 +344,7 @@
         setTimeout(locateUser, 1000);
 
         // ================================================================
-        //  البحث
+        //  البحث - إصلاح خطأ البحث
         // ================================================================
         var searchInput = document.getElementById('search-input');
         var searchBtn = document.getElementById('search-btn');
@@ -402,20 +371,30 @@
             setTimeout(function() { if (searchMarker) searchMarker.openPopup(); }, 600);
         }
 
-        async function searchLocation() {
-            var query = searchInput.value.trim();
+        function doSearch(query) {
             if (query.length < 2) {
                 alert('⚠️ اكتب أكثر من حرفين');
                 return;
             }
 
+            // استخدام خدمة Nominatim مع إعدادات أفضل
             var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query) +
                 '&limit=6&lang=ar&addressdetails=1&countrycodes=eg';
 
-            try {
-                var res = await fetch(url, { headers: { 'User-Agent': 'AoraMap/1.0' } });
-                var data = await res.json();
-
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'AoraMap/1.0',
+                    'Accept': 'application/json',
+                    'Accept-Language': 'ar'
+                }
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Network error: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function(data) {
                 if (!data || data.length === 0) {
                     alert('❌ لا توجد نتائج');
                     return;
@@ -438,14 +417,24 @@
                 searchInput.value = name;
                 showToast('📍 تم الانتقال إلى: ' + name);
 
-            } catch (err) {
-                alert('⚠️ خطأ في البحث، حاول مرة أخرى');
-            }
+            })
+            ['catch'](function(error) {
+                console.error('Search error:', error);
+                alert('⚠️ خطأ في البحث: ' + error.message + '\nتأكد من اتصالك بالإنترنت');
+            });
         }
 
-        searchBtn.addEventListener('click', searchLocation);
+        searchBtn.addEventListener('click', function() {
+            var query = searchInput.value.trim();
+            doSearch(query);
+        });
+
         searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') searchLocation();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var query = searchInput.value.trim();
+                doSearch(query);
+            }
         });
 
         // ================================================================
@@ -464,24 +453,22 @@
         // ================================================================
         //  النقر على الخريطة
         // ================================================================
-        map.on('click', async function(e) {
+        map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lng = e.latlng.lng;
 
             if (navigator.onLine) {
-                try {
-                    var res = await fetch(
-                        'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng +
-                        '&zoom=10&lang=ar', { headers: { 'User-Agent': 'AoraMap/1.0' } }
-                    );
-                    var data = await res.json();
-                    var name = data.display_name || '📍 موقع مختار';
-                    document.getElementById('destination').textContent = name.split(',')[0];
-                    var parts = name.split(',');
-                    document.getElementById('street-name').textContent = parts[0] || 'شارع غير معروف';
-                } catch {
-                    document.getElementById('destination').textContent = '📍 موقع مختار';
-                }
+                fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng +
+                        '&zoom=10&lang=ar', { headers: { 'User-Agent': 'AoraMap/1.0' } })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        var name = data.display_name || '📍 موقع مختار';
+                        document.getElementById('destination').textContent = name.split(',')[0];
+                        var parts = name.split(',');
+                        document.getElementById('street-name').textContent = parts[0] || 'شارع غير معروف';
+                    })['catch'](function() {
+                        document.getElementById('destination').textContent = '📍 موقع مختار';
+                    });
             } else {
                 document.getElementById('destination').textContent = '📍 موقع مختار (غير متصل)';
             }
@@ -496,76 +483,45 @@
         });
 
         // ================================================================
-        //  نقاط المرور المتغيرة حسب الزحام
+        //  نقاط المرور المتغيرة
         // ================================================================
         var trafficPoints = [
-            { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير', status: 'heavy' },
-            { lat: 30.0550, lng: 31.2260, name: 'شارع الهرم', status: 'congested' },
-            { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس', status: 'heavy' },
-            { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل', status: 'moderate' },
-            { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر', status: 'moderate' },
-            { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية', status: 'congested' },
-            { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة', status: 'moderate' },
-            { lat: 27.1833, lng: 31.1667, name: 'أسيوط', status: 'congested' },
-            { lat: 26.5500, lng: 31.7000, name: 'سوهاج', status: 'moderate' },
-            { lat: 25.6833, lng: 32.6500, name: 'الأقصر', status: 'moderate' },
-            { lat: 24.0833, lng: 32.9000, name: 'أسوان', status: 'excellent' },
-            { lat: 29.3167, lng: 30.8333, name: 'الفيوم', status: 'excellent' },
-            { lat: 31.4167, lng: 31.8167, name: 'دمياط', status: 'excellent' },
-            { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح', status: 'excellent' },
+            { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير' },
+            { lat: 30.0550, lng: 31.2260, name: 'شارع الهرم' },
+            { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس' },
+            { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل' },
+            { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر' },
+            { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية' },
+            { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة' },
+            { lat: 27.1833, lng: 31.1667, name: 'أسيوط' },
+            { lat: 26.5500, lng: 31.7000, name: 'سوهاج' },
+            { lat: 25.6833, lng: 32.6500, name: 'الأقصر' },
+            { lat: 24.0833, lng: 32.9000, name: 'أسوان' },
+            { lat: 29.3167, lng: 30.8333, name: 'الفيوم' },
+            { lat: 31.4167, lng: 31.8167, name: 'دمياط' },
+            { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح' },
         ];
 
-        var statusColors = {
-            'excellent': '#3dff9e',
-            'moderate': '#ffb84d',
-            'congested': '#ff9f43',
-            'heavy': '#ff6b6b'
-        };
-
-        var statusSizes = {
-            'excellent': 8,
-            'moderate': 13,
-            'congested': 18,
-            'heavy': 24
-        };
-
-        var statusNames = {
-            'excellent': 'ممتاز',
-            'moderate': 'متوسط',
-            'congested': 'مزدحم',
-            'heavy': 'ازدحام شديد'
-        };
+        var statusColors = ['#3dff9e', '#ffb84d', '#ff9f43', '#ff6b6b'];
+        var statusNames = ['ممتاز', 'متوسط', 'مزدحم', 'ازدحام شديد'];
+        var statusSizes = [8, 13, 18, 24];
 
         var trafficMarkers = [];
         var trafficInterval = null;
         var trafficVisible = false;
 
-        function createTrafficDots() {
+        function updateTraffic() {
             trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
             trafficMarkers = [];
 
-            var counts = { excellent: 0, moderate: 0, congested: 0, heavy: 0 };
+            var counts = [0, 0, 0, 0];
 
-            // تغيير الحالة بشكل عشوائي لمحاكاة التغير في الزحام
             trafficPoints.forEach(function(point) {
-                // تغيير الحالة عشوائياً كل مرة
-                var statuses = ['excellent', 'moderate', 'congested', 'heavy'];
-                var weights = [0.3, 0.3, 0.25, 0.15]; // احتمالات
-                var rand = Math.random();
-                var cumulative = 0;
-                var newStatus = 'moderate';
-                for (var i = 0; i < statuses.length; i++) {
-                    cumulative += weights[i];
-                    if (rand <= cumulative) {
-                        newStatus = statuses[i];
-                        break;
-                    }
-                }
-                point.status = newStatus;
-
-                var color = statusColors[point.status] || '#7bb0ff';
-                var size = statusSizes[point.status] || 10;
-                var statusName = statusNames[point.status] || 'غير معروف';
+                // تغيير الحالة عشوائياً
+                var statusIdx = Math.floor(Math.random() * 4);
+                var color = statusColors[statusIdx];
+                var size = statusSizes[statusIdx];
+                var name = statusNames[statusIdx];
 
                 var icon = L.divIcon({
                     className: 'traffic-dot',
@@ -579,16 +535,16 @@
 
                 var marker = L.marker([point.lat, point.lng], { icon: icon })
                     .addTo(map)
-                    .bindPopup('<strong>' + point.name + '</strong><br>🟢 الحالة: ' + statusName);
+                    .bindPopup('<strong>' + point.name + '</strong><br>🟢 الحالة: ' + name);
 
                 trafficMarkers.push(marker);
-                counts[point.status]++;
+                counts[statusIdx]++;
             });
 
-            document.getElementById('traffic-green').textContent = counts.excellent;
-            document.getElementById('traffic-yellow').textContent = counts.moderate;
-            document.getElementById('traffic-orange').textContent = counts.congested;
-            document.getElementById('traffic-red').textContent = counts.heavy;
+            document.getElementById('traffic-green').textContent = counts[0];
+            document.getElementById('traffic-yellow').textContent = counts[1];
+            document.getElementById('traffic-orange').textContent = counts[2];
+            document.getElementById('traffic-red').textContent = counts[3];
         }
 
         function removeTrafficDots() {
@@ -612,10 +568,9 @@
 
             if (trafficVisible) {
                 trafficPanel.classList.add('show');
-                createTrafficDots();
-                // تحديث كل 10 ثواني لتغيير حالة الزحام
+                updateTraffic();
                 if (trafficInterval) clearInterval(trafficInterval);
-                trafficInterval = setInterval(createTrafficDots, 10000);
+                trafficInterval = setInterval(updateTraffic, 8000);
                 showToast('🚦 نقاط الازدحام متغيرة حسب الزحام');
             } else {
                 trafficPanel.classList.remove('show');
@@ -629,7 +584,7 @@
         }, 1500);
 
         // ================================================================
-        //  الملاحة - تعرض الشوارع
+        //  الملاحة - إصلاح خطأ البحث
         // ================================================================
         var navMode = false;
         var routeLine = null;
@@ -642,110 +597,96 @@
             routeMarkers = [];
         }
 
+        function doNavigation(dest) {
+            if (!userPos) {
+                alert('⚠️ حدد موقعك أولاً (انتظر حتى يظهر GPS)');
+                return;
+            }
+
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(dest) +
+                '&limit=1&lang=ar&addressdetails=1&countrycodes=eg';
+
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'AoraMap/1.0',
+                    'Accept': 'application/json',
+                    'Accept-Language': 'ar'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data || data.length === 0) {
+                    alert('❌ لم يتم العثور على: ' + dest);
+                    return;
+                }
+
+                var item = data[0];
+                var lat = parseFloat(item.lat);
+                var lon = parseFloat(item.lon);
+                var name = item.display_name.split(',')[0] || dest;
+
+                // رسم المسار
+                var points = [
+                    [userPos[0], userPos[1]],
+                    [(userPos[0] + lat) / 2 + 0.003, (userPos[1] + lon) / 2 - 0.003],
+                    [(userPos[0] + lat) / 2 - 0.003, (userPos[1] + lon) / 2 + 0.003],
+                    [lat, lon]
+                ];
+
+                routeLine = L.polyline(points, {
+                    color: '#ff3333',
+                    weight: 6,
+                    opacity: 0.9,
+                    dashArray: '10, 8',
+                    lineJoin: 'round',
+                }).addTo(map);
+
+                var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
+                points.forEach(function(p, index) {
+                    var icon = L.divIcon({
+                        html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
+                            directions[index] + '</div>',
+                        iconSize: [60, 20],
+                        iconAnchor: [30, 10],
+                    });
+                    var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
+                    routeMarkers.push(m);
+                });
+
+                var dist = calcDistance(userPos[0], userPos[1], lat, lon);
+                var time = Math.round(dist / 60 * 60);
+
+                document.getElementById('distance').textContent = dist.toFixed(1);
+                document.getElementById('time').textContent = time;
+                document.getElementById('destination').textContent = name;
+                document.getElementById('info-panel').classList.add('show');
+
+                map.flyToBounds([
+                    [userPos[0], userPos[1]],
+                    [lat, lon]
+                ], { padding: [80, 80], maxZoom: 14 });
+
+                showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
+
+            })
+            ['catch'](function(error) {
+                console.error('Navigation error:', error);
+                alert('⚠️ خطأ في البحث عن الوجهة: ' + error.message + '\nتأكد من اتصالك بالإنترنت');
+            });
+        }
+
         document.getElementById('mode-navigation').addEventListener('click', function() {
             navMode = !navMode;
             this.classList.toggle('active', navMode);
 
             if (navMode) {
-                if (!userPos) {
-                    alert('⚠️ حدد موقعك أولاً (انتظر حتى يظهر GPS)');
-                    navMode = false;
-                    this.classList.remove('active');
-                    return;
-                }
-
                 var dest = prompt('📍 أدخل اسم الوجهة (مثال: ميدان التحرير، مطعم...):');
                 if (!dest) {
                     navMode = false;
                     this.classList.remove('active');
                     return;
                 }
-
-                var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(dest) +
-                    '&limit=1&lang=ar&addressdetails=1&countrycodes=eg';
-
-                fetch(url, { headers: { 'User-Agent': 'AoraMap/1.0' } })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (!data || data.length === 0) {
-                            alert('❌ لم يتم العثور على: ' + dest);
-                            navMode = false;
-                            document.getElementById('mode-navigation').classList.remove('active');
-                            return;
-                        }
-
-                        var item = data[0];
-                        var lat = parseFloat(item.lat);
-                        var lon = parseFloat(item.lon);
-                        var name = item.display_name.split(',')[0] || dest;
-
-                        // رسم المسار مع نقاط وسيطة لتوضيح الطريق
-                        var midLat = (userPos[0] + lat) / 2;
-                        var midLon = (userPos[1] + lon) / 2;
-                        // إضافة بعض الانحناءات لجعل المسار أكثر واقعية
-                        var offset = 0.005;
-                        var points = [
-                            [userPos[0], userPos[1]],
-                            [midLat + offset, midLon - offset],
-                            [midLat - offset, midLon + offset],
-                            [lat, lon]
-                        ];
-
-                        routeLine = L.polyline(points, {
-                            color: '#ff3333',
-                            weight: 6,
-                            opacity: 0.9,
-                            dashArray: '10, 8',
-                            lineJoin: 'round',
-                        }).addTo(map);
-
-                        // نقاط إرشادية على طول الطريق
-                        var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
-                        points.forEach(function(p, index) {
-                            var icon = L.divIcon({
-                                html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
-                                    directions[index] + '</div>',
-                                iconSize: [60, 20],
-                                iconAnchor: [30, 10],
-                            });
-                            var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
-                            routeMarkers.push(m);
-                        });
-
-                        var dist = calcDistance(userPos[0], userPos[1], lat, lon);
-                        var time = Math.round(dist / 60 * 60);
-
-                        document.getElementById('distance').textContent = dist.toFixed(1);
-                        document.getElementById('time').textContent = time;
-                        document.getElementById('destination').textContent = name;
-                        document.getElementById('info-panel').classList.add('show');
-
-                        // الحصول على اسم الشارع
-                        if (navigator.onLine) {
-                            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + userPos[0] +
-                                    '&lon=' + userPos[1] + '&zoom=18&accept-language=ar')
-                                .then(function(r) { return r.json(); })
-                                .then(function(data) {
-                                    var addr = data.display_name || 'شارع غير معروف';
-                                    var parts = addr.split(',');
-                                    document.getElementById('street-name').textContent = parts[0] ||
-                                        'شارع غير معروف';
-                                })['catch'](function() {});
-                        }
-
-                        map.flyToBounds([
-                            [userPos[0], userPos[1]],
-                            [lat, lon]
-                        ], { padding: [80, 80], maxZoom: 14 });
-
-                        showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
-
-                    })['catch'](function() {
-                        alert('⚠️ خطأ في البحث عن الوجهة');
-                        navMode = false;
-                        document.getElementById('mode-navigation').classList.remove('active');
-                    });
-
+                doNavigation(dest);
             } else {
                 clearRoute();
                 showToast('📍 تم إلغاء الملاحة');
@@ -806,10 +747,9 @@
             map.invalidateSize();
         }, 500);
 
-        console.log('🚀 أورا ماب - الملاحة المتطورة');
-        console.log('📍 سهم متحرك يتجه مع حركتك');
-        console.log('🚦 نقاط مرور متغيرة حسب الزحام');
-        console.log('🧭 مسار مع إرشادات الشوارع');
+        console.log('🚀 أورا ماب - البحث والملاحة يعملان');
+        console.log('📍 سهم أزرق متحرك');
+        console.log('🚦 نقاط مرور متغيرة');
     </script>
 </body>
 </html>
