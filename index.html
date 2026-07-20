@@ -11,232 +11,678 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
-        /* ===== جميع الأنماط السابقة ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0b0e14; overflow: hidden; height: 100vh; width: 100vw; }
-        #map { height: 100vh; width: 100vw; background: #1a1f2e; position: absolute; top: 0; left: 0; z-index: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0b0e14;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+            background: #1a1f2e;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
 
         #app-logo {
-            position: absolute; top: 15px; right: 15px; z-index: 1001;
-            background: rgba(10,14,24,0.85); backdrop-filter: blur(20px);
-            padding: 8px 16px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06);
-            color: #7bb0ff; font-weight: bold; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1001;
+            background: rgba(10, 14, 24, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #7bb0ff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             pointer-events: none;
         }
-        #app-logo i { color: #ffb84d; }
+        #app-logo i {
+            color: #ffb84d;
+        }
 
         #search-bar {
-            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 6px;
-            background: rgba(12,16,24,0.92); backdrop-filter: blur(20px);
-            padding: 6px 10px; border-radius: 50px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-            width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.06);
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 6px;
+            background: rgba(12, 16, 24, 0.92);
+            backdrop-filter: blur(20px);
+            padding: 6px 10px;
+            border-radius: 50px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        #search-input { flex: 1; border: none; padding: 10px 14px; font-size: 15px; border-radius: 30px; outline: none; background: rgba(255,255,255,0.05); color: #f0f4fc; }
-        #search-input::placeholder { color: rgba(255,255,255,0.25); }
-        #search-btn { background: rgba(60,140,255,0.15); color: #8abaff; border: 1px solid rgba(60,140,255,0.08); padding: 10px 18px; border-radius: 30px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
-        #search-btn:hover { background: rgba(60,140,255,0.25); }
+        #search-input {
+            flex: 1;
+            border: none;
+            padding: 10px 14px;
+            font-size: 15px;
+            border-radius: 30px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #f0f4fc;
+        }
+        #search-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+        #search-btn {
+            background: rgba(60, 140, 255, 0.15);
+            color: #8abaff;
+            border: 1px solid rgba(60, 140, 255, 0.08);
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        #search-btn:hover {
+            background: rgba(60, 140, 255, 0.25);
+        }
 
         #share-btn {
-            background: rgba(255,180,60,0.1); border: none; color: #ffb84d;
-            padding: 10px 16px; border-radius: 30px; font-size: 15px;
-            cursor: pointer; transition: 0.2s;
-            border: 1px solid rgba(255,180,60,0.06);
+            background: rgba(255, 180, 60, 0.1);
+            border: none;
+            color: #ffb84d;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid rgba(255, 180, 60, 0.06);
             white-space: nowrap;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        #share-btn:hover { background: rgba(255,180,60,0.2); }
-        #share-btn i { font-size: 1rem; }
+        #share-btn:hover {
+            background: rgba(255, 180, 60, 0.2);
+        }
+        #share-btn i {
+            font-size: 1rem;
+        }
 
         #bottom-bar {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 999; width: min(96%, 850px); padding: 10px 12px;
-            display: flex; align-items: center; justify-content: space-around;
-            background: rgba(10,14,24,0.92); backdrop-filter: blur(28px);
-            border: 1px solid rgba(255,255,255,0.08); border-radius: 60px;
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.9);
-            flex-wrap: wrap; gap: 2px; min-height: 56px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            width: min(96%, 850px);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(10, 14, 24, 0.92);
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 60px;
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9);
+            flex-wrap: wrap;
+            gap: 2px;
+            min-height: 56px;
         }
         .bottom-item {
-            display: flex; flex-direction: column; align-items: center; gap: 2px;
-            padding: 4px 8px; border-radius: 30px; background: rgba(255,255,255,0.03);
-            cursor: pointer; color: #8899bb; font-size: 0.5rem; font-weight: 500;
-            border: 2px solid transparent; transition: 0.3s ease;
-            user-select: none; min-width: 38px; min-height: 38px; justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 4px 8px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            color: #8899bb;
+            font-size: 0.5rem;
+            font-weight: 500;
+            border: 2px solid transparent;
+            transition: 0.3s ease;
+            user-select: none;
+            min-width: 38px;
+            min-height: 38px;
+            justify-content: center;
         }
-        .bottom-item i { font-size: 0.95rem; color: #7bb0ff; transition: 0.3s; }
-        .bottom-item:active { transform: scale(0.92); }
-        .bottom-item.active { background: rgba(60,130,255,0.12); border-color: #4a9eff; color: #ffffff; }
-        .bottom-item.active i { color: #4a9eff; }
-        .bottom-item.active span { color: #4a9eff; }
-        .bottom-item span { font-size: 0.4rem; color: #667799; transition: 0.3s; }
+        .bottom-item i {
+            font-size: 0.95rem;
+            color: #7bb0ff;
+            transition: 0.3s;
+        }
+        .bottom-item:active {
+            transform: scale(0.92);
+        }
+        .bottom-item.active {
+            background: rgba(60, 130, 255, 0.12);
+            border-color: #4a9eff;
+            color: #ffffff;
+        }
+        .bottom-item.active i {
+            color: #4a9eff;
+        }
+        .bottom-item.active span {
+            color: #4a9eff;
+        }
+        .bottom-item span {
+            font-size: 0.4rem;
+            color: #667799;
+            transition: 0.3s;
+        }
+        .bottom-item#mode-navigation.active {
+            background: rgba(255, 50, 50, 0.15);
+            border-color: #ff3333;
+        }
+        .bottom-item#mode-navigation.active i {
+            color: #ff3333;
+        }
+        .bottom-item#mode-navigation.active span {
+            color: #ff3333;
+        }
 
         #info-panel {
-            position: absolute; bottom: 110px; right: 15px; z-index: 50;
-            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 12px 16px; min-width: 170px; display: none;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            position: absolute;
+            bottom: 110px;
+            right: 15px;
+            z-index: 50;
+            background: rgba(10, 14, 24, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 12px 16px;
+            min-width: 170px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
         }
-        #info-panel.show { display: block; }
-        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.7rem; color: #b0c8e8; }
-        #info-panel .info-row i { color: #7bb0ff; width: 16px; font-size: 0.7rem; }
-
-        #traffic-panel {
-            position: absolute; top: 80px; right: 15px; z-index: 50;
-            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 12px 16px; min-width: 130px; display: none;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        #info-panel.show {
+            display: block;
         }
-        #traffic-panel.show { display: block; }
-        #traffic-panel h4 { color: #e8f0ff; font-size: 0.7rem; margin-bottom: 8px; text-align: center; }
-        .traffic-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.6rem; color: #b0c8e8; }
-        .traffic-row .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .traffic-row .dot.green { background: #3dff9e; }
-        .traffic-row .dot.yellow { background: #ffb84d; }
-        .traffic-row .dot.orange { background: #ff9f43; }
-        .traffic-row .dot.red { background: #ff6b6b; }
-        .traffic-row .count { margin-left: auto; font-weight: bold; color: #e8f0ff; }
+        #info-panel .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.7rem;
+            color: #b0c8e8;
+        }
+        #info-panel .info-row i {
+            color: #7bb0ff;
+            width: 16px;
+            font-size: 0.7rem;
+        }
 
-        .gps-marker { width: 30px; height: 30px; position: relative; }
+        .gps-marker {
+            width: 30px;
+            height: 30px;
+            position: relative;
+        }
         .gps-marker .arrow {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 28px; color: #4a9eff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            color: #4a9eff;
             text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
             filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.3));
         }
         .gps-marker .pulse {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 40px; height: 40px; border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             background: rgba(74, 158, 255, 0.1);
             border: 2px solid rgba(74, 158, 255, 0.2);
             animation: pulse-ring 2s ease-out infinite;
         }
         @keyframes pulse-ring {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
         }
 
         #memory-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            justify-content: center;
+            align-items: center;
         }
-        #memory-modal.open { display: flex; }
+        #memory-modal.open {
+            display: flex;
+        }
         .memory-panel {
-            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
-            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
-            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+            background: rgba(14, 20, 32, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 28px 32px;
+            width: min(90%, 400px);
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
         }
-        .memory-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .memory-panel h2 i { color: #ffb84d; }
-        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .memory-item i { color: #ffb84d; }
-        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
-        .memory-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
-        .close-memory { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
-        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
-        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
-        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
-        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
+        .memory-panel h2 {
+            color: #e8f0ff;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .memory-panel h2 i {
+            color: #ffb84d;
+        }
+        .memory-item {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d0daf0;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .memory-item i {
+            color: #ffb84d;
+        }
+        .memory-item .memory-date {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-left: auto;
+        }
+        .memory-empty {
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+        }
+        .close-memory {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(60, 140, 255, 0.1);
+            color: #b0d0ff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid rgba(60, 140, 255, 0.05);
+        }
+        .memory-add {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .memory-add input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            color: #f0f4fc;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .memory-add input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+        .memory-add button {
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: none;
+            background: rgba(255, 180, 60, 0.1);
+            color: #ffb84d;
+            cursor: pointer;
+            border: 1px solid rgba(255, 180, 60, 0.06);
+        }
 
         #fav-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            justify-content: center;
+            align-items: center;
         }
-        #fav-modal.open { display: flex; }
+        #fav-modal.open {
+            display: flex;
+        }
         .fav-panel {
-            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
-            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
-            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+            background: rgba(14, 20, 32, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 28px 32px;
+            width: min(90%, 400px);
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
         }
-        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .fav-panel h2 i { color: #ff6b6b; }
-        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
-        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
-        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
-        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+        .fav-panel h2 {
+            color: #e8f0ff;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .fav-panel h2 i {
+            color: #ff6b6b;
+        }
+        .fav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #d0daf0;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .fav-item .fav-del {
+            color: #ff6b6b;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: rgba(255, 107, 107, 0.05);
+            border: none;
+            font-size: 0.7rem;
+        }
+        .fav-empty {
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+        }
+        .close-fav {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(60, 140, 255, 0.1);
+            color: #b0d0ff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid rgba(60, 140, 255, 0.05);
+        }
 
         #ar-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            justify-content: center; align-items: center; flex-direction: column; color: #fff;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 500;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #fff;
         }
-        #ar-overlay.open { display: flex; }
-        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
-        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
-        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
-        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
-        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
-        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
+        #ar-overlay.open {
+            display: flex;
+        }
+        #ar-overlay .ar-content {
+            text-align: center;
+            padding: 30px 20px;
+            max-width: 90%;
+        }
+        #ar-overlay .ar-content i {
+            font-size: 4rem;
+            color: #ffb84d;
+            margin-bottom: 16px;
+            animation: ar-pulse 2s ease-in-out infinite;
+        }
+        @keyframes ar-pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 0.8;
+            }
+        }
+        #ar-overlay .ar-content .compass-display {
+            font-size: 2.8rem;
+            margin: 16px 0;
+            color: #ffb84d;
+        }
+        #ar-overlay .ar-content .ar-info {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 6px 0;
+        }
+        .ar-close {
+            margin-top: 24px;
+            padding: 12px 36px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
 
         #status-bar {
-            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
-            z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem;
-            color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap;
-            pointer-events: none; border: 1px solid rgba(255,255,255,0.02);
+            position: absolute;
+            bottom: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            padding: 4px 16px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.2);
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.02);
             display: none;
         }
-        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
-        #status-bar.offline { border-color: rgba(255,107,107,0.1); color: rgba(255,107,107,0.3); }
+        #status-bar.online {
+            border-color: rgba(61, 255, 158, 0.1);
+            color: rgba(61, 255, 158, 0.3);
+        }
+        #status-bar.offline {
+            border-color: rgba(255, 107, 107, 0.1);
+            color: rgba(255, 107, 107, 0.3);
+        }
 
         #speedometer {
-            position: absolute; bottom: 110px; left: 15px; z-index: 50;
-            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
-            padding: 10px 14px; min-width: 80px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            position: absolute;
+            bottom: 110px;
+            left: 15px;
+            z-index: 50;
+            background: rgba(10, 14, 24, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 10px 14px;
+            min-width: 80px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
             display: none;
             text-align: center;
         }
-        #speedometer.show { display: block; }
-        #speedometer .speed-value { font-size: 1.2rem; font-weight: bold; color: #3dff9e; }
-        #speedometer .speed-label { font-size: 0.5rem; color: rgba(255,255,255,0.3); }
+        #speedometer.show {
+            display: block;
+        }
+        #speedometer .speed-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #3dff9e;
+        }
+        #speedometer .speed-label {
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #speedometer .speed-accuracy {
+            font-size: 0.4rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 2px;
+        }
 
         #clear-markers-btn {
-            position: absolute; top: 80px; left: 15px; z-index: 50;
-            background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.1);
-            color: #ff6b6b; padding: 8px 14px; border-radius: 30px;
-            font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px);
-            background: rgba(10,14,24,0.8);
+            position: absolute;
+            top: 80px;
+            left: 15px;
+            z-index: 50;
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid rgba(255, 50, 50, 0.1);
+            color: #ff6b6b;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 14, 24, 0.8);
             display: none;
         }
-        #clear-markers-btn.show { display: block; }
-        #clear-markers-btn:hover { background: rgba(255,50,50,0.2); }
+        #clear-markers-btn.show {
+            display: block;
+        }
+        #clear-markers-btn:hover {
+            background: rgba(255, 50, 50, 0.2);
+        }
 
-        .leaflet-control-attribution { display: none !important; }
-        .leaflet-control-zoom { display: none !important; }
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+        .leaflet-control-zoom {
+            display: none !important;
+        }
 
         @media (max-width: 480px) {
-            #bottom-bar { bottom: 12px; padding: 4px 6px; border-radius: 40px; min-height: 44px; gap: 1px; }
-            .bottom-item { padding: 2px 5px; min-width: 30px; min-height: 30px; }
-            .bottom-item i { font-size: 0.75rem; }
-            .bottom-item span { font-size: 0.35rem; }
-            #search-bar { top: 10px; padding: 4px 8px; gap: 4px; }
-            #search-input { font-size: 13px; padding: 6px 10px; }
-            #search-btn { padding: 6px 12px; font-size: 13px; }
-            #share-btn { padding: 6px 12px; font-size: 13px; }
-            #share-btn span { display: none; }
-            #info-panel { bottom: 85px; right: 10px; padding: 8px 12px; min-width: 120px; }
-            #info-panel .info-row { font-size: 0.55rem; }
-            #traffic-panel { top: 70px; right: 10px; padding: 8px 12px; min-width: 100px; }
-            #status-bar { bottom: 75px; font-size: 0.4rem; padding: 2px 12px; }
-            .memory-panel, .fav-panel { padding: 16px 14px; width: 94%; }
-            #ar-overlay .ar-content i { font-size: 3rem; }
-            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
-            #speedometer { bottom: 85px; left: 10px; padding: 6px 10px; min-width: 60px; }
-            #speedometer .speed-value { font-size: 0.9rem; }
-            #app-logo { top: 10px; right: 10px; padding: 4px 12px; font-size: 0.7rem; }
-            #clear-markers-btn { top: 70px; left: 10px; padding: 4px 10px; font-size: 0.5rem; }
+            #bottom-bar {
+                bottom: 12px;
+                padding: 4px 6px;
+                border-radius: 40px;
+                min-height: 44px;
+                gap: 1px;
+            }
+            .bottom-item {
+                padding: 2px 5px;
+                min-width: 30px;
+                min-height: 30px;
+            }
+            .bottom-item i {
+                font-size: 0.75rem;
+            }
+            .bottom-item span {
+                font-size: 0.35rem;
+            }
+            #search-bar {
+                top: 10px;
+                padding: 4px 8px;
+                gap: 4px;
+            }
+            #search-input {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+            #search-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            #share-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            #share-btn span {
+                display: none;
+            }
+            #info-panel {
+                bottom: 85px;
+                right: 10px;
+                padding: 8px 12px;
+                min-width: 120px;
+            }
+            #info-panel .info-row {
+                font-size: 0.55rem;
+            }
+            #status-bar {
+                bottom: 75px;
+                font-size: 0.4rem;
+                padding: 2px 12px;
+            }
+            .memory-panel,
+            .fav-panel {
+                padding: 16px 14px;
+                width: 94%;
+            }
+            #ar-overlay .ar-content i {
+                font-size: 3rem;
+            }
+            #ar-overlay .ar-content .compass-display {
+                font-size: 2.2rem;
+            }
+            #speedometer {
+                bottom: 85px;
+                left: 10px;
+                padding: 6px 10px;
+                min-width: 60px;
+            }
+            #speedometer .speed-value {
+                font-size: 0.9rem;
+            }
+            #app-logo {
+                top: 10px;
+                right: 10px;
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+            #clear-markers-btn {
+                top: 70px;
+                left: 10px;
+                padding: 4px 10px;
+                font-size: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -267,14 +713,7 @@
     <div id="speedometer">
         <div class="speed-value" id="speed-value">0</div>
         <div class="speed-label">كم/ساعة</div>
-    </div>
-
-    <div id="traffic-panel">
-        <h4>🚦 نقاط الازدحام</h4>
-        <div class="traffic-row"><span class="dot green"></span> ممتاز <span class="count" id="traffic-green">0</span></div>
-        <div class="traffic-row"><span class="dot yellow"></span> متوسط <span class="count" id="traffic-yellow">0</span></div>
-        <div class="traffic-row"><span class="dot orange"></span> مزدحم <span class="count" id="traffic-orange">0</span></div>
-        <div class="traffic-row"><span class="dot red"></span> ازدحام شديد <span class="count" id="traffic-red">0</span></div>
+        <div class="speed-accuracy" id="speed-accuracy">جاري التحديث...</div>
     </div>
 
     <button id="clear-markers-btn"><i class="fas fa-eraser"></i> مسح الكل</button>
@@ -285,7 +724,6 @@
         <div class="bottom-item" id="mode-terrain"><i class="fas fa-mountain"></i><span>تضاريس</span></div>
         <div class="bottom-item" id="mode-night"><i class="fas fa-moon"></i><span>ليلي</span></div>
         <div class="bottom-item" id="mode-navigation"><i class="fas fa-route"></i><span>ملاحة</span></div>
-        <div class="bottom-item" id="mode-traffic"><i class="fas fa-car"></i><span>مرور</span></div>
         <div class="bottom-item" id="mode-gps"><i class="fas fa-location-crosshairs"></i><span>موقعي</span></div>
         <div class="bottom-item" id="mode-fav"><i class="fas fa-heart"></i><span>مفضلة</span></div>
         <div class="bottom-item" id="mode-memory"><i class="fas fa-clock-rotate-left"></i><span>ذكريات</span></div>
@@ -382,7 +820,7 @@
         });
 
         // ================================================================
-        //  GPS مع عداد السرعة
+        //  GPS مع عداد سرعة حقيقي
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -390,6 +828,8 @@
         var userHeading = 0;
         var lastPos = null;
         var lastTime = null;
+        var speedBuffer = [];
+        var speedWatchId = null;
 
         function createGPSIcon(heading) {
             var container = document.createElement('div');
@@ -459,22 +899,56 @@
             var lng = pos.coords.longitude;
             var acc = pos.coords.accuracy || 30;
             var heading = pos.coords.heading || 0;
+            var speed = pos.coords.speed; // السرعة بالمتر/الثانية (من GPS)
 
             userPos = [lat, lng];
             userHeading = heading;
 
-            if (lastPos && lastTime) {
+            // ===== حساب السرعة الحقيقية من GPS =====
+            var speedKmh = 0;
+            var speedAccuracy = 'جيد';
+
+            if (speed !== null && speed !== undefined && speed >= 0) {
+                // السرعة من GPS مباشرة (متر/ثانية → كم/ساعة)
+                speedKmh = speed * 3.6;
+                speedAccuracy = 'من GPS';
+            } else if (lastPos && lastTime) {
+                // حساب السرعة من تغير الموقع (بديل)
                 var dist = calcDistance(lastPos[0], lastPos[1], lat, lng);
-                var timeDiff = (Date.now() - lastTime) / 1000 / 3600;
-                if (timeDiff > 0) {
-                    var speed = dist / timeDiff;
-                    document.getElementById('speed-value').textContent = Math.round(speed);
-                    document.getElementById('speedometer').classList.add('show');
+                var timeDiff = (Date.now() - lastTime) / 1000; // بالثواني
+                if (timeDiff > 0.5 && dist > 0.001) {
+                    speedKmh = (dist / timeDiff) * 3600;
+                    speedAccuracy = 'محسوبة';
+                } else {
+                    speedAccuracy = 'منتظر...';
                 }
             }
+
+            // تنعيم السرعة (متوسط آخر 5 قراءات)
+            if (speedKmh > 0) {
+                speedBuffer.push(speedKmh);
+                if (speedBuffer.length > 5) speedBuffer.shift();
+                var avgSpeed = speedBuffer.reduce(function(a, b) { return a + b; }, 0) / speedBuffer.length;
+                document.getElementById('speed-value').textContent = Math.round(avgSpeed);
+                document.getElementById('speed-accuracy').textContent = '🟢 ' + speedAccuracy + ' (' + speedBuffer
+                    .length + '/5)';
+                document.getElementById('speedometer').classList.add('show');
+            } else if (speedBuffer.length > 0) {
+                // عرض آخر سرعة معروفة
+                var lastSpeed = speedBuffer[speedBuffer.length - 1] || 0;
+                document.getElementById('speed-value').textContent = Math.round(lastSpeed);
+                document.getElementById('speed-accuracy').textContent = '🟡 متوقف (' + speedAccuracy + ')';
+                document.getElementById('speedometer').classList.add('show');
+            } else {
+                document.getElementById('speed-value').textContent = '0';
+                document.getElementById('speed-accuracy').textContent = '⏳ ' + speedAccuracy;
+                document.getElementById('speedometer').classList.add('show');
+            }
+
             lastPos = [lat, lng];
             lastTime = Date.now();
 
+            // تحديث علامة GPS
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -495,6 +969,7 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
+            // تحديث معلومات المكان
             getLocationDetails(lat, lng)
                 .then(function(details) {
                     document.getElementById('street-name').textContent = details.street;
@@ -516,8 +991,14 @@
                 navigator.geolocation.getCurrentPosition(updateLocation, function(err) {
                     alert('⚠️ لم نتمكن من تحديد موقعك. تأكد من تشغيل GPS.');
                 }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
-                navigator.geolocation.watchPosition(updateLocation, null, { enableHighAccuracy: true, maximumAge: 5000,
-                    timeout: 15000 });
+                
+                // مراقبة الموقع بشكل مستمر
+                if (speedWatchId) navigator.geolocation.clearWatch(speedWatchId);
+                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, { 
+                    enableHighAccuracy: true, 
+                    maximumAge: 1000, 
+                    timeout: 10000 
+                });
             } else {
                 alert('⚠️ متصفحك لا يدعم تحديد الموقع');
             }
@@ -535,7 +1016,20 @@
         setTimeout(locateUser, 1000);
 
         // ================================================================
-        //  البحث - مع 3 طرق مختلفة لتجاوز مشكلة CORS
+        //  حساب المسافة
+        // ================================================================
+        function calcDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371;
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        // ================================================================
+        //  نظام البحث المتطور (بدون مرور وهمي)
         // ================================================================
         var searchInput = document.getElementById('search-input');
         var searchBtn = document.getElementById('search-btn');
@@ -568,72 +1062,6 @@
             document.getElementById('clear-markers-btn').classList.add('show');
         }
 
-        // ===== الطريقة الأولى: استخدام Proxy =====
-        function searchWithProxy(query) {
-            var url = 'https://api.allorigins.win/raw?url=' +
-                encodeURIComponent('https://nominatim.openstreetmap.org/search?format=json&q=' +
-                    encodeURIComponent(query) + '&limit=6&lang=ar&addressdetails=1&countrycodes=eg');
-
-            return fetch(url, {
-                headers: {
-                    'User-Agent': 'AoraMap/1.0'
-                }
-            })
-            .then(function(response) {
-                if (!response.ok) throw new Error('Proxy failed');
-                return response.json();
-            });
-        }
-
-        // ===== الطريقة الثانية: استخدام JSONP =====
-        function searchWithJSONP(query) {
-            return new Promise(function(resolve, reject) {
-                var callbackName = 'jsonp_callback_' + Date.now();
-                window[callbackName] = function(data) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    resolve(data);
-                };
-
-                var script = document.createElement('script');
-                script.src = 'https://nominatim.openstreetmap.org/search?format=json&q=' +
-                    encodeURIComponent(query) + '&limit=6&lang=ar&addressdetails=1&countrycodes=eg&json_callback=' +
-                    callbackName;
-                script.onerror = function() {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    reject(new Error('JSONP failed'));
-                };
-                document.body.appendChild(script);
-            });
-        }
-
-        // ===== الطريقة الثالثة: استخدام خدمة بديلة =====
-        function searchWithAlternative(query) {
-            var url = 'https://geocode.xyz/' + encodeURIComponent(query) + '?json=1&region=EG';
-
-            return fetch(url, {
-                headers: {
-                    'User-Agent': 'AoraMap/1.0'
-                }
-            })
-            .then(function(response) {
-                if (!response.ok) throw new Error('Alternative failed');
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.error || !data.latt) {
-                    throw new Error('No results');
-                }
-                return [{
-                    lat: data.latt,
-                    lon: data.longt,
-                    display_name: data.standard?.city || data.standard?.street || query
-                }];
-            });
-        }
-
-        // ===== الدالة الرئيسية =====
         function doSearch(query) {
             if (query.length < 2) {
                 alert('⚠️ اكتب أكثر من حرفين');
@@ -641,57 +1069,68 @@
             }
 
             localStorage.setItem('last_search', query);
-            showToast('⏳ جاري البحث...');
+            showToast('🔍 جاري البحث عن: ' + query + '...', '#7bb0ff');
 
-            // محاولة الطرق بالتتابع
-            searchWithProxy(query)
-                .then(function(data) {
-                    if (!data || data.length === 0) throw new Error('No results from proxy');
-                    return data;
-                })
-                ['catch'](function() {
-                    showToast('🔄 محاولة طريقة البحث الثانية...');
-                    return searchWithJSONP(query);
-                })
-                ['catch'](function() {
-                    showToast('🔄 محاولة طريقة البحث الثالثة...');
-                    return searchWithAlternative(query);
-                })
-                .then(function(data) {
-                    if (!data || data.length === 0) {
-                        throw new Error('No results');
-                    }
-                    var item = data[0];
-                    var lat = parseFloat(item.lat);
-                    var lon = parseFloat(item.lon);
-                    var name = item.display_name?.split(',')[0] || query;
+            // البحث عبر الإنترنت
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' +
+                encodeURIComponent(query) + '&limit=5&lang=ar&addressdetails=1&countrycodes=eg&accept-language=ar';
 
-                    addSearchMarker(lat, lon, name);
-                    document.getElementById('destination').textContent = name;
-                    document.getElementById('info-panel').classList.add('show');
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() {
+                controller.abort();
+                showToast('⏱️ البحث بطيء، جرب كلمة أكثر تحديداً', '#ffb84d');
+            }, 8000);
 
-                    getLocationDetails(lat, lon)
-                        .then(function(details) {
-                            document.getElementById('street-name').textContent = details.street;
-                            document.getElementById('area-name').textContent = details.area;
-                        })
-                        ['catch'](function() {
-                            document.getElementById('street-name').textContent = 'شارع غير معروف';
-                            document.getElementById('area-name').textContent = 'منطقة غير معروفة';
-                        });
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'AoraMap/2.0 (Contact: aora@map.com)',
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal
+            })
+            .then(function(response) {
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(function(data) {
+                clearTimeout(timeoutId);
+                if (!data || data.length === 0) {
+                    alert('❌ لم يتم العثور على: "' + query + '"\n\n🔍 جرب:\n- اسم أكثر تحديداً\n- تحقق من الإملاء');
+                    return;
+                }
 
-                    var cairo = [30.0444, 31.2357];
-                    var dist = calcDistance(cairo[0], cairo[1], lat, lon);
-                    document.getElementById('distance').textContent = dist.toFixed(1);
-                    document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+                var result = data[0];
+                var lat = parseFloat(result.lat);
+                var lon = parseFloat(result.lon);
+                var name = result.display_name?.split(',')[0] || query;
 
-                    searchInput.value = name;
-                    showToast('📍 تم الانتقال إلى: ' + name);
-                })
-                ['catch'](function(error) {
-                    console.error('All search methods failed:', error);
-                    alert('⚠️ تعذر البحث. تأكد من اتصالك بالإنترنت وجرب كتابة اسم أكثر تحديداً');
-                });
+                addSearchMarker(lat, lon, name);
+                document.getElementById('destination').textContent = name;
+                document.getElementById('info-panel').classList.add('show');
+
+                var cairo = [30.0444, 31.2357];
+                var dist = calcDistance(cairo[0], cairo[1], lat, lon);
+                document.getElementById('distance').textContent = dist.toFixed(1);
+                document.getElementById('time').textContent = Math.round(dist / 60 * 60);
+
+                getLocationDetails(lat, lon)
+                    .then(function(details) {
+                        document.getElementById('street-name').textContent = details.street;
+                        document.getElementById('area-name').textContent = details.area;
+                    })
+                    ['catch'](function() {
+                        document.getElementById('street-name').textContent = 'شارع غير معروف';
+                        document.getElementById('area-name').textContent = 'منطقة غير معروفة';
+                    });
+
+                showToast('📍 تم العثور على: ' + name, '#3dff9e');
+            })
+            ['catch'](function(error) {
+                clearTimeout(timeoutId);
+                console.error('Search error:', error);
+                alert('⚠️ تعذر البحث. تأكد من اتصالك بالإنترنت');
+            });
         }
 
         searchBtn.addEventListener('click', function() {
@@ -706,19 +1145,6 @@
                 doSearch(query);
             }
         });
-
-        // ================================================================
-        //  حساب المسافة
-        // ================================================================
-        function calcDistance(lat1, lon1, lat2, lon2) {
-            var R = 6371;
-            var dLat = (lat2 - lat1) * Math.PI / 180;
-            var dLon = (lon2 - lon1) * Math.PI / 180;
-            var a = Math.sin(dLat / 2) ** 2 +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) ** 2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
 
         // ================================================================
         //  النقر على الخريطة
@@ -749,111 +1175,14 @@
         });
 
         // ================================================================
-        //  نقاط المرور
-        // ================================================================
-        var trafficPoints = [
-            { lat: 30.0444, lng: 31.2357, name: 'ميدان التحرير' },
-            { lat: 30.0550, lng: 31.2260, name: 'شارع الهرم' },
-            { lat: 30.0380, lng: 31.2300, name: 'ميدان رمسيس' },
-            { lat: 30.0480, lng: 31.2380, name: 'كورنيش النيل' },
-            { lat: 30.0650, lng: 31.2000, name: 'مدينة 6 أكتوبر' },
-            { lat: 31.2000, lng: 29.9167, name: 'كورنيش الإسكندرية' },
-            { lat: 31.2150, lng: 29.9500, name: 'شارع سموحة' },
-            { lat: 27.1833, lng: 31.1667, name: 'أسيوط' },
-            { lat: 26.5500, lng: 31.7000, name: 'سوهاج' },
-            { lat: 25.6833, lng: 32.6500, name: 'الأقصر' },
-            { lat: 24.0833, lng: 32.9000, name: 'أسوان' },
-            { lat: 29.3167, lng: 30.8333, name: 'الفيوم' },
-            { lat: 31.4167, lng: 31.8167, name: 'دمياط' },
-            { lat: 31.3333, lng: 27.2333, name: 'مرسى مطروح' },
-        ];
-
-        var statusColors = ['#3dff9e', '#ffb84d', '#ff9f43', '#ff6b6b'];
-        var statusNames = ['ممتاز', 'متوسط', 'مزدحم', 'ازدحام شديد'];
-        var statusSizes = [8, 13, 18, 24];
-
-        var trafficMarkers = [];
-        var trafficInterval = null;
-        var trafficVisible = false;
-
-        function updateTraffic() {
-            trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
-            trafficMarkers = [];
-
-            var counts = [0, 0, 0, 0];
-
-            trafficPoints.forEach(function(point) {
-                var statusIdx = Math.floor(Math.random() * 4);
-                var color = statusColors[statusIdx];
-                var size = statusSizes[statusIdx];
-                var name = statusNames[statusIdx];
-
-                var icon = L.divIcon({
-                    className: 'traffic-dot',
-                    html: '<div style="background:' + color +
-                        ';border-radius:50%;width:' + size + 'px;height:' + size +
-                        'px;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 20px ' +
-                        color + '44;animation:pulse-dot 2s ease-in-out infinite;"></div>',
-                    iconSize: [size, size],
-                    iconAnchor: [size / 2, size / 2],
-                });
-
-                var marker = L.marker([point.lat, point.lng], { icon: icon })
-                    .addTo(map)
-                    .bindPopup('<strong>' + point.name + '</strong><br>🟢 الحالة: ' + name);
-
-                trafficMarkers.push(marker);
-                counts[statusIdx]++;
-            });
-
-            document.getElementById('traffic-green').textContent = counts[0];
-            document.getElementById('traffic-yellow').textContent = counts[1];
-            document.getElementById('traffic-orange').textContent = counts[2];
-            document.getElementById('traffic-red').textContent = counts[3];
-            document.getElementById('clear-markers-btn').classList.add('show');
-        }
-
-        function removeTrafficDots() {
-            trafficMarkers.forEach(function(m) { if (m) map.removeLayer(m); });
-            trafficMarkers = [];
-            if (trafficInterval) {
-                clearInterval(trafficInterval);
-                trafficInterval = null;
-            }
-        }
-
-        var trafficBtn = document.getElementById('mode-traffic');
-        var trafficPanel = document.getElementById('traffic-panel');
-
-        trafficBtn.addEventListener('click', function() {
-            trafficVisible = !trafficVisible;
-            this.classList.toggle('active', trafficVisible);
-
-            if (trafficVisible) {
-                trafficPanel.classList.add('show');
-                updateTraffic();
-                if (trafficInterval) clearInterval(trafficInterval);
-                trafficInterval = setInterval(updateTraffic, 8000);
-                showToast('🚦 نقاط الازدحام متغيرة');
-            } else {
-                trafficPanel.classList.remove('show');
-                removeTrafficDots();
-                showToast('📍 تم إخفاء نقاط المرور');
-            }
-        });
-
-        setTimeout(function() {
-            trafficBtn.click();
-        }, 1500);
-
-        // ================================================================
-        //  الملاحة مع صوت عند الوصول
+        //  الملاحة الحقيقية (بدون مرور وهمي)
         // ================================================================
         var navMode = false;
         var routeLine = null;
         var routeMarkers = [];
         var navDestination = null;
         var navArrived = false;
+        var navCheckInterval = null;
 
         function clearRoute() {
             if (routeLine) { map.removeLayer(routeLine);
@@ -862,6 +1191,10 @@
             routeMarkers = [];
             navDestination = null;
             navArrived = false;
+            if (navCheckInterval) {
+                clearInterval(navCheckInterval);
+                navCheckInterval = null;
+            }
             document.getElementById('clear-markers-btn').classList.remove('show');
         }
 
@@ -902,13 +1235,13 @@
 
             showToast('⏳ جاري البحث عن الوجهة...');
 
-            var url = 'https://api.allorigins.win/raw?url=' +
-                encodeURIComponent('https://nominatim.openstreetmap.org/search?format=json&q=' +
-                    encodeURIComponent(dest) + '&limit=1&lang=ar&addressdetails=1&countrycodes=eg');
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(dest) +
+                '&limit=1&lang=ar&addressdetails=1&countrycodes=eg';
 
             fetch(url, {
                 headers: {
-                    'User-Agent': 'AoraMap/1.0'
+                    'User-Agent': 'AoraMap/1.0',
+                    'Accept': 'application/json'
                 }
             })
             .then(function(r) { return r.json(); })
@@ -967,13 +1300,15 @@
                 showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
                 document.getElementById('clear-markers-btn').classList.add('show');
 
-                var checkInterval = setInterval(function() {
+                // مراقبة الوصول
+                if (navCheckInterval) clearInterval(navCheckInterval);
+                navCheckInterval = setInterval(function() {
                     if (userPos && navDestination && !navArrived) {
                         var currentDist = calcDistance(userPos[0], userPos[1], navDestination[0],
                         navDestination[1]);
                         if (currentDist < 0.1) {
                             navArrived = true;
-                            clearInterval(checkInterval);
+                            clearInterval(navCheckInterval);
                             playArrivalSound();
                             showToast('🔔 لقد وصلت إلى وجهتك!', '#3dff9e');
                             var alertDiv = document.createElement('div');
@@ -1201,10 +1536,9 @@
                             document.getElementById('ar-compass').textContent = Math.round(pos.coords
                             .heading);
                         }
-                        fetch('https://api.allorigins.win/raw?url=' +
-                                encodeURIComponent('https://nominatim.openstreetmap.org/reverse?format=json&lat=' +
-                                    pos.coords.latitude + '&lon=' + pos.coords.longitude +
-                                    '&zoom=18&accept-language=ar'))
+                        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos
+                                .coords.latitude + '&lon=' + pos.coords.longitude +
+                                '&zoom=18&accept-language=ar')
                             .then(function(r) { return r.json(); })
                             .then(function(data) {
                                 var addr = data.display_name || 'موقع غير معروف';
@@ -1319,10 +1653,6 @@
             clearRoute();
             favMarkers.forEach(function(m) { map.removeLayer(m); });
             favMarkers = [];
-            removeTrafficDots();
-            trafficVisible = false;
-            document.getElementById('mode-traffic').classList.remove('active');
-            document.getElementById('traffic-panel').classList.remove('show');
             this.classList.remove('show');
             showToast('🧹 تم مسح جميع العلامات', '#7bb0ff');
         });
@@ -1366,7 +1696,7 @@
                 statusBar.textContent = '📡 متصل';
             } else {
                 statusBar.className = 'offline';
-                statusBar.textContent = '📡 غير متصل - وضع Offline';
+                statusBar.textContent = '📡 غير متصل';
             }
             statusBar.style.display = 'block';
         }
@@ -1379,8 +1709,11 @@
             map.invalidateSize();
         }, 500);
 
-        console.log('🚀 أورا ماب - الإصدار الذهبي مع 3 طرق بحث');
-        console.log('📌 الطرق: Proxy → JSONP → خدمة بديلة');
+        console.log('🚀 أورا ماب - الإصدار النهائي');
+        console.log('✅ تم إلغاء نقاط المرور الوهمية');
+        console.log('✅ تم تفعيل البحث الحقيقي');
+        console.log('✅ تم تفعيل الملاحة الحقيقية');
+        console.log('✅ تم تصحيح عداد السرعة من GPS');
     </script>
 </body>
 </html>
