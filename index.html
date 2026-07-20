@@ -11,658 +11,213 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #0b0e14;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-        }
-        #map {
-            height: 100vh;
-            width: 100vw;
-            background: #1a1f2e;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 0;
-        }
+        /* ===== جميع الأنماط السابقة (نفس الكود) ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0b0e14; overflow: hidden; height: 100vh; width: 100vw; }
+        #map { height: 100vh; width: 100vw; background: #1a1f2e; position: absolute; top: 0; left: 0; z-index: 0; }
 
         #search-bar {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            gap: 6px;
-            background: rgba(12, 16, 24, 0.92);
-            backdrop-filter: blur(20px);
-            padding: 6px 10px;
-            border-radius: 50px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-            width: 90%;
-            max-width: 600px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 6px;
+            background: rgba(12,16,24,0.92); backdrop-filter: blur(20px);
+            padding: 6px 10px; border-radius: 50px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.06);
         }
-        #search-input {
-            flex: 1;
-            border: none;
-            padding: 10px 14px;
-            font-size: 15px;
-            border-radius: 30px;
-            outline: none;
-            background: rgba(255, 255, 255, 0.05);
-            color: #f0f4fc;
-        }
-        #search-input::placeholder {
-            color: rgba(255, 255, 255, 0.25);
-        }
-        #search-btn {
-            background: rgba(60, 140, 255, 0.15);
-            color: #8abaff;
-            border: 1px solid rgba(60, 140, 255, 0.08);
-            padding: 10px 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        #search-btn:hover {
-            background: rgba(60, 140, 255, 0.25);
-        }
+        #search-input { flex: 1; border: none; padding: 10px 14px; font-size: 15px; border-radius: 30px; outline: none; background: rgba(255,255,255,0.05); color: #f0f4fc; }
+        #search-input::placeholder { color: rgba(255,255,255,0.25); }
+        #search-btn { background: rgba(60,140,255,0.15); color: #8abaff; border: 1px solid rgba(60,140,255,0.08); padding: 10px 18px; border-radius: 30px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+        #search-btn:hover { background: rgba(60,140,255,0.25); }
 
         #share-btn {
-            background: rgba(255, 180, 60, 0.1);
-            border: none;
-            color: #ffb84d;
-            padding: 10px 16px;
-            border-radius: 30px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid rgba(255, 180, 60, 0.06);
+            background: rgba(255,180,60,0.1); border: none; color: #ffb84d;
+            padding: 10px 16px; border-radius: 30px; font-size: 15px;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(255,180,60,0.06);
             white-space: nowrap;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        #share-btn:hover {
-            background: rgba(255, 180, 60, 0.2);
-        }
-        #share-btn i {
-            font-size: 1rem;
-        }
+        #share-btn:hover { background: rgba(255,180,60,0.2); }
+        #share-btn i { font-size: 1rem; }
 
         #bottom-bar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999;
-            width: min(96%, 850px);
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            background: rgba(10, 14, 24, 0.92);
-            backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 60px;
-            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9);
-            flex-wrap: wrap;
-            gap: 2px;
-            min-height: 56px;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 999; width: min(96%, 850px); padding: 10px 12px;
+            display: flex; align-items: center; justify-content: space-around;
+            background: rgba(10,14,24,0.92); backdrop-filter: blur(28px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 60px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.9);
+            flex-wrap: wrap; gap: 2px; min-height: 56px;
         }
         .bottom-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            padding: 4px 8px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.03);
-            cursor: pointer;
-            color: #8899bb;
-            font-size: 0.5rem;
-            font-weight: 500;
-            border: 2px solid transparent;
-            transition: 0.3s ease;
-            user-select: none;
-            min-width: 38px;
-            min-height: 38px;
-            justify-content: center;
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            padding: 4px 8px; border-radius: 30px; background: rgba(255,255,255,0.03);
+            cursor: pointer; color: #8899bb; font-size: 0.5rem; font-weight: 500;
+            border: 2px solid transparent; transition: 0.3s ease;
+            user-select: none; min-width: 38px; min-height: 38px; justify-content: center;
         }
-        .bottom-item i {
-            font-size: 0.95rem;
-            color: #7bb0ff;
-            transition: 0.3s;
-        }
-        .bottom-item:active {
-            transform: scale(0.92);
-        }
-        .bottom-item.active {
-            background: rgba(60, 130, 255, 0.12);
-            border-color: #4a9eff;
-            color: #ffffff;
-        }
-        .bottom-item.active i {
-            color: #4a9eff;
-        }
-        .bottom-item.active span {
-            color: #4a9eff;
-        }
-        .bottom-item span {
-            font-size: 0.4rem;
-            color: #667799;
-            transition: 0.3s;
-        }
-        .bottom-item#mode-navigation.active {
-            background: rgba(255, 50, 50, 0.15);
-            border-color: #ff3333;
-        }
-        .bottom-item#mode-navigation.active i {
-            color: #ff3333;
-        }
-        .bottom-item#mode-navigation.active span {
-            color: #ff3333;
-        }
+        .bottom-item i { font-size: 0.95rem; color: #7bb0ff; transition: 0.3s; }
+        .bottom-item:active { transform: scale(0.92); }
+        .bottom-item.active { background: rgba(60,130,255,0.12); border-color: #4a9eff; color: #ffffff; }
+        .bottom-item.active i { color: #4a9eff; }
+        .bottom-item.active span { color: #4a9eff; }
+        .bottom-item span { font-size: 0.4rem; color: #667799; transition: 0.3s; }
+        .bottom-item#mode-navigation.active { background: rgba(255,50,50,0.15); border-color: #ff3333; }
+        .bottom-item#mode-navigation.active i { color: #ff3333; }
+        .bottom-item#mode-navigation.active span { color: #ff3333; }
 
         #info-panel {
-            position: absolute;
-            bottom: 110px;
-            right: 15px;
-            z-index: 50;
-            background: rgba(10, 14, 24, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 14px;
-            padding: 12px 16px;
-            min-width: 170px;
-            display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: absolute; bottom: 110px; right: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 12px 16px; min-width: 170px; display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
-        #info-panel.show {
-            display: block;
-        }
-        #info-panel .info-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-            font-size: 0.7rem;
-            color: #b0c8e8;
-        }
-        #info-panel .info-row i {
-            color: #7bb0ff;
-            width: 16px;
-            font-size: 0.7rem;
-        }
+        #info-panel.show { display: block; }
+        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.7rem; color: #b0c8e8; }
+        #info-panel .info-row i { color: #7bb0ff; width: 16px; font-size: 0.7rem; }
 
-        .gps-marker {
-            width: 30px;
-            height: 30px;
-            position: relative;
-        }
+        .gps-marker { width: 30px; height: 30px; position: relative; }
         .gps-marker .arrow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 28px;
-            color: #4a9eff;
-            text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
-            filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.3));
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 28px; color: #4a9eff;
+            text-shadow: 0 0 20px rgba(74,158,255,0.5);
+            filter: drop-shadow(0 0 10px rgba(74,158,255,0.3));
             transition: transform 0.3s ease;
         }
         .gps-marker .pulse {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(74, 158, 255, 0.1);
-            border: 2px solid rgba(74, 158, 255, 0.2);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(74,158,255,0.1);
+            border: 2px solid rgba(74,158,255,0.2);
             animation: pulse-ring 2s ease-out infinite;
         }
         @keyframes pulse-ring {
-            0% {
-                transform: translate(-50%, -50%) scale(0.5);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-            }
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
 
         #memory-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 200;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
         }
-        #memory-modal.open {
-            display: flex;
-        }
+        #memory-modal.open { display: flex; }
         .memory-panel {
-            background: rgba(14, 20, 32, 0.95);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 28px 32px;
-            width: min(90%, 400px);
-            max-height: 70vh;
-            overflow-y: auto;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
+            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
         }
-        .memory-panel h2 {
-            color: #e8f0ff;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .memory-panel h2 i {
-            color: #ffb84d;
-        }
-        .memory-item {
-            padding: 12px 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            color: #d0daf0;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-        .memory-item i {
-            color: #ffb84d;
-        }
-        .memory-item .memory-date {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.3);
-            margin-left: auto;
-        }
-        .memory-empty {
-            color: rgba(255, 255, 255, 0.3);
-            text-align: center;
-            padding: 20px;
-            font-size: 0.85rem;
-        }
-        .close-memory {
-            margin-top: 16px;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 40px;
-            background: rgba(60, 140, 255, 0.1);
-            color: #b0d0ff;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: 1px solid rgba(60, 140, 255, 0.05);
-        }
-        .memory-add {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .memory-add input {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.03);
-            color: #f0f4fc;
-            font-size: 0.85rem;
-            outline: none;
-        }
-        .memory-add input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-        }
-        .memory-add button {
-            padding: 10px 20px;
-            border-radius: 40px;
-            border: none;
-            background: rgba(255, 180, 60, 0.1);
-            color: #ffb84d;
-            cursor: pointer;
-            border: 1px solid rgba(255, 180, 60, 0.06);
-        }
+        .memory-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .memory-panel h2 i { color: #ffb84d; }
+        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .memory-item i { color: #ffb84d; }
+        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+        .memory-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-memory { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
+        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
+        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
+        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
 
         #fav-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 200;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
         }
-        #fav-modal.open {
-            display: flex;
-        }
+        #fav-modal.open { display: flex; }
         .fav-panel {
-            background: rgba(14, 20, 32, 0.95);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 28px 32px;
-            width: min(90%, 400px);
-            max-height: 70vh;
-            overflow-y: auto;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
+            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
         }
-        .fav-panel h2 {
-            color: #e8f0ff;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .fav-panel h2 i {
-            color: #ff6b6b;
-        }
-        .fav-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            color: #d0daf0;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        .fav-item .fav-del {
-            color: #ff6b6b;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 20px;
-            background: rgba(255, 107, 107, 0.05);
-            border: none;
-            font-size: 0.7rem;
-        }
-        .fav-empty {
-            color: rgba(255, 255, 255, 0.3);
-            text-align: center;
-            padding: 20px;
-            font-size: 0.85rem;
-        }
-        .close-fav {
-            margin-top: 16px;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 40px;
-            background: rgba(60, 140, 255, 0.1);
-            color: #b0d0ff;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: 1px solid rgba(60, 140, 255, 0.05);
-        }
+        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .fav-panel h2 i { color: #ff6b6b; }
+        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
+        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
+        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
 
         #ar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 500;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(8px);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: #fff;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            justify-content: center; align-items: center; flex-direction: column; color: #fff;
         }
-        #ar-overlay.open {
-            display: flex;
-        }
-        #ar-overlay .ar-content {
-            text-align: center;
-            padding: 30px 20px;
-            max-width: 90%;
-        }
-        #ar-overlay .ar-content i {
-            font-size: 4rem;
-            color: #ffb84d;
-            margin-bottom: 16px;
-            animation: ar-pulse 2s ease-in-out infinite;
-        }
-        @keyframes ar-pulse {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.08);
-                opacity: 0.8;
-            }
-        }
-        #ar-overlay .ar-content .compass-display {
-            font-size: 2.8rem;
-            margin: 16px 0;
-            color: #ffb84d;
-        }
-        #ar-overlay .ar-content .ar-info {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.4);
-            margin: 6px 0;
-        }
-        .ar-close {
-            margin-top: 24px;
-            padding: 12px 36px;
-            border: none;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.06);
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
+        #ar-overlay.open { display: flex; }
+        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
+        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
+        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
+        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
+        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
+        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
 
         #status-bar {
-            position: absolute;
-            bottom: 95px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            padding: 4px 16px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            border-radius: 40px;
-            font-size: 0.5rem;
-            color: rgba(255, 255, 255, 0.2);
-            text-align: center;
-            white-space: nowrap;
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.02);
+            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
+            z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem;
+            color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap;
+            pointer-events: none; border: 1px solid rgba(255,255,255,0.02);
             display: none;
         }
-        #status-bar.online {
-            border-color: rgba(61, 255, 158, 0.1);
-            color: rgba(61, 255, 158, 0.3);
-        }
-        #status-bar.offline {
-            border-color: rgba(255, 107, 107, 0.1);
-            color: rgba(255, 107, 107, 0.3);
-        }
+        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
+        #status-bar.offline { border-color: rgba(255,107,107,0.1); color: rgba(255,107,107,0.3); }
 
         #speedometer {
-            position: absolute;
-            bottom: 110px;
-            left: 15px;
-            z-index: 50;
-            background: rgba(10, 14, 24, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 14px;
-            padding: 10px 14px;
-            min-width: 80px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: absolute; bottom: 110px; left: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 10px 14px; min-width: 80px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             display: none;
             text-align: center;
         }
-        #speedometer.show {
-            display: block;
-        }
-        #speedometer .speed-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3dff9e;
-        }
-        #speedometer .speed-label {
-            font-size: 0.5rem;
-            color: rgba(255, 255, 255, 0.3);
-        }
-        #speedometer .speed-accuracy {
-            font-size: 0.4rem;
-            color: rgba(255, 255, 255, 0.2);
-            margin-top: 2px;
-        }
+        #speedometer.show { display: block; }
+        #speedometer .speed-value { font-size: 1.2rem; font-weight: bold; color: #3dff9e; }
+        #speedometer .speed-label { font-size: 0.5rem; color: rgba(255,255,255,0.3); }
+        #speedometer .speed-accuracy { font-size: 0.4rem; color: rgba(255,255,255,0.2); margin-top: 2px; }
 
         #clear-markers-btn {
-            position: absolute;
-            top: 80px;
-            left: 15px;
-            z-index: 50;
-            background: rgba(255, 50, 50, 0.1);
-            border: 1px solid rgba(255, 50, 50, 0.1);
-            color: #ff6b6b;
-            padding: 8px 14px;
-            border-radius: 30px;
-            font-size: 0.6rem;
-            cursor: pointer;
-            backdrop-filter: blur(12px);
-            background: rgba(10, 14, 24, 0.8);
+            position: absolute; top: 80px; left: 15px; z-index: 50;
+            background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.1);
+            color: #ff6b6b; padding: 8px 14px; border-radius: 30px;
+            font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px);
+            background: rgba(10,14,24,0.8);
             display: none;
         }
-        #clear-markers-btn.show {
-            display: block;
-        }
-        #clear-markers-btn:hover {
-            background: rgba(255, 50, 50, 0.2);
-        }
+        #clear-markers-btn.show { display: block; }
+        #clear-markers-btn:hover { background: rgba(255,50,50,0.2); }
 
-        .leaflet-control-attribution {
-            display: none !important;
-        }
-        .leaflet-control-zoom {
-            display: none !important;
-        }
+        .leaflet-control-attribution { display: none !important; }
+        .leaflet-control-zoom { display: none !important; }
 
         @media (max-width: 480px) {
-            #bottom-bar {
-                bottom: 12px;
-                padding: 4px 6px;
-                border-radius: 40px;
-                min-height: 44px;
-                gap: 1px;
-            }
-            .bottom-item {
-                padding: 2px 5px;
-                min-width: 30px;
-                min-height: 30px;
-            }
-            .bottom-item i {
-                font-size: 0.75rem;
-            }
-            .bottom-item span {
-                font-size: 0.35rem;
-            }
-            #search-bar {
-                top: 10px;
-                padding: 4px 8px;
-                gap: 4px;
-            }
-            #search-input {
-                font-size: 13px;
-                padding: 6px 10px;
-            }
-            #search-btn {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-            #share-btn {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-            #share-btn span {
-                display: none;
-            }
-            #info-panel {
-                bottom: 85px;
-                right: 10px;
-                padding: 8px 12px;
-                min-width: 120px;
-            }
-            #info-panel .info-row {
-                font-size: 0.55rem;
-            }
-            #status-bar {
-                bottom: 75px;
-                font-size: 0.4rem;
-                padding: 2px 12px;
-            }
-            .memory-panel,
-            .fav-panel {
-                padding: 16px 14px;
-                width: 94%;
-            }
-            #ar-overlay .ar-content i {
-                font-size: 3rem;
-            }
-            #ar-overlay .ar-content .compass-display {
-                font-size: 2.2rem;
-            }
-            #speedometer {
-                bottom: 85px;
-                left: 10px;
-                padding: 6px 10px;
-                min-width: 60px;
-            }
-            #speedometer .speed-value {
-                font-size: 0.9rem;
-            }
-            #clear-markers-btn {
-                top: 70px;
-                left: 10px;
-                padding: 4px 10px;
-                font-size: 0.5rem;
-            }
+            #bottom-bar { bottom: 12px; padding: 4px 6px; border-radius: 40px; min-height: 44px; gap: 1px; }
+            .bottom-item { padding: 2px 5px; min-width: 30px; min-height: 30px; }
+            .bottom-item i { font-size: 0.75rem; }
+            .bottom-item span { font-size: 0.35rem; }
+            #search-bar { top: 10px; padding: 4px 8px; gap: 4px; }
+            #search-input { font-size: 13px; padding: 6px 10px; }
+            #search-btn { padding: 6px 12px; font-size: 13px; }
+            #share-btn { padding: 6px 12px; font-size: 13px; }
+            #share-btn span { display: none; }
+            #info-panel { bottom: 85px; right: 10px; padding: 8px 12px; min-width: 120px; }
+            #info-panel .info-row { font-size: 0.55rem; }
+            #status-bar { bottom: 75px; font-size: 0.4rem; padding: 2px 12px; }
+            .memory-panel, .fav-panel { padding: 16px 14px; width: 94%; }
+            #ar-overlay .ar-content i { font-size: 3rem; }
+            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
+            #speedometer { bottom: 85px; left: 10px; padding: 6px 10px; min-width: 60px; }
+            #speedometer .speed-value { font-size: 0.9rem; }
+            #clear-markers-btn { top: 70px; left: 10px; padding: 4px 10px; font-size: 0.5rem; }
         }
     </style>
 </head>
 <body>
 
     <div id="map"></div>
-
-    <!-- ===== تم إزالة شعار "أورا ماب" ===== -->
 
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
@@ -743,14 +298,17 @@
             zoomControl: false,
         });
 
+        // ===== طبقات الخريطة =====
         var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
+        // ===== قمر صناعي (جوجل إيرث - يعمل بدون مفتاح) =====
         var satelliteLayer = L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19
+            'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '© Google'
             });
 
         var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
@@ -790,6 +348,12 @@
         });
 
         // ================================================================
+        //  باقي الكود (GPS، بحث، ملاحة، مفضلة، ذكريات، AR، مشاركة)
+        //  ================================================================
+        // (نفس الكود السابق كاملاً - لم يتغير شيء)
+        // ================================================================
+
+        // ================================================================
         //  GPS مع سهم متحرك حسب الاتجاه + عداد سرعة حقيقي
         // ================================================================
         var userMarker = null;
@@ -812,7 +376,6 @@
             var arrow = document.createElement('div');
             arrow.className = 'arrow';
             arrow.innerHTML = '▲';
-            // السهم يدور حسب زاوية الاتجاه
             arrow.style.transform = 'translate(-50%, -50%) rotate(' + (heading || 0) + 'deg)';
             container.appendChild(arrow);
 
@@ -875,7 +438,6 @@
             userPos = [lat, lng];
             userHeading = heading;
 
-            // ===== حساب السرعة الحقيقية من GPS =====
             var speedKmh = 0;
             var speedAccuracy = 'جيد';
 
@@ -915,7 +477,6 @@
             lastPos = [lat, lng];
             lastTime = Date.now();
 
-            // ===== تحديث العلامة =====
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -1673,12 +1234,9 @@
         }, 500);
 
         console.log('🚀 أورا ماب - الإصدار النهائي');
-        console.log('✅ تم إزالة شعار "أورا ماب"');
-        console.log('✅ تم إلغاء نقاط المرور الوهمية');
-        console.log('✅ تم تفعيل البحث الحقيقي');
-        console.log('✅ تم تفعيل الملاحة الحقيقية');
-        console.log('✅ تم تصحيح عداد السرعة من GPS');
-        console.log('✅ السهم يتحرك مع اتجاه الهاتف');
+        console.log('✅ تم إصلاح القمر الصناعي (جوجل إيرث)');
+        console.log('✅ السهم يتحرك مع الاتجاه');
+        console.log('✅ عداد سرعة حقيقي من GPS');
     </script>
 </body>
 </html>
