@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>أورا ماب - الإصدار الذهبي</title>
+    <title>أورا ماب</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
@@ -31,29 +31,6 @@
             top: 0;
             left: 0;
             z-index: 0;
-        }
-
-        #app-logo {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 1001;
-            background: rgba(10, 14, 24, 0.85);
-            backdrop-filter: blur(20px);
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #7bb0ff;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            pointer-events: none;
-        }
-        #app-logo i {
-            color: #ffb84d;
         }
 
         #search-bar {
@@ -242,6 +219,7 @@
             color: #4a9eff;
             text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
             filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.3));
+            transition: transform 0.3s ease;
         }
         .gps-marker .pulse {
             position: absolute;
@@ -671,12 +649,6 @@
             #speedometer .speed-value {
                 font-size: 0.9rem;
             }
-            #app-logo {
-                top: 10px;
-                right: 10px;
-                padding: 4px 12px;
-                font-size: 0.7rem;
-            }
             #clear-markers-btn {
                 top: 70px;
                 left: 10px;
@@ -690,9 +662,7 @@
 
     <div id="map"></div>
 
-    <!---<div id="app-logo">
-        <i class="fas fa-map"></i> أورا ماب
-    </div>--->
+    <!-- ===== تم إزالة شعار "أورا ماب" ===== -->
 
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
@@ -820,7 +790,7 @@
         });
 
         // ================================================================
-        //  GPS مع عداد سرعة حقيقي
+        //  GPS مع سهم متحرك حسب الاتجاه + عداد سرعة حقيقي
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -842,7 +812,8 @@
             var arrow = document.createElement('div');
             arrow.className = 'arrow';
             arrow.innerHTML = '▲';
-            arrow.style.transform = 'translate(-50%, -50%) rotate(' + heading + 'deg)';
+            // السهم يدور حسب زاوية الاتجاه
+            arrow.style.transform = 'translate(-50%, -50%) rotate(' + (heading || 0) + 'deg)';
             container.appendChild(arrow);
 
             return L.divIcon({
@@ -855,7 +826,7 @@
 
         function updateGPSIcon(heading) {
             if (userMarker) {
-                var icon = createGPSIcon(heading);
+                var icon = createGPSIcon(heading || userHeading || 0);
                 userMarker.setIcon(icon);
             }
         }
@@ -899,7 +870,7 @@
             var lng = pos.coords.longitude;
             var acc = pos.coords.accuracy || 30;
             var heading = pos.coords.heading || 0;
-            var speed = pos.coords.speed; // السرعة بالمتر/الثانية (من GPS)
+            var speed = pos.coords.speed;
 
             userPos = [lat, lng];
             userHeading = heading;
@@ -909,13 +880,11 @@
             var speedAccuracy = 'جيد';
 
             if (speed !== null && speed !== undefined && speed >= 0) {
-                // السرعة من GPS مباشرة (متر/ثانية → كم/ساعة)
                 speedKmh = speed * 3.6;
                 speedAccuracy = 'من GPS';
             } else if (lastPos && lastTime) {
-                // حساب السرعة من تغير الموقع (بديل)
                 var dist = calcDistance(lastPos[0], lastPos[1], lat, lng);
-                var timeDiff = (Date.now() - lastTime) / 1000; // بالثواني
+                var timeDiff = (Date.now() - lastTime) / 1000;
                 if (timeDiff > 0.5 && dist > 0.001) {
                     speedKmh = (dist / timeDiff) * 3600;
                     speedAccuracy = 'محسوبة';
@@ -924,7 +893,6 @@
                 }
             }
 
-            // تنعيم السرعة (متوسط آخر 5 قراءات)
             if (speedKmh > 0) {
                 speedBuffer.push(speedKmh);
                 if (speedBuffer.length > 5) speedBuffer.shift();
@@ -934,7 +902,6 @@
                     .length + '/5)';
                 document.getElementById('speedometer').classList.add('show');
             } else if (speedBuffer.length > 0) {
-                // عرض آخر سرعة معروفة
                 var lastSpeed = speedBuffer[speedBuffer.length - 1] || 0;
                 document.getElementById('speed-value').textContent = Math.round(lastSpeed);
                 document.getElementById('speed-accuracy').textContent = '🟡 متوقف (' + speedAccuracy + ')';
@@ -948,7 +915,7 @@
             lastPos = [lat, lng];
             lastTime = Date.now();
 
-            // تحديث علامة GPS
+            // ===== تحديث العلامة =====
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -969,7 +936,6 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
-            // تحديث معلومات المكان
             getLocationDetails(lat, lng)
                 .then(function(details) {
                     document.getElementById('street-name').textContent = details.street;
@@ -991,13 +957,12 @@
                 navigator.geolocation.getCurrentPosition(updateLocation, function(err) {
                     alert('⚠️ لم نتمكن من تحديد موقعك. تأكد من تشغيل GPS.');
                 }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
-                
-                // مراقبة الموقع بشكل مستمر
+
                 if (speedWatchId) navigator.geolocation.clearWatch(speedWatchId);
-                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, { 
-                    enableHighAccuracy: true, 
-                    maximumAge: 1000, 
-                    timeout: 10000 
+                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,
+                    timeout: 10000
                 });
             } else {
                 alert('⚠️ متصفحك لا يدعم تحديد الموقع');
@@ -1029,7 +994,7 @@
         }
 
         // ================================================================
-        //  نظام البحث المتطور (بدون مرور وهمي)
+        //  نظام البحث (بدون مرور وهمي)
         // ================================================================
         var searchInput = document.getElementById('search-input');
         var searchBtn = document.getElementById('search-btn');
@@ -1071,7 +1036,6 @@
             localStorage.setItem('last_search', query);
             showToast('🔍 جاري البحث عن: ' + query + '...', '#7bb0ff');
 
-            // البحث عبر الإنترنت
             var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' +
                 encodeURIComponent(query) + '&limit=5&lang=ar&addressdetails=1&countrycodes=eg&accept-language=ar';
 
@@ -1096,7 +1060,7 @@
             .then(function(data) {
                 clearTimeout(timeoutId);
                 if (!data || data.length === 0) {
-                    alert('❌ لم يتم العثور على: "' + query + '"\n\n🔍 جرب:\n- اسم أكثر تحديداً\n- تحقق من الإملاء');
+                    alert('❌ لم يتم العثور على: "' + query + '"');
                     return;
                 }
 
@@ -1300,7 +1264,6 @@
                 showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
                 document.getElementById('clear-markers-btn').classList.add('show');
 
-                // مراقبة الوصول
                 if (navCheckInterval) clearInterval(navCheckInterval);
                 navCheckInterval = setInterval(function() {
                     if (userPos && navDestination && !navArrived) {
@@ -1613,7 +1576,7 @@
                     .then(function(short) {
                         if (navigator.share) {
                             navigator.share({
-                                title: 'موقعي على أورا ماب',
+                                title: 'موقعي',
                                 text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1].toFixed(4),
                                 url: short || url
                             })['catch'](function() {});
@@ -1628,7 +1591,7 @@
                     ['catch'](function() {
                         if (navigator.share) {
                             navigator.share({
-                                title: 'موقعي على أورا ماب',
+                                title: 'موقعي',
                                 text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1].toFixed(4),
                                 url: url
                             })['catch'](function() {});
@@ -1710,10 +1673,12 @@
         }, 500);
 
         console.log('🚀 أورا ماب - الإصدار النهائي');
+        console.log('✅ تم إزالة شعار "أورا ماب"');
         console.log('✅ تم إلغاء نقاط المرور الوهمية');
         console.log('✅ تم تفعيل البحث الحقيقي');
         console.log('✅ تم تفعيل الملاحة الحقيقية');
         console.log('✅ تم تصحيح عداد السرعة من GPS');
+        console.log('✅ السهم يتحرك مع اتجاه الهاتف');
     </script>
 </body>
 </html>
