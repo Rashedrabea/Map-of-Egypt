@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>أورا ماب</title>
+    <title>أورا ماب - الإصدار المتطور</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
@@ -11,11 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
-        /* ===== جميع الأنماط السابقة (نفس الكود) ===== */
+        /* ===== جميع الأنماط السابقة مع تحسينات ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0b0e14; overflow: hidden; height: 100vh; width: 100vw; }
         #map { height: 100vh; width: 100vw; background: #1a1f2e; position: absolute; top: 0; left: 0; z-index: 0; }
 
+        /* ===== شريط البحث ===== */
         #search-bar {
             position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             z-index: 1000; display: flex; gap: 6px;
@@ -41,6 +42,7 @@
         #share-btn:hover { background: rgba(255,180,60,0.2); }
         #share-btn i { font-size: 1rem; }
 
+        /* ===== اللوحة السفلية ===== */
         #bottom-bar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             z-index: 999; width: min(96%, 850px); padding: 10px 12px;
@@ -67,6 +69,7 @@
         .bottom-item#mode-navigation.active i { color: #ff3333; }
         .bottom-item#mode-navigation.active span { color: #ff3333; }
 
+        /* ===== لوحة المعلومات ===== */
         #info-panel {
             position: absolute; bottom: 110px; right: 15px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
@@ -78,6 +81,7 @@
         #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.7rem; color: #b0c8e8; }
         #info-panel .info-row i { color: #7bb0ff; width: 16px; font-size: 0.7rem; }
 
+        /* ===== GPS Marker ===== */
         .gps-marker { width: 30px; height: 30px; position: relative; }
         .gps-marker .arrow {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -98,73 +102,7 @@
             100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
 
-        #memory-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center;
-        }
-        #memory-modal.open { display: flex; }
-        .memory-panel {
-            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
-            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
-            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
-        }
-        .memory-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .memory-panel h2 i { color: #ffb84d; }
-        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .memory-item i { color: #ffb84d; }
-        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
-        .memory-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
-        .close-memory { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
-        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
-        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
-        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
-        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
-
-        #fav-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center;
-        }
-        #fav-modal.open { display: flex; }
-        .fav-panel {
-            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
-            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
-            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
-        }
-        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .fav-panel h2 i { color: #ff6b6b; }
-        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
-        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
-        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
-        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
-
-        #ar-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
-            justify-content: center; align-items: center; flex-direction: column; color: #fff;
-        }
-        #ar-overlay.open { display: flex; }
-        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
-        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
-        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
-        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
-        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
-        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
-
-        #status-bar {
-            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
-            z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem;
-            color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap;
-            pointer-events: none; border: 1px solid rgba(255,255,255,0.02);
-            display: none;
-        }
-        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
-        #status-bar.offline { border-color: rgba(255,107,107,0.1); color: rgba(255,107,107,0.3); }
-
+        /* ===== Speedometer ===== */
         #speedometer {
             position: absolute; bottom: 110px; left: 15px; z-index: 50;
             background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
@@ -179,14 +117,103 @@
         #speedometer .speed-label { font-size: 0.5rem; color: rgba(255,255,255,0.3); }
         #speedometer .speed-accuracy { font-size: 0.4rem; color: rgba(255,255,255,0.2); margin-top: 2px; }
 
-        #clear-markers-btn {
-            position: absolute; top: 80px; left: 15px; z-index: 50;
-            background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.1);
-            color: #ff6b6b; padding: 8px 14px; border-radius: 30px;
+        /* ===== لوحة الطقس ===== */
+        #weather-panel {
+            position: absolute; top: 80px; right: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 8px 12px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            min-width: 100px;
+        }
+        #weather-panel.show { display: block; }
+        #weather-panel .weather-row { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: #b0c8e8; }
+        #weather-panel .weather-row i { font-size: 1.2rem; }
+
+        /* ===== المؤقت ===== */
+        #timer-panel {
+            position: absolute; bottom: 165px; left: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 8px 12px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        #timer-panel.show { display: block; }
+        #timer-panel .timer-row { font-size: 0.6rem; color: #b0c8e8; }
+
+        /* ===== المسار المفضل ===== */
+        #saved-route-btn {
+            position: absolute; bottom: 165px; right: 15px; z-index: 50;
+            background: rgba(60,140,255,0.1); border: 1px solid rgba(60,140,255,0.05);
+            color: #7bb0ff; padding: 8px 14px; border-radius: 30px;
             font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px);
             background: rgba(10,14,24,0.8);
             display: none;
         }
+        #saved-route-btn.show { display: block; }
+
+        /* ===== نافذة الطقس ===== */
+        #weather-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
+        }
+        #weather-modal.open { display: flex; }
+        .weather-panel-modal {
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 350px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+        .weather-panel-modal h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .weather-panel-modal h2 i { color: #ffb84d; }
+        .weather-detail { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; }
+        .close-weather { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+
+        /* ===== باقي الأنماط ===== */
+        #memory-modal, #fav-modal, #ar-overlay { /* نفس الأنماط السابقة */ }
+        #memory-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); justify-content: center; align-items: center; }
+        #memory-modal.open { display: flex; }
+        .memory-panel { background: rgba(14,20,32,0.95); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 28px 32px; width: min(90%, 400px); max-height: 70vh; overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8); }
+        .memory-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .memory-panel h2 i { color: #ffb84d; }
+        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .memory-item i { color: #ffb84d; }
+        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+        .memory-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-memory { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
+        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
+        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
+        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
+
+        #fav-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); justify-content: center; align-items: center; }
+        #fav-modal.open { display: flex; }
+        .fav-panel { background: rgba(14,20,32,0.95); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 28px 32px; width: min(90%, 400px); max-height: 70vh; overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8); }
+        .fav-panel h2 { color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .fav-panel h2 i { color: #ff6b6b; }
+        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
+        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
+        .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-fav { margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px; background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: 1px solid rgba(60,140,255,0.05); }
+
+        #ar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 500; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); justify-content: center; align-items: center; flex-direction: column; color: #fff; }
+        #ar-overlay.open { display: flex; }
+        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
+        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
+        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
+        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
+        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
+        #ar-overlay .ar-content .ar-altitude { font-size: 0.8rem; color: rgba(255,255,255,0.3); margin: 6px 0; }
+        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
+
+        #status-bar { position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%); z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem; color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap; pointer-events: none; border: 1px solid rgba(255,255,255,0.02); display: none; }
+        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
+        #status-bar.offline { border-color: rgba(255,107,107,0.1); color: rgba(255,107,107,0.3); }
+
+        #clear-markers-btn { position: absolute; top: 80px; left: 15px; z-index: 50; background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.1); color: #ff6b6b; padding: 8px 14px; border-radius: 30px; font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px); background: rgba(10,14,24,0.8); display: none; }
         #clear-markers-btn.show { display: block; }
         #clear-markers-btn:hover { background: rgba(255,50,50,0.2); }
 
@@ -206,12 +233,15 @@
             #info-panel { bottom: 85px; right: 10px; padding: 8px 12px; min-width: 120px; }
             #info-panel .info-row { font-size: 0.55rem; }
             #status-bar { bottom: 75px; font-size: 0.4rem; padding: 2px 12px; }
-            .memory-panel, .fav-panel { padding: 16px 14px; width: 94%; }
-            #ar-overlay .ar-content i { font-size: 3rem; }
-            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
             #speedometer { bottom: 85px; left: 10px; padding: 6px 10px; min-width: 60px; }
             #speedometer .speed-value { font-size: 0.9rem; }
             #clear-markers-btn { top: 70px; left: 10px; padding: 4px 10px; font-size: 0.5rem; }
+            #weather-panel { top: 70px; right: 10px; padding: 6px 10px; min-width: 80px; }
+            #timer-panel { bottom: 135px; left: 10px; padding: 6px 10px; }
+            #saved-route-btn { bottom: 135px; right: 10px; padding: 4px 10px; font-size: 0.5rem; }
+            .memory-panel, .fav-panel { padding: 16px 14px; width: 94%; }
+            #ar-overlay .ar-content i { font-size: 3rem; }
+            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -219,6 +249,7 @@
 
     <div id="map"></div>
 
+    <!-- ===== شريط البحث ===== -->
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
         <button id="search-btn">🔍</button>
@@ -227,6 +258,7 @@
 
     <div id="status-bar" class="online">📡 متصل</div>
 
+    <!-- ===== لوحة المعلومات ===== -->
     <div id="info-panel">
         <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
         <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
@@ -235,14 +267,32 @@
         <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
     </div>
 
+    <!-- ===== عداد السرعة (مُحسّن) ===== -->
     <div id="speedometer">
         <div class="speed-value" id="speed-value">0</div>
         <div class="speed-label">كم/ساعة</div>
-        <div class="speed-accuracy" id="speed-accuracy">جاري التحديث...</div>
+        <div class="speed-accuracy" id="speed-accuracy">⏳ منتظر...</div>
     </div>
 
+    <!-- ===== الطقس ===== -->
+    <div id="weather-panel">
+        <div class="weather-row"><i id="weather-icon" class="fas fa-sun"></i> <span id="weather-temp">--°</span></div>
+        <div class="weather-row" style="font-size:0.5rem;color:rgba(255,255,255,0.3);"><span id="weather-desc">جاري التحميل...</span></div>
+    </div>
+
+    <!-- ===== المؤقت ===== -->
+    <div id="timer-panel">
+        <div class="timer-row"><i class="fas fa-stopwatch"></i> الوقت: <span id="trip-time">00:00:00</span></div>
+        <div class="timer-row" style="font-size:0.5rem;color:rgba(255,255,255,0.3);">المسافة: <span id="trip-distance">0.0</span> كم</div>
+    </div>
+
+    <!-- ===== زر المسار المفضل ===== -->
+    <button id="saved-route-btn"><i class="fas fa-route"></i> مسار مفضل</button>
+
+    <!-- ===== زر مسح العلامات ===== -->
     <button id="clear-markers-btn"><i class="fas fa-eraser"></i> مسح الكل</button>
 
+    <!-- ===== اللوحة السفلية ===== -->
     <div id="bottom-bar">
         <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
         <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
@@ -253,8 +303,11 @@
         <div class="bottom-item" id="mode-fav"><i class="fas fa-heart"></i><span>مفضلة</span></div>
         <div class="bottom-item" id="mode-memory"><i class="fas fa-clock-rotate-left"></i><span>ذكريات</span></div>
         <div class="bottom-item" id="mode-ar"><i class="fas fa-vr-cardboard"></i><span>AR</span></div>
+        <div class="bottom-item" id="mode-weather"><i class="fas fa-cloud-sun"></i><span>طقس</span></div>
+        <div class="bottom-item" id="mode-timer"><i class="fas fa-stopwatch"></i><span>مؤقت</span></div>
     </div>
 
+    <!-- ===== نافذة المفضلة ===== -->
     <div id="fav-modal">
         <div class="fav-panel">
             <h2><i class="fas fa-heart"></i> الأماكن المفضلة</h2>
@@ -263,6 +316,7 @@
         </div>
     </div>
 
+    <!-- ===== نافذة الذكريات ===== -->
     <div id="memory-modal">
         <div class="memory-panel">
             <h2><i class="fas fa-clock-rotate-left"></i> مسار الذكريات</h2>
@@ -275,6 +329,16 @@
         </div>
     </div>
 
+    <!-- ===== نافذة الطقس ===== -->
+    <div id="weather-modal">
+        <div class="weather-panel-modal">
+            <h2><i class="fas fa-cloud-sun"></i> حالة الطقس</h2>
+            <div id="weather-details"></div>
+            <button class="close-weather" id="close-weather-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- ===== AR Overlay ===== -->
     <div id="ar-overlay">
         <div class="ar-content">
             <i class="fas fa-camera"></i>
@@ -283,6 +347,7 @@
             <div class="compass-display"><i class="fas fa-compass"></i> <span id="ar-compass">--</span>°</div>
             <div class="ar-info"><i class="fas fa-map-pin"></i> <span id="ar-location">جاري التحديد...</span></div>
             <div class="ar-info"><i class="fas fa-building"></i> <span id="ar-nearby">جاري البحث...</span></div>
+            <div class="ar-altitude"><i class="fas fa-mountain"></i> الارتفاع: <span id="ar-altitude">--</span> م</div>
             <div class="ar-info" style="font-size:2rem;margin-top:10px;" id="ar-direction">⬆️</div>
             <button class="ar-close" id="ar-close-btn">إغلاق</button>
         </div>
@@ -348,13 +413,7 @@
         });
 
         // ================================================================
-        //  باقي الكود (GPS، بحث، ملاحة، مفضلة، ذكريات، AR، مشاركة)
-        //  ================================================================
-        // (نفس الكود السابق كاملاً - لم يتغير شيء)
-        // ================================================================
-
-        // ================================================================
-        //  GPS مع سهم متحرك حسب الاتجاه + عداد سرعة حقيقي
+        //  GPS مع سهم متحرك + عداد سرعة مُحسّن (مع فلتر)
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -364,6 +423,18 @@
         var lastTime = null;
         var speedBuffer = [];
         var speedWatchId = null;
+        var MIN_SPEED = 2; // تجاهل السرعات أقل من 2 كم/ساعة
+
+        // ===== فلتر كالمان البسيط للسرعة =====
+        var kalmanSpeed = 0;
+        var kalmanQ = 0.05;
+        var kalmanR = 0.1;
+
+        function kalmanFilter(measurement) {
+            var k = kalmanQ / (kalmanQ + kalmanR);
+            kalmanSpeed = kalmanSpeed + k * (measurement - kalmanSpeed);
+            return kalmanSpeed;
+        }
 
         function createGPSIcon(heading) {
             var container = document.createElement('div');
@@ -428,6 +499,7 @@
             });
         }
 
+        // ===== تحديث الموقع (مع فلتر السرعة) =====
         function updateLocation(pos) {
             var lat = pos.coords.latitude;
             var lng = pos.coords.longitude;
@@ -438,6 +510,7 @@
             userPos = [lat, lng];
             userHeading = heading;
 
+            // ===== حساب السرعة مع فلتر =====
             var speedKmh = 0;
             var speedAccuracy = 'جيد';
 
@@ -455,18 +528,39 @@
                 }
             }
 
-            if (speedKmh > 0) {
-                speedBuffer.push(speedKmh);
-                if (speedBuffer.length > 5) speedBuffer.shift();
+            // ===== تطبيق الفلتر =====
+            var filteredSpeed = 0;
+            if (speedKmh > MIN_SPEED) {
+                filteredSpeed = kalmanFilter(speedKmh);
+                speedBuffer.push(filteredSpeed);
+                if (speedBuffer.length > 8) speedBuffer.shift();
+            } else {
+                // إعادة تعيين الفلتر عند التوقف
+                kalmanSpeed = 0;
+                if (speedBuffer.length > 0 && speedBuffer[speedBuffer.length - 1] > 0) {
+                    // تناقص تدريجي
+                    var lastSpeed = speedBuffer[speedBuffer.length - 1];
+                    if (lastSpeed > 0.5) {
+                        filteredSpeed = lastSpeed * 0.9;
+                        speedBuffer.push(filteredSpeed);
+                        if (speedBuffer.length > 8) speedBuffer.shift();
+                    } else {
+                        speedBuffer = [];
+                    }
+                }
+            }
+
+            // ===== عرض السرعة =====
+            var displaySpeed = 0;
+            if (speedBuffer.length > 0) {
                 var avgSpeed = speedBuffer.reduce(function(a, b) { return a + b; }, 0) / speedBuffer.length;
-                document.getElementById('speed-value').textContent = Math.round(avgSpeed);
+                displaySpeed = Math.round(avgSpeed);
+            }
+
+            if (displaySpeed > 0) {
+                document.getElementById('speed-value').textContent = displaySpeed;
                 document.getElementById('speed-accuracy').textContent = '🟢 ' + speedAccuracy + ' (' + speedBuffer
-                    .length + '/5)';
-                document.getElementById('speedometer').classList.add('show');
-            } else if (speedBuffer.length > 0) {
-                var lastSpeed = speedBuffer[speedBuffer.length - 1] || 0;
-                document.getElementById('speed-value').textContent = Math.round(lastSpeed);
-                document.getElementById('speed-accuracy').textContent = '🟡 متوقف (' + speedAccuracy + ')';
+                    .length + '/8)';
                 document.getElementById('speedometer').classList.add('show');
             } else {
                 document.getElementById('speed-value').textContent = '0';
@@ -477,6 +571,7 @@
             lastPos = [lat, lng];
             lastTime = Date.now();
 
+            // ===== تحديث العلامة =====
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -510,6 +605,12 @@
 
             document.getElementById('mode-gps').style.color = '#4a9eff';
             document.getElementById('mode-gps').classList.add('active');
+
+            // ===== تحديث الطقس =====
+            updateWeather(lat, lng);
+
+            // ===== تحديث المؤقت =====
+            updateTimer();
         }
 
         function locateUser() {
@@ -542,6 +643,234 @@
         setTimeout(locateUser, 1000);
 
         // ================================================================
+        //  الطقس
+        // ================================================================
+        var weatherData = null;
+
+        function updateWeather(lat, lng) {
+            // استخدام خدمة الطقس المجانية (Open-Meteo)
+            var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lng +
+                '&current_weather=true&timezone=auto';
+
+            fetch(url)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data && data.current_weather) {
+                        weatherData = data.current_weather;
+                        var temp = Math.round(weatherData.temperature);
+                        var code = weatherData.weathercode;
+                        var icon = getWeatherIcon(code);
+                        document.getElementById('weather-icon').className = 'fas ' + icon;
+                        document.getElementById('weather-temp').textContent = temp + '°';
+                        document.getElementById('weather-desc').textContent = getWeatherDesc(code);
+                        document.getElementById('weather-panel').classList.add('show');
+                    }
+                })
+                ['catch'](function() {
+                    // في حالة فشل الطقس
+                });
+        }
+
+        function getWeatherIcon(code) {
+            if (code === 0 || code === 1) return 'fa-sun';
+            if (code === 2) return 'fa-cloud-sun';
+            if (code === 3) return 'fa-cloud';
+            if (code >= 51 && code <= 67) return 'fa-cloud-rain';
+            if (code >= 71 && code <= 77) return 'fa-snowflake';
+            if (code >= 80 && code <= 99) return 'fa-cloud-showers-heavy';
+            return 'fa-cloud';
+        }
+
+        function getWeatherDesc(code) {
+            var descriptions = {
+                0: 'صافي',
+                1: 'صافي جزئياً',
+                2: 'غائم جزئياً',
+                3: 'غائم',
+                51: 'رذاذ خفيف',
+                53: 'رذاذ متوسط',
+                55: 'رذاذ كثيف',
+                61: 'مطر خفيف',
+                63: 'مطر متوسط',
+                65: 'مطر غزير',
+                71: 'ثلج خفيف',
+                73: 'ثلج متوسط',
+                75: 'ثلج كثيف',
+                80: 'زخات مطر',
+                81: 'زخات مطر متوسطة',
+                82: 'زخات مطر غزيرة',
+                95: 'عاصفة رعدية',
+                96: 'عاصفة مع برد'
+            };
+            return descriptions[code] || 'غير معروف';
+        }
+
+        document.getElementById('mode-weather').addEventListener('click', function() {
+            var modal = document.getElementById('weather-modal');
+            modal.classList.toggle('open');
+            if (modal.classList.contains('open')) {
+                var details = document.getElementById('weather-details');
+                if (weatherData) {
+                    details.innerHTML = `
+                        <div class="weather-detail"><span>🌡️ درجة الحرارة</span><span>${Math.round(weatherData.temperature)}°C</span></div>
+                        <div class="weather-detail"><span>💨 سرعة الرياح</span><span>${weatherData.windspeed} كم/ساعة</span></div>
+                        <div class="weather-detail"><span>🧭 اتجاه الرياح</span><span>${weatherData.winddirection}°</span></div>
+                        <div class="weather-detail"><span>☁️ الحالة</span><span>${getWeatherDesc(weatherData.weathercode)}</span></div>
+                    `;
+                } else {
+                    details.innerHTML = '<div class="weather-detail" style="text-align:center;">جاري تحميل بيانات الطقس...</div>';
+                }
+            }
+        });
+
+        document.getElementById('close-weather-btn').addEventListener('click', function() {
+            document.getElementById('weather-modal').classList.remove('open');
+        });
+
+        // ================================================================
+        //  المؤقت (وقت الرحلة + مسافة)
+        // ================================================================
+        var tripStartTime = null;
+        var tripTotalDistance = 0;
+        var tripTimerInterval = null;
+        var tripRunning = false;
+
+        function startTripTimer() {
+            if (!tripRunning) {
+                tripStartTime = Date.now();
+                tripTotalDistance = 0;
+                tripRunning = true;
+                if (tripTimerInterval) clearInterval(tripTimerInterval);
+                tripTimerInterval = setInterval(updateTimer, 1000);
+                document.getElementById('timer-panel').classList.add('show');
+                showToast('⏱️ بدأ المؤقت', '#7bb0ff');
+            }
+        }
+
+        function stopTripTimer() {
+            if (tripRunning) {
+                tripRunning = false;
+                if (tripTimerInterval) {
+                    clearInterval(tripTimerInterval);
+                    tripTimerInterval = null;
+                }
+                showToast('⏱️ تم إيقاف المؤقت', '#ffb84d');
+            }
+        }
+
+        function resetTripTimer() {
+            tripRunning = false;
+            tripStartTime = null;
+            tripTotalDistance = 0;
+            if (tripTimerInterval) {
+                clearInterval(tripTimerInterval);
+                tripTimerInterval = null;
+            }
+            document.getElementById('trip-time').textContent = '00:00:00';
+            document.getElementById('trip-distance').textContent = '0.0';
+            document.getElementById('timer-panel').classList.remove('show');
+            showToast('⏱️ تم إعادة تعيين المؤقت', '#ff6b6b');
+        }
+
+        function updateTimer() {
+            if (tripRunning && tripStartTime) {
+                var elapsed = Math.floor((Date.now() - tripStartTime) / 1000);
+                var hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+                var minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+                var seconds = String(elapsed % 60).padStart(2, '0');
+                document.getElementById('trip-time').textContent = hours + ':' + minutes + ':' + seconds;
+            }
+        }
+
+        // تحديث المسافة أثناء التحرك
+        function updateTripDistance() {
+            if (tripRunning && lastPos && userPos) {
+                var dist = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
+                if (dist > 0.01) {
+                    tripTotalDistance += dist;
+                    document.getElementById('trip-distance').textContent = tripTotalDistance.toFixed(1);
+                }
+            }
+        }
+
+        // ربط تحديث المسافة مع تحديث الموقع
+        var originalUpdateLocation = updateLocation;
+        updateLocation = function(pos) {
+            originalUpdateLocation(pos);
+            updateTripDistance();
+        };
+
+        document.getElementById('mode-timer').addEventListener('click', function() {
+            if (!tripRunning) {
+                startTripTimer();
+            } else {
+                stopTripTimer();
+            }
+        });
+
+        document.getElementById('mode-timer').addEventListener('dblclick', function() {
+            resetTripTimer();
+        });
+
+        // ================================================================
+        //  المسار المفضل (حفظ واسترجاع)
+        // ================================================================
+        var savedRoutes = JSON.parse(localStorage.getItem('aora_saved_routes') || '[]');
+
+        function saveCurrentRoute() {
+            if (userPos && navDestination) {
+                var route = {
+                    start: { lat: userPos[0], lng: userPos[1] },
+                    end: { lat: navDestination[0], lng: navDestination[1] },
+                    name: document.getElementById('destination').textContent || 'مسار',
+                    date: new Date().toISOString()
+                };
+                savedRoutes.push(route);
+                localStorage.setItem('aora_saved_routes', JSON.stringify(savedRoutes));
+                showToast('✅ تم حفظ المسار', '#3dff9e');
+                document.getElementById('saved-route-btn').classList.add('show');
+            } else {
+                showToast('⚠️ لا يوجد مسار نشط للحفظ', '#ff6b6b');
+            }
+        }
+
+        function loadSavedRoutes() {
+            if (savedRoutes.length === 0) {
+                showToast('📭 لا توجد مسارات محفوظة', '#ffb84d');
+                return;
+            }
+            var route = savedRoutes[savedRoutes.length - 1];
+            if (route.start && route.end) {
+                map.flyTo([route.start.lat, route.start.lng], 14, { duration: 1.5 });
+                showToast('📍 تم تحميل المسار: ' + route.name, '#7bb0ff');
+                // رسم المسار
+                var points = [
+                    [route.start.lat, route.start.lng],
+                    [(route.start.lat + route.end.lat) / 2 + 0.003, (route.start.lng + route.end.lng) / 2 - 0.003],
+                    [(route.start.lat + route.end.lat) / 2 - 0.003, (route.start.lng + route.end.lng) / 2 + 0.003],
+                    [route.end.lat, route.end.lng]
+                ];
+                var routeLine = L.polyline(points, {
+                    color: '#4a9eff',
+                    weight: 5,
+                    opacity: 0.8,
+                    dashArray: '8, 6'
+                }).addTo(map);
+                setTimeout(function() {
+                    map.removeLayer(routeLine);
+                }, 8000);
+            }
+        }
+
+        document.getElementById('saved-route-btn').addEventListener('click', function() {
+            if (savedRoutes.length > 0) {
+                loadSavedRoutes();
+            } else {
+                saveCurrentRoute();
+            }
+        });
+
+        // ================================================================
         //  حساب المسافة
         // ================================================================
         function calcDistance(lat1, lon1, lat2, lon2) {
@@ -555,7 +884,7 @@
         }
 
         // ================================================================
-        //  نظام البحث (بدون مرور وهمي)
+        //  نظام البحث
         // ================================================================
         var searchInput = document.getElementById('search-input');
         var searchBtn = document.getElementById('search-btn');
@@ -700,7 +1029,7 @@
         });
 
         // ================================================================
-        //  الملاحة الحقيقية (بدون مرور وهمي)
+        //  الملاحة الحقيقية
         // ================================================================
         var navMode = false;
         var routeLine = null;
@@ -825,6 +1154,9 @@
                 showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
                 document.getElementById('clear-markers-btn').classList.add('show');
 
+                // إظهار زر حفظ المسار
+                document.getElementById('saved-route-btn').classList.add('show');
+
                 if (navCheckInterval) clearInterval(navCheckInterval);
                 navCheckInterval = setInterval(function() {
                     if (userPos && navDestination && !navArrived) {
@@ -851,6 +1183,8 @@
                             alertDiv.innerHTML = '<h2>✅ وصلت!</h2><p style="margin-top:10px;">' + name +
                                 '</p><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:10px 30px;border:none;border-radius:40px;background:#3dff9e;color:#000;cursor:pointer;">حسناً</button>';
                             document.body.appendChild(alertDiv);
+                            // حفظ المسار تلقائياً
+                            saveCurrentRoute();
                         }
                     }
                 }, 3000);
@@ -1034,7 +1368,7 @@
         });
 
         // ================================================================
-        //  AR - الواقع المعزز
+        //  AR - الواقع المعزز (مع الارتفاع)
         // ================================================================
         var arBtn = document.getElementById('mode-ar');
         var arOverlay = document.getElementById('ar-overlay');
@@ -1060,6 +1394,11 @@
                             document.getElementById('ar-compass').textContent = Math.round(pos.coords
                             .heading);
                         }
+                        // عرض الارتفاع
+                        if (pos.coords.altitude !== null && pos.coords.altitude !== undefined) {
+                            document.getElementById('ar-altitude').textContent = Math.round(pos.coords
+                                .altitude);
+                        }
                         fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos
                                 .coords.latitude + '&lon=' + pos.coords.longitude +
                                 '&zoom=18&accept-language=ar')
@@ -1084,6 +1423,12 @@
                             if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
                                 var heading = Math.round(pos.coords.heading);
                                 document.getElementById('ar-compass').textContent = heading;
+                                // تحديث الارتفاع
+                                if (pos.coords.altitude !== null && pos.coords.altitude !==
+                                    undefined) {
+                                    document.getElementById('ar-altitude').textContent = Math.round(
+                                        pos.coords.altitude);
+                                }
 
                                 if (navDestination && userPos) {
                                     var destBearing = calcBearing(userPos[0], userPos[1],
@@ -1233,10 +1578,14 @@
             map.invalidateSize();
         }, 500);
 
-        console.log('🚀 أورا ماب - الإصدار النهائي');
+        console.log('🚀 أورا ماب - الإصدار المتطور');
         console.log('✅ تم إصلاح القمر الصناعي (جوجل إيرث)');
+        console.log('✅ تم تصحيح عداد السرعة (فلتر + سرعة دقيقة)');
+        console.log('✅ تم إضافة الطقس');
+        console.log('✅ تم إضافة المؤقت');
+        console.log('✅ تم إضافة المسار المفضل');
+        console.log('✅ تم إضافة الارتفاع في AR');
         console.log('✅ السهم يتحرك مع الاتجاه');
-        console.log('✅ عداد سرعة حقيقي من GPS');
     </script>
 </body>
 </html>
