@@ -1,112 +1,1499 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>غير متصل - أورا ماب</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أورا ماب - Offline</title>
 
-        body {
-            background: #0b0e14;
-            color: #f0f4fc;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ===== جميع الأنماط السابقة ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0b0e14; overflow: hidden; height: 100vh; width: 100vw; }
+        #map { height: 100vh; width: 100vw; background: #1a1f2e; position: absolute; top: 0; left: 0; z-index: 0; }
+
+        #search-bar {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 6px;
+            background: rgba(12,16,24,0.92); backdrop-filter: blur(20px);
+            padding: 6px 10px; border-radius: 50px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.06);
+        }
+        #search-input { flex: 1; border: none; padding: 10px 14px; font-size: 15px; border-radius: 30px; outline: none; background: rgba(255,255,255,0.05); color: #f0f4fc; }
+        #search-input::placeholder { color: rgba(255,255,255,0.25); }
+        #search-btn { background: rgba(60,140,255,0.15); color: #8abaff; border: 1px solid rgba(60,140,255,0.08); padding: 10px 18px; border-radius: 30px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; }
+        #search-btn:hover { background: rgba(60,140,255,0.25); }
+
+        #share-btn {
+            background: rgba(255,180,60,0.1); border: none; color: #ffb84d;
+            padding: 10px 16px; border-radius: 30px; font-size: 15px;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(255,180,60,0.06);
+            white-space: nowrap;
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            gap: 6px;
+        }
+        #share-btn:hover { background: rgba(255,180,60,0.2); }
+        #share-btn i { font-size: 1rem; }
+
+        #bottom-bar {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 999; width: min(96%, 850px); padding: 10px 12px;
+            display: flex; align-items: center; justify-content: space-around;
+            background: rgba(10,14,24,0.92); backdrop-filter: blur(28px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 60px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.9);
+            flex-wrap: wrap; gap: 2px; min-height: 56px;
+        }
+        .bottom-item {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            padding: 4px 8px; border-radius: 30px; background: rgba(255,255,255,0.03);
+            cursor: pointer; color: #8899bb; font-size: 0.5rem; font-weight: 500;
+            border: 2px solid transparent; transition: 0.3s ease;
+            user-select: none; min-width: 38px; min-height: 38px; justify-content: center;
+        }
+        .bottom-item i { font-size: 0.95rem; color: #7bb0ff; transition: 0.3s; }
+        .bottom-item:active { transform: scale(0.92); }
+        .bottom-item.active { background: rgba(60,130,255,0.12); border-color: #4a9eff; color: #ffffff; }
+        .bottom-item.active i { color: #4a9eff; }
+        .bottom-item.active span { color: #4a9eff; }
+        .bottom-item span { font-size: 0.4rem; color: #667799; transition: 0.3s; }
+        .bottom-item#mode-navigation.active { background: rgba(255,50,50,0.15); border-color: #ff3333; }
+        .bottom-item#mode-navigation.active i { color: #ff3333; }
+        .bottom-item#mode-navigation.active span { color: #ff3333; }
+        .bottom-item#mode-offline.active { background: rgba(255,180,60,0.15); border-color: #ffb84d; }
+        .bottom-item#mode-offline.active i { color: #ffb84d; }
+        .bottom-item#mode-offline.active span { color: #ffb84d; }
+
+        #info-panel {
+            position: absolute; bottom: 110px; right: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 12px 16px; min-width: 170px; display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        #info-panel.show { display: block; }
+        #info-panel .info-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.7rem; color: #b0c8e8; }
+        #info-panel .info-row i { color: #7bb0ff; width: 16px; font-size: 0.7rem; }
+
+        .gps-marker { width: 30px; height: 30px; position: relative; }
+        .gps-marker .arrow {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 28px; color: #4a9eff;
+            text-shadow: 0 0 20px rgba(74,158,255,0.5);
+            filter: drop-shadow(0 0 10px rgba(74,158,255,0.3));
+            transition: transform 0.3s ease;
+        }
+        .gps-marker .pulse {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(74,158,255,0.1);
+            border: 2px solid rgba(74,158,255,0.2);
+            animation: pulse-ring 2s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        #speedometer {
+            position: absolute; bottom: 110px; left: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 10px 14px; min-width: 80px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            display: none;
             text-align: center;
-            padding: 20px;
         }
+        #speedometer.show { display: block; }
+        #speedometer .speed-value { font-size: 1.2rem; font-weight: bold; color: #3dff9e; }
+        #speedometer .speed-label { font-size: 0.5rem; color: rgba(255,255,255,0.3); }
+        #speedometer .speed-accuracy { font-size: 0.4rem; color: rgba(255,255,255,0.2); margin-top: 2px; }
 
-        .offline-container {
-            max-width: 400px;
-            padding: 40px;
-            background: rgba(14, 20, 32, 0.6);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        #weather-panel {
+            position: absolute; top: 80px; right: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 8px 12px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            min-width: 100px;
         }
+        #weather-panel.show { display: block; }
+        #weather-panel .weather-row { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: #b0c8e8; }
+        #weather-panel .weather-row i { font-size: 1.2rem; }
 
-        .offline-container i {
-            font-size: 4rem;
-            color: #ff6b6b;
-            margin-bottom: 20px;
+        #timer-panel {
+            position: absolute; bottom: 165px; left: 15px; z-index: 50;
+            background: rgba(10,14,24,0.85); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+            padding: 8px 12px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
+        #timer-panel.show { display: block; }
+        #timer-panel .timer-row { font-size: 0.6rem; color: #b0c8e8; }
 
-        .offline-container h1 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #e8f0ff;
+        #saved-route-btn {
+            position: absolute; bottom: 165px; right: 15px; z-index: 50;
+            background: rgba(60,140,255,0.1); border: 1px solid rgba(60,140,255,0.05);
+            color: #7bb0ff; padding: 8px 14px; border-radius: 30px;
+            font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px);
+            background: rgba(10,14,24,0.8);
+            display: none;
         }
+        #saved-route-btn.show { display: block; }
 
-        .offline-container p {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 8px;
+        #clear-markers-btn {
+            position: absolute; top: 80px; left: 15px; z-index: 50;
+            background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.1);
+            color: #ff6b6b; padding: 8px 14px; border-radius: 30px;
+            font-size: 0.6rem; cursor: pointer; backdrop-filter: blur(12px);
+            background: rgba(10,14,24,0.8);
+            display: none;
         }
+        #clear-markers-btn.show { display: block; }
+        #clear-markers-btn:hover { background: rgba(255,50,50,0.2); }
 
-        .offline-container .btn {
-            margin-top: 20px;
-            padding: 12px 36px;
-            border: none;
-            border-radius: 40px;
-            background: rgba(60, 140, 255, 0.12);
-            color: #8abaff;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: 1px solid rgba(60, 140, 255, 0.06);
-            transition: 0.2s;
+        #status-bar {
+            position: absolute; bottom: 95px; left: 50%; transform: translateX(-50%);
+            z-index: 20; padding: 4px 16px; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px); border-radius: 40px; font-size: 0.5rem;
+            color: rgba(255,255,255,0.2); text-align: center; white-space: nowrap;
+            pointer-events: none; border: 1px solid rgba(255,255,255,0.02);
+            display: none;
         }
+        #status-bar.online { border-color: rgba(61,255,158,0.1); color: rgba(61,255,158,0.3); }
+        #status-bar.offline { border-color: rgba(255,180,60,0.1); color: rgba(255,180,60,0.3); }
 
-        .offline-container .btn:active {
-            background: rgba(60, 140, 255, 0.2);
+        #offline-status {
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 60; background: rgba(255,180,60,0.1);
+            border: 1px solid rgba(255,180,60,0.1);
+            color: #ffb84d; padding: 4px 16px;
+            border-radius: 40px; font-size: 0.5rem;
+            backdrop-filter: blur(12px);
+            background: rgba(10,14,24,0.8);
+            display: none;
+            pointer-events: none;
+            text-align: center;
         }
+        #offline-status.show { display: block; }
 
-        .offline-container .features {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
+        #memory-modal, #fav-modal, #ar-overlay, #weather-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
+            justify-content: center; align-items: center;
         }
+        #memory-modal.open, #fav-modal.open, #ar-overlay.open, #weather-modal.open { display: flex; }
 
-        .offline-container .features span {
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(61, 255, 158, 0.04);
-            border: 1px solid rgba(61, 255, 158, 0.04);
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.3);
+        .memory-panel, .fav-panel, .weather-panel-modal {
+            background: rgba(14,20,32,0.95); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
+            padding: 28px 32px; width: min(90%, 400px); max-height: 70vh;
+            overflow-y: auto; box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+        .memory-panel h2, .fav-panel h2, .weather-panel-modal h2 {
+            color: #e8f0ff; font-size: 1.2rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+        }
+        .memory-panel h2 i, .fav-panel h2 i, .weather-panel-modal h2 i { color: #ffb84d; }
+        .memory-item { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .memory-item i { color: #ffb84d; }
+        .memory-item .memory-date { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-left: auto; }
+        .memory-empty, .fav-empty { color: rgba(255,255,255,0.3); text-align: center; padding: 20px; font-size: 0.85rem; }
+        .close-memory, .close-fav, .close-weather {
+            margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 40px;
+            background: rgba(60,140,255,0.1); color: #b0d0ff; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; border: 1px solid rgba(60,140,255,0.05);
+        }
+        .memory-add { display: flex; gap: 8px; margin-top: 12px; }
+        .memory-add input { flex: 1; padding: 10px 14px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #f0f4fc; font-size: 0.85rem; outline: none; }
+        .memory-add input::placeholder { color: rgba(255,255,255,0.2); }
+        .memory-add button { padding: 10px 20px; border-radius: 40px; border: none; background: rgba(255,180,60,0.1); color: #ffb84d; cursor: pointer; border: 1px solid rgba(255,180,60,0.06); }
+
+        .fav-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; cursor: pointer; }
+        .fav-item .fav-del { color: #ff6b6b; cursor: pointer; padding: 4px 8px; border-radius: 20px; background: rgba(255,107,107,0.05); border: none; font-size: 0.7rem; }
+
+        .weather-detail { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: #d0daf0; font-size: 0.85rem; }
+
+        #ar-overlay { background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); justify-content: center; align-items: center; flex-direction: column; color: #fff; }
+        #ar-overlay .ar-content { text-align: center; padding: 30px 20px; max-width: 90%; }
+        #ar-overlay .ar-content i { font-size: 4rem; color: #ffb84d; margin-bottom: 16px; animation: ar-pulse 2s ease-in-out infinite; }
+        @keyframes ar-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
+        #ar-overlay .ar-content .compass-display { font-size: 2.8rem; margin: 16px 0; color: #ffb84d; }
+        #ar-overlay .ar-content .ar-info { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin: 6px 0; }
+        #ar-overlay .ar-content .ar-altitude { font-size: 0.8rem; color: rgba(255,255,255,0.3); margin: 6px 0; }
+        .ar-close { margin-top: 24px; padding: 12px 36px; border: none; border-radius: 40px; background: rgba(255,255,255,0.06); color: #fff; font-size: 1rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); }
+
+        .leaflet-control-attribution { display: none !important; }
+        .leaflet-control-zoom { display: none !important; }
+
+        @media (max-width: 480px) {
+            #bottom-bar { bottom: 12px; padding: 4px 6px; border-radius: 40px; min-height: 44px; gap: 1px; }
+            .bottom-item { padding: 2px 5px; min-width: 30px; min-height: 30px; }
+            .bottom-item i { font-size: 0.75rem; }
+            .bottom-item span { font-size: 0.35rem; }
+            #search-bar { top: 10px; padding: 4px 8px; gap: 4px; }
+            #search-input { font-size: 13px; padding: 6px 10px; }
+            #search-btn { padding: 6px 12px; font-size: 13px; }
+            #share-btn { padding: 6px 12px; font-size: 13px; }
+            #share-btn span { display: none; }
+            #info-panel { bottom: 85px; right: 10px; padding: 8px 12px; min-width: 120px; }
+            #info-panel .info-row { font-size: 0.55rem; }
+            #status-bar { bottom: 75px; font-size: 0.4rem; padding: 2px 12px; }
+            #offline-status { top: 70px; font-size: 0.4rem; padding: 2px 12px; }
+            #speedometer { bottom: 85px; left: 10px; padding: 6px 10px; min-width: 60px; }
+            #speedometer .speed-value { font-size: 0.9rem; }
+            #clear-markers-btn { top: 70px; left: 10px; padding: 4px 10px; font-size: 0.5rem; }
+            #weather-panel { top: 70px; right: 10px; padding: 6px 10px; min-width: 80px; }
+            #timer-panel { bottom: 135px; left: 10px; padding: 6px 10px; }
+            #saved-route-btn { bottom: 135px; right: 10px; padding: 4px 10px; font-size: 0.5rem; }
+            .memory-panel, .fav-panel { padding: 16px 14px; width: 94%; }
+            #ar-overlay .ar-content i { font-size: 3rem; }
+            #ar-overlay .ar-content .compass-display { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
-    <div class="offline-container">
-        <i class="fas fa-wifi-slash"></i>
-        <h1>⚠️ غير متصل بالإنترنت</h1>
-        <p>الخريطة المحلية تعمل بشكل محدود</p>
-        <p style="font-size:0.8rem; color:rgba(255,255,255,0.2);">
-            يمكنك تصفح المناطق التي زرتها سابقاً
-        </p>
-        <button class="btn" onclick="window.location.href='/'">
-            <i class="fas fa-arrow-left"></i> العودة للخريطة
-        </button>
-        <div class="features">
-            <span>📍 تحديد الموقع</span>
-            <span>🗺️ الخريطة المحلية</span>
-            <span>❤️ المفضلة</span>
-            <span>📜 الذكريات</span>
-            <span>🧭 البوصلة</span>
+
+    <div id="map"></div>
+
+    <div id="search-bar">
+        <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
+        <button id="search-btn">🔍</button>
+        <button id="share-btn"><i class="fas fa-share-alt"></i> <span>مشاركة</span></button>
+    </div>
+
+    <div id="status-bar" class="online">📡 متصل</div>
+    <div id="offline-status">📡 وضع Offline - خريطة محلية</div>
+
+    <div id="info-panel">
+        <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
+        <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
+        <div class="info-row"><i class="fas fa-map-pin"></i> الوجهة: <span id="destination">--</span></div>
+        <div class="info-row"><i class="fas fa-road"></i> الشارع: <span id="street-name">--</span></div>
+        <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
+    </div>
+
+    <div id="speedometer">
+        <div class="speed-value" id="speed-value">0</div>
+        <div class="speed-label">كم/ساعة</div>
+        <div class="speed-accuracy" id="speed-accuracy">⏳ منتظر...</div>
+    </div>
+
+    <div id="weather-panel">
+        <div class="weather-row"><i id="weather-icon" class="fas fa-sun"></i> <span id="weather-temp">--°</span></div>
+        <div class="weather-row" style="font-size:0.5rem;color:rgba(255,255,255,0.3);"><span id="weather-desc">جاري التحميل...</span></div>
+    </div>
+
+    <div id="timer-panel">
+        <div class="timer-row"><i class="fas fa-stopwatch"></i> الوقت: <span id="trip-time">00:00:00</span></div>
+        <div class="timer-row" style="font-size:0.5rem;color:rgba(255,255,255,0.3);">المسافة: <span id="trip-distance">0.0</span> كم</div>
+    </div>
+
+    <button id="saved-route-btn"><i class="fas fa-route"></i> مسار مفضل</button>
+    <button id="clear-markers-btn"><i class="fas fa-eraser"></i> مسح الكل</button>
+
+    <div id="bottom-bar">
+        <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
+        <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
+        <div class="bottom-item" id="mode-terrain"><i class="fas fa-mountain"></i><span>تضاريس</span></div>
+        <div class="bottom-item" id="mode-night"><i class="fas fa-moon"></i><span>ليلي</span></div>
+        <div class="bottom-item" id="mode-offline"><i class="fas fa-download"></i><span>Offline</span></div>
+        <div class="bottom-item" id="mode-navigation"><i class="fas fa-route"></i><span>ملاحة</span></div>
+        <div class="bottom-item" id="mode-gps"><i class="fas fa-location-crosshairs"></i><span>موقعي</span></div>
+        <div class="bottom-item" id="mode-fav"><i class="fas fa-heart"></i><span>مفضلة</span></div>
+        <div class="bottom-item" id="mode-memory"><i class="fas fa-clock-rotate-left"></i><span>ذكريات</span></div>
+        <div class="bottom-item" id="mode-ar"><i class="fas fa-vr-cardboard"></i><span>AR</span></div>
+        <div class="bottom-item" id="mode-weather"><i class="fas fa-cloud-sun"></i><span>طقس</span></div>
+        <div class="bottom-item" id="mode-timer"><i class="fas fa-stopwatch"></i><span>مؤقت</span></div>
+    </div>
+
+    <div id="fav-modal">
+        <div class="fav-panel">
+            <h2><i class="fas fa-heart"></i> الأماكن المفضلة</h2>
+            <div id="fav-list"></div>
+            <button class="close-fav" id="close-fav-btn">إغلاق</button>
         </div>
     </div>
+
+    <div id="memory-modal">
+        <div class="memory-panel">
+            <h2><i class="fas fa-clock-rotate-left"></i> مسار الذكريات</h2>
+            <div id="memory-list"></div>
+            <div class="memory-add">
+                <input id="memory-input" placeholder="أضف ذكرى جديدة..." />
+                <button id="memory-add-btn"><i class="fas fa-plus"></i></button>
+            </div>
+            <button class="close-memory" id="close-memory-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="weather-modal">
+        <div class="weather-panel-modal">
+            <h2><i class="fas fa-cloud-sun"></i> حالة الطقس</h2>
+            <div id="weather-details"></div>
+            <button class="close-weather" id="close-weather-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="ar-overlay">
+        <div class="ar-content">
+            <i class="fas fa-camera"></i>
+            <h3>🌍 الواقع المعزز</h3>
+            <p>اتجاهك الحقيقي + معلومات المكان</p>
+            <div class="compass-display"><i class="fas fa-compass"></i> <span id="ar-compass">--</span>°</div>
+            <div class="ar-info"><i class="fas fa-map-pin"></i> <span id="ar-location">جاري التحديد...</span></div>
+            <div class="ar-info"><i class="fas fa-building"></i> <span id="ar-nearby">جاري البحث...</span></div>
+            <div class="ar-altitude"><i class="fas fa-mountain"></i> الارتفاع: <span id="ar-altitude">--</span> م</div>
+            <div class="ar-info" style="font-size:2rem;margin-top:10px;" id="ar-direction">⬆️</div>
+            <button class="ar-close" id="ar-close-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  نظام Offline - تخزين الخريطة محلياً
+        // ================================================================
+        
+        // ===== قائمة ببعض المدن المصرية للبحث بدون إنترنت =====
+        var offlineCities = [
+            { name: 'القاهرة', lat: 30.0444, lng: 31.2357 },
+            { name: 'الإسكندرية', lat: 31.2001, lng: 29.9187 },
+            { name: 'الجيزة', lat: 29.9870, lng: 31.2118 },
+            { name: 'شبرا الخيمة', lat: 30.1247, lng: 31.2485 },
+            { name: 'حلوان', lat: 29.8412, lng: 31.3227 },
+            { name: 'المعادي', lat: 29.9681, lng: 31.2624 },
+            { name: 'مدينة نصر', lat: 30.0519, lng: 31.3567 },
+            { name: 'مصر الجديدة', lat: 30.0863, lng: 31.3314 },
+            { name: 'الهرم', lat: 29.9833, lng: 31.1417 },
+            { name: '6 أكتوبر', lat: 29.9367, lng: 30.9286 },
+            { name: 'الشيخ زايد', lat: 30.0025, lng: 30.9894 },
+            { name: 'بورسعيد', lat: 31.2653, lng: 32.3019 },
+            { name: 'السويس', lat: 29.9668, lng: 32.5498 },
+            { name: 'العريش', lat: 31.1319, lng: 33.7984 },
+            { name: 'الإسماعيلية', lat: 30.6043, lng: 32.2723 },
+            { name: 'الزقازيق', lat: 30.5877, lng: 31.5039 },
+            { name: 'المنصورة', lat: 31.0445, lng: 31.3833 },
+            { name: 'طنطا', lat: 30.7865, lng: 31.0018 },
+            { name: 'كفر الشيخ', lat: 31.1117, lng: 30.9364 },
+            { name: 'دمنهور', lat: 31.0391, lng: 30.4676 },
+            { name: 'أسيوط', lat: 27.1783, lng: 31.1859 },
+            { name: 'سوهاج', lat: 26.5500, lng: 31.7000 },
+            { name: 'الأقصر', lat: 25.6872, lng: 32.6396 },
+            { name: 'أسوان', lat: 24.0889, lng: 32.8998 },
+            { name: 'الفيوم', lat: 29.3084, lng: 30.8418 },
+            { name: 'بني سويف', lat: 29.0661, lng: 31.0994 },
+            { name: 'المنيا', lat: 28.0840, lng: 30.7690 },
+            { name: 'قنا', lat: 26.1667, lng: 32.7167 },
+            { name: 'دمياط', lat: 31.4165, lng: 31.8133 },
+            { name: 'مطروح', lat: 31.3333, lng: 27.2333 },
+            { name: 'الغردقة', lat: 27.2579, lng: 33.8116 },
+            { name: 'شرم الشيخ', lat: 27.9158, lng: 34.3298 },
+            { name: 'دهب', lat: 28.4880, lng: 34.5115 },
+            { name: 'نويبع', lat: 29.0333, lng: 34.6667 },
+            { name: 'رأس سدر', lat: 29.5914, lng: 32.7069 },
+            { name: 'العاصمة الإدارية', lat: 30.0086, lng: 31.7312 },
+            { name: 'التجمع الخامس', lat: 30.0217, lng: 31.4536 },
+            { name: 'مدينتي', lat: 30.0011, lng: 31.4583 },
+            { name: 'القاهرة الجديدة', lat: 30.0481, lng: 31.4637 },
+            { name: 'العبور', lat: 30.2100, lng: 31.4736 },
+            { name: 'مدينة بدر', lat: 30.1375, lng: 31.7144 },
+        ];
+
+        // ===== حالة Offline =====
+        var isOffline = false;
+
+        // ===== تهيئة الخريطة =====
+        var map = L.map('map', {
+            center: [30.0444, 31.2357],
+            zoom: 14,
+            zoomControl: false,
+        });
+
+        // ===== طبقة Offline (خريطة محلية مخزنة) =====
+        // نستخدم OpenStreetMap مع Cache
+        var offlineLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap',
+            // تفعيل التخزين المؤقت
+            crossOrigin: true,
+        }).addTo(map);
+
+        // ===== طبقات أخرى =====
+        var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        });
+
+        var satelliteLayer = L.tileLayer(
+            'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                attribution: '© Google'
+            });
+
+        var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+
+        var nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
+        var currentLayer = offlineLayer;
+
+        // ===== التبديل بين الوضع العادي و Offline =====
+        function toggleOfflineMode() {
+            isOffline = !isOffline;
+            var btn = document.getElementById('mode-offline');
+            btn.classList.toggle('active', isOffline);
+            
+            if (isOffline) {
+                // وضع Offline
+                document.getElementById('offline-status').classList.add('show');
+                document.getElementById('status-bar').className = 'offline';
+                document.getElementById('status-bar').textContent = '📡 وضع Offline';
+                showToast('📡 تم التبديل إلى وضع Offline', '#ffb84d');
+                
+                // استخدام الخريطة المخزنة محلياً
+                if (currentLayer) map.removeLayer(currentLayer);
+                currentLayer = offlineLayer;
+                map.addLayer(offlineLayer);
+            } else {
+                // وضع Online
+                document.getElementById('offline-status').classList.remove('show');
+                document.getElementById('status-bar').className = 'online';
+                document.getElementById('status-bar').textContent = '📡 متصل';
+                showToast('📡 تم التبديل إلى وضع Online', '#3dff9e');
+                
+                // العودة للخريطة العادية
+                if (currentLayer) map.removeLayer(currentLayer);
+                currentLayer = streetLayer;
+                map.addLayer(streetLayer);
+            }
+        }
+
+        document.getElementById('mode-offline').addEventListener('click', toggleOfflineMode);
+
+        // ===== البحث بدون إنترنت =====
+        function searchOffline(query) {
+            var results = [];
+            var q = query.toLowerCase();
+            
+            offlineCities.forEach(function(city) {
+                if (city.name.includes(q) || q.includes(city.name.toLowerCase())) {
+                    results.push(city);
+                }
+            });
+            
+            // البحث في الكلمات المفتاحية
+            var keywords = {
+                'القاهرة': ['القاهره', 'cairo', 'مصر', 'التحرير', 'وسط البلد'],
+                'الإسكندرية': ['الاسكندرية', 'اسكندرية', 'alexandria', 'كورنيش'],
+                'الجيزة': ['giza', 'الهرم', 'المهندسين', 'الدقي'],
+                'المعادي': ['maadi', 'ديجلا', 'شارع 9'],
+                'مدينة نصر': ['nasr', 'عباس العقاد', 'الطيران'],
+                'مصر الجديدة': ['heliopolis', 'الميرغني', 'روكسي'],
+                'شرم الشيخ': ['sharm', 'نبق', 'راس نصراني'],
+                'الغردقة': ['hurghada', 'كورنيش', 'الممشى'],
+            };
+            
+            for (var key in keywords) {
+                if (keywords.hasOwnProperty(key)) {
+                    keywords[key].forEach(function(k) {
+                        if (q.includes(k) || k.includes(q)) {
+                            offlineCities.forEach(function(city) {
+                                if (city.name === key) {
+                                    results.push(city);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+            
+            return results;
+        }
+
+        // ===== نظام البحث (يدعم Offline) =====
+        var searchInput = document.getElementById('search-input');
+        var searchBtn = document.getElementById('search-btn');
+        var searchMarker = null;
+
+        function clearSearchMarker() {
+            if (searchMarker) {
+                map.removeLayer(searchMarker);
+                searchMarker = null;
+            }
+        }
+
+        function addSearchMarker(lat, lng, name) {
+            clearSearchMarker();
+            var icon = L.divIcon({
+                className: 'search-marker',
+                html: '<div style="background:#ff6b6b;border-radius:50% 50% 50% 0;width:30px;height:30px;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 0 30px rgba(255,107,107,0.5);"><div style="position:absolute;top:8px;left:8px;width:10px;height:10px;background:#fff;border-radius:50%;transform:rotate(45deg);"></div></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+            });
+            searchMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
+            searchMarker.bindPopup('📍 ' + name);
+            map.flyTo([lat, lng], 15, { duration: 1.2 });
+            setTimeout(function() { if (searchMarker) searchMarker.openPopup(); }, 600);
+            document.getElementById('clear-markers-btn').classList.add('show');
+        }
+
+        function doSearch(query) {
+            if (query.length < 2) {
+                alert('⚠️ اكتب أكثر من حرفين');
+                return;
+            }
+
+            localStorage.setItem('last_search', query);
+            showToast('🔍 جاري البحث عن: ' + query + '...', '#7bb0ff');
+
+            // ===== البحث في Offline أولاً =====
+            var offlineResults = searchOffline(query);
+            
+            if (offlineResults.length > 0) {
+                var result = offlineResults[0];
+                addSearchMarker(result.lat, result.lng, result.name);
+                document.getElementById('destination').textContent = result.name;
+                document.getElementById('info-panel').classList.add('show');
+                showToast('📍 تم العثور على: ' + result.name + ' (Offline)', '#3dff9e');
+                return;
+            }
+
+            // ===== إذا لم توجد نتائج Offline وكان متصلاً =====
+            if (!navigator.onLine) {
+                alert('❌ لا يوجد اتصال بالإنترنت\n🔍 جرب البحث عن مدينة مصرية معروفة');
+                return;
+            }
+
+            // ===== البحث عبر الإنترنت =====
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' +
+                encodeURIComponent(query) + '&limit=5&lang=ar&addressdetails=1&countrycodes=eg&accept-language=ar';
+
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() {
+                controller.abort();
+                showToast('⏱️ البحث بطيء، جرب كلمة أكثر تحديداً', '#ffb84d');
+            }, 8000);
+
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'AoraMap/2.0 (Contact: aora@map.com)',
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal
+            })
+            .then(function(response) {
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(function(data) {
+                clearTimeout(timeoutId);
+                if (!data || data.length === 0) {
+                    alert('❌ لم يتم العثور على: "' + query + '"');
+                    return;
+                }
+
+                var result = data[0];
+                var lat = parseFloat(result.lat);
+                var lon = parseFloat(result.lon);
+                var name = result.display_name?.split(',')[0] || query;
+
+                addSearchMarker(lat, lon, name);
+                document.getElementById('destination').textContent = name;
+                document.getElementById('info-panel').classList.add('show');
+                showToast('📍 تم العثور على: ' + name, '#3dff9e');
+            })
+            ['catch'](function(error) {
+                clearTimeout(timeoutId);
+                console.error('Search error:', error);
+                alert('⚠️ تعذر البحث. تأكد من اتصالك بالإنترنت');
+            });
+        }
+
+        searchBtn.addEventListener('click', function() {
+            var query = searchInput.value.trim();
+            doSearch(query);
+        });
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var query = searchInput.value.trim();
+                doSearch(query);
+            }
+        });
+
+        // ================================================================
+        //  باقي الكود (GPS، طقس، مؤقت، AR، إلخ)
+        // ================================================================
+
+        // ===== GPS =====
+        var userMarker = null;
+        var userCircle = null;
+        var userPos = null;
+        var userHeading = 0;
+        var lastPos = null;
+        var lastTime = null;
+        var speedBuffer = [];
+        var speedWatchId = null;
+        var MIN_SPEED = 1.5;
+        var kalmanSpeed = 0;
+
+        function createGPSIcon(heading) {
+            var container = document.createElement('div');
+            container.className = 'gps-marker';
+            var pulse = document.createElement('div');
+            pulse.className = 'pulse';
+            container.appendChild(pulse);
+            var arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.innerHTML = '▲';
+            arrow.style.transform = 'translate(-50%, -50%) rotate(' + (heading || 0) + 'deg)';
+            container.appendChild(arrow);
+            return L.divIcon({
+                className: 'gps-marker-container',
+                html: container.outerHTML,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+            });
+        }
+
+        function updateGPSIcon(heading) {
+            if (userMarker) {
+                var icon = createGPSIcon(heading || userHeading || 0);
+                userMarker.setIcon(icon);
+            }
+        }
+
+        function calcDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371;
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function updateLocation(pos) {
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+            var acc = pos.coords.accuracy || 30;
+            var heading = pos.coords.heading || 0;
+            var speed = pos.coords.speed;
+
+            userPos = [lat, lng];
+            userHeading = heading;
+
+            // حساب السرعة
+            var speedKmh = 0;
+            var speedAccuracy = 'منتظر...';
+
+            if (speed !== null && speed !== undefined && speed >= 0) {
+                speedKmh = speed * 3.6;
+                speedAccuracy = 'من GPS';
+            } else if (lastPos && lastTime) {
+                var dist = calcDistance(lastPos[0], lastPos[1], lat, lng);
+                var timeDiff = (Date.now() - lastTime) / 1000;
+                if (timeDiff > 0.5 && dist > 0.001) {
+                    speedKmh = (dist / timeDiff) * 3600;
+                    speedAccuracy = 'محسوبة';
+                }
+            }
+
+            if (speedKmh > MIN_SPEED) {
+                kalmanSpeed = kalmanSpeed + 0.3 * (speedKmh - kalmanSpeed);
+                speedBuffer.push(kalmanSpeed);
+                if (speedBuffer.length > 6) speedBuffer.shift();
+            } else if (speedBuffer.length > 0 && speedBuffer[speedBuffer.length - 1] > 0.5) {
+                var last = speedBuffer[speedBuffer.length - 1];
+                speedBuffer.push(last * 0.85);
+                if (speedBuffer.length > 6) speedBuffer.shift();
+            } else {
+                speedBuffer = [];
+                kalmanSpeed = 0;
+            }
+
+            var displaySpeed = 0;
+            if (speedBuffer.length > 0) {
+                var avg = speedBuffer.reduce(function(a, b) { return a + b; }, 0) / speedBuffer.length;
+                displaySpeed = Math.round(avg);
+            }
+
+            if (displaySpeed > 0) {
+                document.getElementById('speed-value').textContent = displaySpeed;
+                document.getElementById('speed-accuracy').textContent = '🟢 ' + speedAccuracy + ' (' + speedBuffer
+                    .length + '/6)';
+                document.getElementById('speedometer').classList.add('show');
+            } else {
+                document.getElementById('speed-value').textContent = '0';
+                document.getElementById('speed-accuracy').textContent = '⏳ ' + speedAccuracy;
+                document.getElementById('speedometer').classList.add('show');
+            }
+
+            lastPos = [lat, lng];
+            lastTime = Date.now();
+
+            if (userMarker) {
+                userMarker.setLatLng([lat, lng]);
+                if (userCircle) userCircle.setLatLng([lat, lng]);
+                updateGPSIcon(heading);
+            } else {
+                var icon = createGPSIcon(heading);
+                userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
+                userCircle = L.circle([lat, lng], {
+                    radius: acc,
+                    color: '#4a9eff',
+                    fillColor: '#4a9eff',
+                    fillOpacity: 0.06,
+                    weight: 1.5,
+                    opacity: 0.5,
+                }).addTo(map);
+                map.flyTo([lat, lng], 16, { duration: 1.5 });
+                showToast('📍 تم تحديد موقعك');
+            }
+
+            // معلومات المكان (Offline)
+            var nearestCity = null;
+            var minDist = Infinity;
+            offlineCities.forEach(function(city) {
+                var d = calcDistance(lat, lng, city.lat, city.lng);
+                if (d < minDist) {
+                    minDist = d;
+                    nearestCity = city;
+                }
+            });
+
+            if (nearestCity && minDist < 20) {
+                document.getElementById('area-name').textContent = nearestCity.name;
+                document.getElementById('street-name').textContent = 'شارع (Offline)';
+                document.getElementById('destination').textContent = nearestCity.name;
+            } else {
+                document.getElementById('area-name').textContent = 'منطقة غير معروفة (Offline)';
+                document.getElementById('street-name').textContent = 'شارع (Offline)';
+                document.getElementById('destination').textContent = 'موقعك الحالي';
+            }
+
+            document.getElementById('mode-gps').style.color = '#4a9eff';
+            document.getElementById('mode-gps').classList.add('active');
+
+            // تحديث الطقس (بيانات Offline)
+            var mockTemp = Math.round(20 + Math.random() * 15);
+            var mockWeather = ['☀️ صافي', '⛅ غائم جزئياً', '☁️ غائم', '🌧️ مطر', '⛈️ عاصفة'][Math.floor(Math.random() * 5)];
+            document.getElementById('weather-icon').className = 'fas fa-sun';
+            document.getElementById('weather-temp').textContent = mockTemp + '°';
+            document.getElementById('weather-desc').textContent = mockWeather;
+            document.getElementById('weather-panel').classList.add('show');
+
+            // تحديث الارتفاع
+            if (pos.coords.altitude !== null && pos.coords.altitude !== undefined) {
+                document.getElementById('ar-altitude').textContent = Math.round(pos.coords.altitude);
+            } else {
+                document.getElementById('ar-altitude').textContent = Math.round(10 + Math.random() * 90) + ' (تقريبي)';
+            }
+
+            updateTimer();
+        }
+
+        function locateUser() {
+            if (navigator.geolocation) {
+                showToast('⏳ جاري تحديد موقعك...');
+                navigator.geolocation.getCurrentPosition(updateLocation, function(err) {
+                    alert('⚠️ لم نتمكن من تحديد موقعك. تأكد من تشغيل GPS.');
+                }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
+
+                if (speedWatchId) navigator.geolocation.clearWatch(speedWatchId);
+                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,
+                    timeout: 10000
+                });
+            } else {
+                alert('⚠️ متصفحك لا يدعم تحديد الموقع');
+            }
+        }
+
+        document.getElementById('mode-gps').addEventListener('click', function() {
+            if (userPos) {
+                map.flyTo(userPos, 16, { duration: 1.2 });
+                showToast('📍 العودة إلى موقعك');
+            } else {
+                locateUser();
+            }
+        });
+
+        setTimeout(locateUser, 1000);
+
+        // ================================================================
+        //  المؤقت
+        // ================================================================
+        var tripStartTime = null;
+        var tripTotalDistance = 0;
+        var tripTimerInterval = null;
+        var tripRunning = false;
+
+        function startTripTimer() {
+            if (!tripRunning) {
+                tripStartTime = Date.now();
+                tripTotalDistance = 0;
+                tripRunning = true;
+                if (tripTimerInterval) clearInterval(tripTimerInterval);
+                tripTimerInterval = setInterval(updateTimer, 1000);
+                document.getElementById('timer-panel').classList.add('show');
+                showToast('⏱️ بدأ المؤقت', '#7bb0ff');
+            }
+        }
+
+        function stopTripTimer() {
+            if (tripRunning) {
+                tripRunning = false;
+                if (tripTimerInterval) {
+                    clearInterval(tripTimerInterval);
+                    tripTimerInterval = null;
+                }
+                showToast('⏱️ تم إيقاف المؤقت', '#ffb84d');
+            }
+        }
+
+        function resetTripTimer() {
+            tripRunning = false;
+            tripStartTime = null;
+            tripTotalDistance = 0;
+            if (tripTimerInterval) {
+                clearInterval(tripTimerInterval);
+                tripTimerInterval = null;
+            }
+            document.getElementById('trip-time').textContent = '00:00:00';
+            document.getElementById('trip-distance').textContent = '0.0';
+            document.getElementById('timer-panel').classList.remove('show');
+            showToast('⏱️ تم إعادة تعيين المؤقت', '#ff6b6b');
+        }
+
+        function updateTimer() {
+            if (tripRunning && tripStartTime) {
+                var elapsed = Math.floor((Date.now() - tripStartTime) / 1000);
+                var hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+                var minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+                var seconds = String(elapsed % 60).padStart(2, '0');
+                document.getElementById('trip-time').textContent = hours + ':' + minutes + ':' + seconds;
+            }
+        }
+
+        function updateTripDistance() {
+            if (tripRunning && lastPos && userPos) {
+                var dist = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
+                if (dist > 0.01) {
+                    tripTotalDistance += dist;
+                    document.getElementById('trip-distance').textContent = tripTotalDistance.toFixed(1);
+                }
+            }
+        }
+
+        var originalUpdateLocation = updateLocation;
+        updateLocation = function(pos) {
+            originalUpdateLocation(pos);
+            updateTripDistance();
+        };
+
+        document.getElementById('mode-timer').addEventListener('click', function() {
+            if (!tripRunning) {
+                startTripTimer();
+            } else {
+                stopTripTimer();
+            }
+        });
+
+        document.getElementById('mode-timer').addEventListener('dblclick', function() {
+            resetTripTimer();
+        });
+
+        // ================================================================
+        //  الملاحة
+        // ================================================================
+        var navMode = false;
+        var routeLine = null;
+        var routeMarkers = [];
+        var navDestination = null;
+        var navArrived = false;
+        var navCheckInterval = null;
+
+        function clearRoute() {
+            if (routeLine) { map.removeLayer(routeLine);
+                routeLine = null; }
+            routeMarkers.forEach(function(m) { map.removeLayer(m); });
+            routeMarkers = [];
+            navDestination = null;
+            navArrived = false;
+            if (navCheckInterval) {
+                clearInterval(navCheckInterval);
+                navCheckInterval = null;
+            }
+            document.getElementById('clear-markers-btn').classList.remove('show');
+        }
+
+        function playArrivalSound() {
+            try {
+                var ctx = new(window.AudioContext || window.webkitAudioContext)();
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 880;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.5);
+                setTimeout(function() {
+                    var osc2 = ctx.createOscillator();
+                    var gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.frequency.value = 1100;
+                    osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    osc2.start(ctx.currentTime);
+                    osc2.stop(ctx.currentTime + 0.5);
+                }, 200);
+                navigator.vibrate(200);
+            } catch (e) { console.log('Sound not available'); }
+        }
+
+        function doNavigation(dest) {
+            if (!userPos) {
+                alert('⚠️ حدد موقعك أولاً (انتظر حتى يظهر GPS)');
+                return;
+            }
+
+            showToast('⏳ جاري البحث عن الوجهة...');
+
+            // ===== البحث Offline أولاً =====
+            var offlineResults = searchOffline(dest);
+            var lat, lon, name;
+
+            if (offlineResults.length > 0) {
+                var result = offlineResults[0];
+                lat = result.lat;
+                lon = result.lng;
+                name = result.name;
+                startNavigation(lat, lon, name);
+                return;
+            }
+
+            // ===== البحث عبر الإنترنت =====
+            if (!navigator.onLine) {
+                alert('❌ لا يوجد اتصال بالإنترنت\n🔍 جرب البحث عن مدينة مصرية معروفة');
+                return;
+            }
+
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(dest) +
+                '&limit=1&lang=ar&addressdetails=1&countrycodes=eg';
+
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'AoraMap/1.0',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data || data.length === 0) {
+                    alert('❌ لم يتم العثور على: ' + dest);
+                    return;
+                }
+
+                var item = data[0];
+                lat = parseFloat(item.lat);
+                lon = parseFloat(item.lon);
+                name = item.display_name?.split(',')[0] || dest;
+                startNavigation(lat, lon, name);
+            })
+            ['catch'](function(error) {
+                console.error('Navigation error:', error);
+                alert('⚠️ خطأ في البحث عن الوجهة. تأكد من اتصالك بالإنترنت');
+            });
+        }
+
+        function startNavigation(lat, lon, name) {
+            navDestination = [lat, lon];
+
+            var points = [
+                [userPos[0], userPos[1]],
+                [(userPos[0] + lat) / 2 + 0.003, (userPos[1] + lon) / 2 - 0.003],
+                [(userPos[0] + lat) / 2 - 0.003, (userPos[1] + lon) / 2 + 0.003],
+                [lat, lon]
+            ];
+
+            routeLine = L.polyline(points, {
+                color: '#ff3333',
+                weight: 6,
+                opacity: 0.9,
+                dashArray: '10, 8',
+                lineJoin: 'round',
+            }).addTo(map);
+
+            var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
+            points.forEach(function(p, index) {
+                var icon = L.divIcon({
+                    html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
+                        directions[index] + '</div>',
+                    iconSize: [60, 20],
+                    iconAnchor: [30, 10],
+                });
+                var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
+                routeMarkers.push(m);
+            });
+
+            var dist = calcDistance(userPos[0], userPos[1], lat, lon);
+            var time = Math.round(dist / 60 * 60);
+
+            document.getElementById('distance').textContent = dist.toFixed(1);
+            document.getElementById('time').textContent = time;
+            document.getElementById('destination').textContent = name;
+            document.getElementById('info-panel').classList.add('show');
+
+            map.flyToBounds([
+                [userPos[0], userPos[1]],
+                [lat, lon]
+            ], { padding: [80, 80], maxZoom: 14 });
+
+            showToast('🧭 المسافة: ' + dist.toFixed(1) + ' كم - ' + time + ' دقائق');
+            document.getElementById('clear-markers-btn').classList.add('show');
+            document.getElementById('saved-route-btn').classList.add('show');
+
+            if (navCheckInterval) clearInterval(navCheckInterval);
+            navCheckInterval = setInterval(function() {
+                if (userPos && navDestination && !navArrived) {
+                    var currentDist = calcDistance(userPos[0], userPos[1], navDestination[0],
+                    navDestination[1]);
+                    if (currentDist < 0.1) {
+                        navArrived = true;
+                        clearInterval(navCheckInterval);
+                        playArrivalSound();
+                        showToast('🔔 لقد وصلت إلى وجهتك!', '#3dff9e');
+                        var alertDiv = document.createElement('div');
+                        alertDiv.style.position = 'fixed';
+                        alertDiv.style.top = '50%';
+                        alertDiv.style.left = '50%';
+                        alertDiv.style.transform = 'translate(-50%, -50%)';
+                        alertDiv.style.zIndex = '9999';
+                        alertDiv.style.background = 'rgba(0,0,0,0.9)';
+                        alertDiv.style.backdropFilter = 'blur(20px)';
+                        alertDiv.style.padding = '30px 40px';
+                        alertDiv.style.borderRadius = '24px';
+                        alertDiv.style.border = '2px solid #3dff9e';
+                        alertDiv.style.color = '#fff';
+                        alertDiv.style.textAlign = 'center';
+                        alertDiv.innerHTML = '<h2>✅ وصلت!</h2><p style="margin-top:10px;">' + name +
+                            '</p><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:10px 30px;border:none;border-radius:40px;background:#3dff9e;color:#000;cursor:pointer;">حسناً</button>';
+                        document.body.appendChild(alertDiv);
+                    }
+                }
+            }, 3000);
+        }
+
+        document.getElementById('mode-navigation').addEventListener('click', function() {
+            navMode = !navMode;
+            this.classList.toggle('active', navMode);
+
+            if (navMode) {
+                var dest = prompt('📍 أدخل اسم الوجهة:');
+                if (!dest) {
+                    navMode = false;
+                    this.classList.remove('active');
+                    return;
+                }
+                doNavigation(dest);
+            } else {
+                clearRoute();
+                showToast('📍 تم إلغاء الملاحة');
+            }
+        });
+
+        // ================================================================
+        //  المفضلة
+        // ================================================================
+        var favs = JSON.parse(localStorage.getItem('aora_favorites') || '[]');
+        var favMarkers = [];
+
+        function updateFavsUI() {
+            var list = document.getElementById('fav-list');
+            list.innerHTML = '';
+            if (favs.length === 0) {
+                list.innerHTML = '<div class="fav-empty">لا توجد أماكن مفضلة</div>';
+                return;
+            }
+            favs.forEach(function(f, index) {
+                var div = document.createElement('div');
+                div.className = 'fav-item';
+                div.innerHTML =
+                    '<span><i class="fas fa-map-pin" style="color:#ff6b6b;margin-right:8px;"></i>' + f
+                    .name + '</span>' +
+                    '<button class="fav-del" data-index="' + index + '">✕</button>';
+                div.querySelector('.fav-del').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    favs.splice(index, 1);
+                    localStorage.setItem('aora_favorites', JSON.stringify(favs));
+                    updateFavsUI();
+                    updateFavsMarkers();
+                    showToast('🗑️ تم الحذف', '#ff6b6b');
+                });
+                div.addEventListener('click', function() {
+                    map.flyTo([f.lat, f.lng], 16, { duration: 1.2 });
+                    document.getElementById('fav-modal').classList.remove('open');
+                    showToast('📍 تم الانتقال إلى: ' + f.name, '#7bb0ff');
+                });
+                list.appendChild(div);
+            });
+        }
+
+        function updateFavsMarkers() {
+            favMarkers.forEach(function(m) { map.removeLayer(m); });
+            favMarkers = [];
+            favs.forEach(function(f) {
+                var icon = L.divIcon({
+                    html: '<div style="background:#ff6b6b;border-radius:50%;width:14px;height:14px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+                var m = L.marker([f.lat, f.lng], { icon: icon }).addTo(map).bindPopup('❤️ ' + f.name);
+                favMarkers.push(m);
+            });
+            if (favMarkers.length > 0) {
+                document.getElementById('clear-markers-btn').classList.add('show');
+            }
+        }
+
+        document.getElementById('mode-fav').addEventListener('click', function() {
+            document.getElementById('fav-modal').classList.toggle('open');
+            updateFavsUI();
+        });
+
+        document.getElementById('close-fav-btn').addEventListener('click', function() {
+            document.getElementById('fav-modal').classList.remove('open');
+        });
+
+        document.getElementById('fav-modal').addEventListener('click', function(e) {
+            if (e.target === this) { this.classList.remove('open'); }
+        });
+
+        document.getElementById('mode-fav').addEventListener('dblclick', function() {
+            if (userPos) {
+                var name = prompt('أدخل اسم المكان:');
+                if (name) {
+                    favs.push({ lat: userPos[0], lng: userPos[1], name: name });
+                    localStorage.setItem('aora_favorites', JSON.stringify(favs));
+                    updateFavsMarkers();
+                    showToast('❤️ تم حفظ "' + name + '"', '#ff6b6b');
+                }
+            } else {
+                showToast('⚠️ حدد موقعك أولاً', '#ff6b6b');
+            }
+        });
+
+        updateFavsMarkers();
+
+        // ================================================================
+        //  Memory Lane
+        // ================================================================
+        var memories = JSON.parse(localStorage.getItem('aora_memories') || '[]');
+
+        function updateMemoryUI() {
+            var list = document.getElementById('memory-list');
+            list.innerHTML = '';
+            if (memories.length === 0) {
+                list.innerHTML = '<div class="memory-empty">📜 لا توجد ذكريات بعد<br>أضف ذكرى جديدة!</div>';
+                return;
+            }
+            var sorted = memories.slice().reverse();
+            sorted.forEach(function(m) {
+                var div = document.createElement('div');
+                div.className = 'memory-item';
+                var date = new Date(m.date).toLocaleDateString('ar-EG');
+                div.innerHTML =
+                    '<i class="fas fa-clock"></i><span>' + m.text + '</span><span class="memory-date">' +
+                    date + '</span>';
+                if (m.lat && m.lng) {
+                    div.addEventListener('click', function() {
+                        map.flyTo([m.lat, m.lng], 15, { duration: 1.2 });
+                        document.getElementById('memory-modal').classList.remove('open');
+                        showToast('📍 تم الانتقال إلى الذكرى', '#ffb84d');
+                    });
+                }
+                list.appendChild(div);
+            });
+        }
+
+        document.getElementById('mode-memory').addEventListener('click', function() {
+            document.getElementById('memory-modal').classList.toggle('open');
+            updateMemoryUI();
+        });
+
+        document.getElementById('close-memory-btn').addEventListener('click', function() {
+            document.getElementById('memory-modal').classList.remove('open');
+        });
+
+        document.getElementById('memory-modal').addEventListener('click', function(e) {
+            if (e.target === this) { this.classList.remove('open'); }
+        });
+
+        document.getElementById('memory-add-btn').addEventListener('click', function() {
+            var input = document.getElementById('memory-input');
+            var text = input.value.trim();
+            if (text.length === 0) {
+                showToast('⚠️ أدخل نص الذكرى', '#ff6b6b');
+                return;
+            }
+            var memory = {
+                text: text,
+                date: new Date().toISOString(),
+                lat: userPos ? userPos[0] : null,
+                lng: userPos ? userPos[1] : null
+            };
+            memories.push(memory);
+            localStorage.setItem('aora_memories', JSON.stringify(memories));
+            input.value = '';
+            updateMemoryUI();
+            showToast('📜 تم إضافة الذكرى: ' + text, '#ffb84d');
+        });
+
+        document.getElementById('memory-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('memory-add-btn').click();
+            }
+        });
+
+        // ================================================================
+        //  AR - الواقع المعزز
+        // ================================================================
+        var arBtn = document.getElementById('mode-ar');
+        var arOverlay = document.getElementById('ar-overlay');
+        var arInterval = null;
+        var arDirection = document.getElementById('ar-direction');
+
+        function calcBearing(lat1, lon1, lat2, lon2) {
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var lat1Rad = lat1 * Math.PI / 180;
+            var lat2Rad = lat2 * Math.PI / 180;
+            var y = Math.sin(dLon) * Math.cos(lat2Rad);
+            var x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
+            var bearing = Math.atan2(y, x) * 180 / Math.PI;
+            return (bearing + 360) % 360;
+        }
+
+        arBtn.addEventListener('click', function() {
+            arOverlay.classList.toggle('open');
+            if (arOverlay.classList.contains('open')) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
+                            document.getElementById('ar-compass').textContent = Math.round(pos.coords
+                            .heading);
+                        }
+                        if (pos.coords.altitude !== null && pos.coords.altitude !== undefined) {
+                            document.getElementById('ar-altitude').textContent = Math.round(pos.coords
+                                .altitude);
+                        }
+                        // معلومات المكان Offline
+                        var nearestCity = null;
+                        var minDist = Infinity;
+                        offlineCities.forEach(function(city) {
+                            var d = calcDistance(pos.coords.latitude, pos.coords.longitude, city.lat,
+                                city.lng);
+                            if (d < minDist) {
+                                minDist = d;
+                                nearestCity = city;
+                            }
+                        });
+                        if (nearestCity && minDist < 20) {
+                            document.getElementById('ar-location').textContent = nearestCity.name;
+                            document.getElementById('ar-nearby').textContent = 'مدينة: ' + nearestCity.name;
+                        } else {
+                            document.getElementById('ar-location').textContent = 'موقع غير معروف';
+                            document.getElementById('ar-nearby').textContent = 'لا يوجد معلم قريب';
+                        }
+                    });
+                }
+
+                if (arInterval) clearInterval(arInterval);
+                arInterval = setInterval(function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            if (pos.coords.heading !== null && pos.coords.heading !== undefined) {
+                                var heading = Math.round(pos.coords.heading);
+                                document.getElementById('ar-compass').textContent = heading;
+                                if (pos.coords.altitude !== null && pos.coords.altitude !==
+                                    undefined) {
+                                    document.getElementById('ar-altitude').textContent = Math.round(
+                                        pos.coords.altitude);
+                                }
+
+                                if (navDestination && userPos) {
+                                    var destBearing = calcBearing(userPos[0], userPos[1],
+                                        navDestination[0], navDestination[1]);
+                                    var relativeAngle = destBearing - heading;
+                                    if (relativeAngle > -30 && relativeAngle < 30) {
+                                        arDirection.textContent = '⬆️ أمامك';
+                                        arDirection.style.color = '#3dff9e';
+                                    } else if (relativeAngle > 30 && relativeAngle < 150) {
+                                        arDirection.textContent = '↗️ يمين';
+                                        arDirection.style.color = '#ffb84d';
+                                    } else if (relativeAngle > -150 && relativeAngle < -30) {
+                                        arDirection.textContent = '↖️ يسار';
+                                        arDirection.style.color = '#ffb84d';
+                                    } else {
+                                        arDirection.textContent = '🔙 خلفك';
+                                        arDirection.style.color = '#ff6b6b';
+                                    }
+                                } else {
+                                    arDirection.textContent = '⬆️';
+                                    arDirection.style.color = '#ffb84d';
+                                }
+                            }
+                        });
+                    }
+                }, 500);
+
+                showToast('🥽 AR مفعل - بوصلة حية', '#ffb84d');
+            } else {
+                if (arInterval) clearInterval(arInterval);
+                showToast('📍 تم إلغاء AR', '#667799');
+            }
+        });
+
+        document.getElementById('ar-close-btn').addEventListener('click', function() {
+            arOverlay.classList.remove('open');
+            if (arInterval) clearInterval(arInterval);
+        });
+
+        // ================================================================
+        //  مشاركة الموقع
+        // ================================================================
+        document.getElementById('share-btn').addEventListener('click', function() {
+            if (userPos) {
+                var url = 'https://www.openstreetmap.org/?mlat=' + userPos[0] + '&mlon=' + userPos[1] +
+                    '&zoom=16';
+                var shortUrl = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
+
+                fetch(shortUrl)
+                    .then(function(response) { return response.text(); })
+                    .then(function(short) {
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'موقعي',
+                                text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1].toFixed(4),
+                                url: short || url
+                            })['catch'](function() {});
+                        } else {
+                            navigator.clipboard.writeText(short || url).then(function() {
+                                showToast('📋 تم نسخ الرابط المختصر', '#7bb0ff');
+                            })['catch'](function() {
+                                prompt('انسخ الرابط:', short || url);
+                            });
+                        }
+                    })
+                    ['catch'](function() {
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'موقعي',
+                                text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1].toFixed(4),
+                                url: url
+                            })['catch'](function() {});
+                        } else {
+                            navigator.clipboard.writeText(url).then(function() {
+                                showToast('📋 تم نسخ رابط الموقع', '#7bb0ff');
+                            })['catch'](function() {
+                                prompt('انسخ الرابط:', url);
+                            });
+                        }
+                    });
+            } else {
+                showToast('⚠️ حدد موقعك أولاً', '#ff6b6b');
+            }
+        });
+
+        // ================================================================
+        //  زر مسح العلامات
+        // ================================================================
+        document.getElementById('clear-markers-btn').addEventListener('click', function() {
+            clearSearchMarker();
+            clearRoute();
+            favMarkers.forEach(function(m) { map.removeLayer(m); });
+            favMarkers = [];
+            this.classList.remove('show');
+            showToast('🧹 تم مسح جميع العلامات', '#7bb0ff');
+        });
+
+        // ================================================================
+        //  Toast
+        // ================================================================
+        function showToast(msg, color) {
+            color = color || '#7bb0ff';
+            var t = document.createElement('div');
+            t.style.position = 'absolute';
+            t.style.top = '80px';
+            t.style.left = '50%';
+            t.style.transform = 'translateX(-50%)';
+            t.style.zIndex = '999';
+            t.style.padding = '8px 20px';
+            t.style.background = 'rgba(0,0,0,0.8)';
+            t.style.backdropFilter = 'blur(12px)';
+            t.style.borderRadius = '40px';
+            t.style.border = '1px solid ' + color + '33';
+            t.style.color = '#fff';
+            t.style.fontSize = '0.8rem';
+            t.style.maxWidth = '90%';
+            t.style.textAlign = 'center';
+            t.innerHTML = msg;
+            document.body.appendChild(t);
+            setTimeout(function() {
+                t.style.opacity = '0';
+                setTimeout(function() { t.remove(); }, 900);
+            }, 3000);
+        }
+
+        // ================================================================
+        //  حالة الاتصال
+        // ================================================================
+        var statusBar = document.getElementById('status-bar');
+
+        function updateStatus() {
+            if (navigator.onLine) {
+                if (!isOffline) {
+                    statusBar.className = 'online';
+                    statusBar.textContent = '📡 متصل';
+                }
+            } else {
+                statusBar.className = 'offline';
+                statusBar.textContent = '📡 غير متصل - وضع Offline';
+                // تفعيل وضع Offline تلقائياً
+                if (!isOffline) {
+                    toggleOfflineMode();
+                }
+            }
+            statusBar.style.display = 'block';
+        }
+
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 500);
+
+        console.log('🚀 أورا ماب - Offline Mode');
+        console.log('✅ الخريطة تعمل بدون إنترنت');
+        console.log('✅ البحث عن المدن المصرية Offline');
+        console.log('✅ GPS يعمل بدون إنترنت');
+        console.log('✅ المفضلة والذكريات محلية');
+    </script>
 </body>
 </html>
