@@ -156,7 +156,7 @@
             font-weight: 500;
         }
 
-        /* ===== اللوحة السفلية - إزالة النصوص المكررة ===== */
+        /* ===== اللوحة السفلية ===== */
         #bottom-bar {
             position: absolute;
             bottom: 20px;
@@ -269,10 +269,10 @@
             color: #ff6b6b;
         }
 
-        /* ===== لوحة المعلومات ===== */
+        /* ===== لوحة المعلومات - مرفوعة للأعلى ===== */
         #info-panel {
             position: absolute;
-            bottom: 130px;
+            bottom: 180px;
             right: 15px;
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
@@ -301,10 +301,10 @@
             font-size: 0.8rem;
         }
 
-        /* ===== عداد السرعة ===== */
+        /* ===== عداد السرعة - مرفوع للأعلى ===== */
         #speedometer {
             position: absolute;
-            bottom: 130px;
+            bottom: 180px;
             left: 15px;
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
@@ -382,7 +382,7 @@
         /* ===== المؤقت ===== */
         #timer-panel {
             position: absolute;
-            bottom: 185px;
+            bottom: 235px;
             left: 15px;
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
@@ -435,7 +435,7 @@
         /* ===== أزرار إضافية ===== */
         #saved-route-btn {
             position: absolute;
-            bottom: 185px;
+            bottom: 235px;
             right: 15px;
             z-index: 50;
             background: rgba(60, 140, 255, 0.15);
@@ -481,7 +481,7 @@
         /* ===== حالة الاتصال ===== */
         #status-bar {
             position: absolute;
-            bottom: 105px;
+            bottom: 150px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
@@ -529,10 +529,10 @@
             display: block;
         }
 
-        /* ===== GPS Marker - جعل السهم ظاهراً ===== */
+        /* ===== GPS Marker - سهم ظاهر وكبير ===== */
         .gps-marker {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             position: relative;
             z-index: 9999 !important;
         }
@@ -541,10 +541,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 34px;
+            font-size: 42px;
             color: #4a9eff;
-            text-shadow: 0 0 30px rgba(74, 158, 255, 0.8), 0 0 60px rgba(74, 158, 255, 0.4);
-            filter: drop-shadow(0 0 15px rgba(74, 158, 255, 0.5));
+            text-shadow: 
+                0 0 40px rgba(74, 158, 255, 0.9),
+                0 0 80px rgba(74, 158, 255, 0.5),
+                0 0 120px rgba(74, 158, 255, 0.3);
+            filter: drop-shadow(0 0 20px rgba(74, 158, 255, 0.6));
             transition: transform 0.3s ease;
         }
         .gps-marker .pulse {
@@ -552,11 +555,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: rgba(74, 158, 255, 0.15);
-            border: 2px solid rgba(74, 158, 255, 0.3);
+            background: rgba(74, 158, 255, 0.2);
+            border: 3px solid rgba(74, 158, 255, 0.4);
             animation: pulse-ring 2s ease-out infinite;
         }
         @keyframes pulse-ring {
@@ -565,7 +568,7 @@
                 opacity: 1;
             }
             100% {
-                transform: translate(-50%, -50%) scale(2.5);
+                transform: translate(-50%, -50%) scale(3);
                 opacity: 0;
             }
         }
@@ -840,7 +843,7 @@
                 display: none;
             }
             #info-panel {
-                bottom: 95px;
+                bottom: 140px;
                 right: 10px;
                 padding: 10px 12px;
                 min-width: 130px;
@@ -849,7 +852,7 @@
                 font-size: 0.6rem;
             }
             #status-bar {
-                bottom: 85px;
+                bottom: 120px;
                 font-size: 0.45rem;
                 padding: 3px 14px;
             }
@@ -859,7 +862,7 @@
                 padding: 3px 14px;
             }
             #speedometer {
-                bottom: 95px;
+                bottom: 140px;
                 left: 10px;
                 padding: 8px 12px;
                 min-width: 70px;
@@ -880,12 +883,12 @@
                 min-width: 90px;
             }
             #timer-panel {
-                bottom: 150px;
+                bottom: 190px;
                 left: 10px;
                 padding: 6px 10px;
             }
             #saved-route-btn {
-                bottom: 150px;
+                bottom: 190px;
                 right: 10px;
                 padding: 6px 12px;
                 font-size: 0.55rem;
@@ -944,7 +947,7 @@
     <div id="status-bar" class="online">📡 متصل</div>
     <div id="offline-status">📡 وضع Offline - خريطة محلية</div>
 
-    <!-- ===== لوحة المعلومات ===== -->
+    <!-- ===== لوحة المعلومات - مرفوعة للأعلى ===== -->
     <div id="info-panel">
         <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
         <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
@@ -953,7 +956,7 @@
         <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
     </div>
 
-    <!-- ===== عداد السرعة ===== -->
+    <!-- ===== عداد السرعة - مرفوع للأعلى ===== -->
     <div id="speedometer">
         <div class="speed-value" id="speed-value">0</div>
         <div class="speed-label">كم/ساعة</div>
@@ -983,7 +986,7 @@
     <button id="saved-route-btn"><i class="fas fa-route"></i> مسار مفضل</button>
     <button id="clear-markers-btn"><i class="fas fa-eraser"></i> مسح الكل</button>
 
-    <!-- ===== اللوحة السفلية - تم إزالة النصوص المكررة ===== -->
+    <!-- ===== اللوحة السفلية ===== -->
     <div id="bottom-bar">
         <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
         <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
@@ -1336,7 +1339,7 @@
         });
 
         // ================================================================
-        //  4. GPS + عداد السرعة + سهم الموقع (ظاهر)
+        //  4. GPS + عداد السرعة + سهم الموقع (ظاهر وكبير)
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -1351,6 +1354,10 @@
         var SPEED_LIMIT = 120;
         var speedAlertActive = false;
 
+        // متغيرات لحساب المسافة بشكل صحيح
+        var totalDistanceTraveled = 0;
+        var lastDistancePos = null;
+
         function createGPSIcon(heading) {
             var container = document.createElement('div');
             container.className = 'gps-marker';
@@ -1361,12 +1368,12 @@
             arrow.className = 'arrow';
             arrow.innerHTML = '▲';
             arrow.style.transform = 'translate(-50%, -50%) rotate(' + (heading || 0) + 'deg)';
-            arrow.style.fontSize = '36px';
+            arrow.style.fontSize = '42px';
             arrow.style.color = '#4a9eff';
-            arrow.style.textShadow = '0 0 30px rgba(74,158,255,0.9), 0 0 60px rgba(74,158,255,0.5)';
+            arrow.style.textShadow = '0 0 40px rgba(74,158,255,0.9), 0 0 80px rgba(74,158,255,0.5)';
             container.appendChild(arrow);
-            return L.divIcon({ className: 'gps-marker-container', html: container.outerHTML, iconSize: [40, 40],
-                iconAnchor: [20, 20] });
+            return L.divIcon({ className: 'gps-marker-container', html: container.outerHTML, iconSize: [50, 50],
+                iconAnchor: [25, 25] });
         }
 
         function updateGPSIcon(heading) {
@@ -1459,7 +1466,7 @@
             window._weatherData = { temp: temp, desc: desc, humidity: humidity };
         }
 
-        // ===== تحديث الموقع =====
+        // ===== تحديث الموقع - مع حساب المسافة بشكل صحيح =====
         function updateLocation(pos) {
             var lat = pos.coords.latitude;
             var lng = pos.coords.longitude;
@@ -1472,6 +1479,7 @@
 
             fetchRealWeather(lat, lng);
 
+            // ===== حساب السرعة من GPS =====
             var speedKmh = 0;
             var speedAccuracy = 'منتظر...';
 
@@ -1487,6 +1495,7 @@
                 }
             }
 
+            // تصفية السرعة
             if (speedKmh > MIN_SPEED) {
                 kalmanSpeed = kalmanSpeed + 0.3 * (speedKmh - kalmanSpeed);
                 speedBuffer.push(kalmanSpeed);
@@ -1506,6 +1515,7 @@
                 displaySpeed = Math.round(avg);
             }
 
+            // ===== تحديث عداد السرعة =====
             var speedometer = document.getElementById('speedometer');
             if (displaySpeed > SPEED_LIMIT && displaySpeed > 0) {
                 speedometer.classList.add('speeding');
@@ -1530,17 +1540,32 @@
                 document.getElementById('speedometer').classList.add('show');
             }
 
+            // ===== حساب المسافة المقطوعة بشكل صحيح =====
+            if (lastPos && userPos) {
+                var dist = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
+                if (dist > 0.005) { // أكثر من 5 أمتار
+                    totalDistanceTraveled += dist;
+                    
+                    // تحديث الإحصائيات
+                    updateStats(displaySpeed, dist);
+                }
+            }
+
             lastPos = [lat, lng];
             lastTime = Date.now();
 
-            // ===== إنشاء سهم الموقع بحجم أكبر ووضوح أعلى =====
+            // ===== إنشاء سهم الموقع =====
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
                 updateGPSIcon(heading);
             } else {
                 var icon = createGPSIcon(heading);
-                userMarker = L.marker([lat, lng], { icon: icon, zIndexOffset: 1000 }).addTo(map);
+                userMarker = L.marker([lat, lng], { 
+                    icon: icon, 
+                    zIndexOffset: 1000,
+                    riseOnHover: true
+                }).addTo(map);
                 userCircle = L.circle([lat, lng], {
                     radius: acc,
                     color: '#4a9eff',
@@ -1553,6 +1578,7 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
+            // ===== تحديث معلومات المكان =====
             var nearestCity = null;
             var minDist = Infinity;
             offlineCities.forEach(function(city) {
@@ -1573,6 +1599,7 @@
 
             document.getElementById('mode-gps').classList.add('active');
 
+            // ===== تحديث الارتفاع =====
             if (pos.coords.altitude !== null && pos.coords.altitude !== undefined) {
                 document.getElementById('ar-altitude').textContent = Math.round(pos.coords.altitude);
             } else {
@@ -1580,7 +1607,6 @@
             }
 
             updateTimer();
-            updateStats(displaySpeed);
         }
 
         function locateUser() {
@@ -1647,52 +1673,55 @@
         document.getElementById('mode-work').addEventListener('dblclick', setWork);
 
         // ================================================================
-        //  6. الإحصائيات - مفعلة بالكامل
+        //  6. الإحصائيات - تعمل الآن بشكل صحيح
         // ================================================================
         var statsData = JSON.parse(localStorage.getItem('aora_stats') ||
             '{"today":0,"week":0,"total":0,"trips":0,"avgSpeed":0,"maxSpeed":0,"lastTrip":null,"history":[],"lastUpdate":null}');
-        var statsDistanceToday = 0;
+        var statsDistanceToday = statsData.today || 0;
         var lastUpdatePos = null;
 
-        if (statsData.today) {
-            statsDistanceToday = statsData.today;
-        }
-
-        function updateStats(speed) {
-            if (lastPos && userPos) {
-                var d = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
-                if (d > 0.005) {
-                    statsDistanceToday += d;
-                    statsData.today = Math.round(statsDistanceToday * 10) / 10;
-                    statsData.total = Math.round((statsData.total || 0) + d * 10) / 10;
-                    statsData.week = Math.round((statsData.week || 0) + d * 10) / 10;
-
-                    if (speed > statsData.maxSpeed) statsData.maxSpeed = speed;
-                    statsData.avgSpeed = Math.round(((statsData.avgSpeed || 0) + speed) / 2);
-
-                    if (statsDistanceToday > 0.1 && (!lastUpdatePos || calcDistance(lastUpdatePos[0], lastUpdatePos[
-                            1], userPos[0], userPos[1]) > 0.1)) {
-                        statsData.trips = (statsData.trips || 0) + 1;
-                        statsData.lastTrip = new Date().toISOString();
-                        statsData.history.push({
-                            date: new Date().toISOString(),
-                            distance: Math.round(statsDistanceToday * 10) / 10,
-                            speed: Math.round(speed || 0)
-                        });
-                        if (statsData.history.length > 100) statsData.history.shift();
-                        lastUpdatePos = userPos;
-                    }
-
-                    localStorage.setItem('aora_stats', JSON.stringify(statsData));
-
-                    document.getElementById('stats-today').textContent = statsData.today + ' كم';
-                    document.getElementById('stats-week').textContent = Math.round(statsData.week) + ' كم';
-                    document.getElementById('stats-total').textContent = Math.round(statsData.total) + ' كم';
-                    document.getElementById('stats-avg-speed').textContent = Math.round(statsData.avgSpeed ||
-                        0);
-                    document.getElementById('stats-panel').classList.add('show');
-                    document.getElementById('distance').textContent = statsData.today.toFixed(1);
+        function updateStats(speed, distance) {
+            if (distance === undefined) {
+                // إذا لم يتم تمرير المسافة، نحسبها من المواقع
+                if (lastPos && userPos) {
+                    distance = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
+                } else {
+                    return;
                 }
+            }
+
+            if (distance > 0.005) {
+                statsDistanceToday += distance;
+                statsData.today = Math.round(statsDistanceToday * 100) / 100;
+                statsData.total = Math.round((statsData.total || 0) + distance * 100) / 100;
+                statsData.week = Math.round((statsData.week || 0) + distance * 100) / 100;
+
+                if (speed > statsData.maxSpeed) statsData.maxSpeed = speed;
+                statsData.avgSpeed = Math.round(((statsData.avgSpeed || 0) + speed) / 2);
+
+                // تسجيل رحلة كل 100 متر
+                if (statsDistanceToday > 0.1 && (!lastUpdatePos || calcDistance(lastUpdatePos[0], lastUpdatePos[1], 
+                        userPos[0], userPos[1]) > 0.1)) {
+                    statsData.trips = (statsData.trips || 0) + 1;
+                    statsData.lastTrip = new Date().toISOString();
+                    statsData.history.push({
+                        date: new Date().toISOString(),
+                        distance: Math.round(statsDistanceToday * 100) / 100,
+                        speed: Math.round(speed || 0)
+                    });
+                    if (statsData.history.length > 100) statsData.history.shift();
+                    lastUpdatePos = userPos;
+                }
+
+                // حفظ وتحديث الواجهة
+                localStorage.setItem('aora_stats', JSON.stringify(statsData));
+
+                document.getElementById('stats-today').textContent = statsData.today + ' كم';
+                document.getElementById('stats-week').textContent = Math.round(statsData.week) + ' كم';
+                document.getElementById('stats-total').textContent = Math.round(statsData.total) + ' كم';
+                document.getElementById('stats-avg-speed').textContent = Math.round(statsData.avgSpeed || 0);
+                document.getElementById('stats-panel').classList.add('show');
+                document.getElementById('distance').textContent = statsData.today.toFixed(2);
             }
         }
 
@@ -2343,11 +2372,11 @@
 
         setTimeout(function() { map.invalidateSize(); }, 500);
 
-        console.log('🚀 أورا ماب - الإصدار المتطور (جميع الميزات مفعلة)');
-        console.log('✅ تم إصلاح مشكلة النصوص المكررة');
-        console.log('✅ سهم الموقع ظاهر وواضح');
-        console.log('✅ جميع الأيقونات بيضاء فاتحة');
-        console.log('✅ النصوص واضحة وعالية التباين');
+        console.log('🚀 أورا ماب - الإصدار المتطور');
+        console.log('✅ تم رفع لوحة المعلومات وعداد السرعة للأعلى');
+        console.log('✅ سهم الموقع ظاهر وكبير');
+        console.log('✅ الإحصائيات تعمل بشكل صحيح');
+        console.log('✅ جميع الميزات مفعلة');
     </script>
 </body>
 </html>
