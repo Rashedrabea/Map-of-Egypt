@@ -36,17 +36,12 @@
             z-index: 0;
         }
 
-        /* ===== تحسين الخريطة - ألوان أوضح ===== */
+        /* ===== تحسين الخريطة - ألوان واضحة ===== */
         .leaflet-tile-pane {
-            filter: brightness(1.2) contrast(1.3) saturate(1.1) !important;
+            filter: brightness(1.0) contrast(1.0) saturate(1.0) !important;
         }
         .leaflet-tile-pane .leaflet-tile {
-            filter: brightness(1.3) contrast(1.4) saturate(1.2) !important;
-        }
-
-        /* ===== تكبير أسماء الشوارع ===== */
-        .leaflet-tile-pane .leaflet-tile {
-            image-rendering: auto !important;
+            filter: brightness(1.0) contrast(1.0) saturate(1.0) !important;
         }
 
         /* ===== شريط البحث ===== */
@@ -307,7 +302,7 @@
             font-size: 0.85rem;
         }
 
-        /* ===== عداد السرعة - مرفوع للأعلى ===== */
+        /* ===== عداد السرعة ===== */
         #speedometer {
             position: absolute;
             bottom: 200px;
@@ -536,7 +531,7 @@
             display: block;
         }
 
-        /* ===== GPS Marker - سهم ظاهر وكبير ===== */
+        /* ===== GPS Marker ===== */
         .gps-marker {
             width: 50px;
             height: 50px;
@@ -963,7 +958,7 @@
         <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
     </div>
 
-    <!-- ===== عداد السرعة - مرفوع للأعلى ===== -->
+    <!-- ===== عداد السرعة ===== -->
     <div id="speedometer">
         <div class="speed-value" id="speed-value">0</div>
         <div class="speed-label">كم/ساعة</div>
@@ -1066,7 +1061,7 @@
 
     <script>
         // ================================================================
-        //  1. قائمة المدن المصرية (للعمل بدون إنترنت)
+        //  1. قائمة المدن المصرية
         // ================================================================
         var offlineCities = [
             { name: 'القاهرة', lat: 30.0444, lng: 31.2357 },
@@ -1171,12 +1166,8 @@
             currentLayer = layer;
             map.addLayer(layer);
 
-            // تحسين الألوان حسب الطبقة
-            if (layer === nightLayer) {
-                document.querySelector('.leaflet-tile-pane').style.filter = 'brightness(0.8) contrast(1.4) saturate(1.3)';
-            } else {
-                document.querySelector('.leaflet-tile-pane').style.filter = 'brightness(1.2) contrast(1.3) saturate(1.1)';
-            }
+            // إزالة أي فلتر على الخريطة للحصول على ألوان طبيعية
+            document.querySelector('.leaflet-tile-pane').style.filter = 'none';
 
             document.querySelectorAll('.bottom-item').forEach(function(el) { el.classList.remove('active'); });
             if (btn) btn.classList.add('active');
@@ -1349,7 +1340,7 @@
         });
 
         // ================================================================
-        //  4. GPS + عداد السرعة + سهم الموقع
+        //  4. GPS + عداد السرعة
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -1397,7 +1388,7 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        // ===== الطقس الحقيقي =====
+        // ===== الطقس =====
         var weatherCache = null;
 
         function fetchRealWeather(lat, lng) {
@@ -1483,7 +1474,6 @@
 
             fetchRealWeather(lat, lng);
 
-            // حساب السرعة
             var speedKmh = 0;
             var speedAccuracy = 'منتظر...';
 
@@ -1518,7 +1508,6 @@
                 displaySpeed = Math.round(avg);
             }
 
-            // تحديث عداد السرعة
             var speedometer = document.getElementById('speedometer');
             if (displaySpeed > SPEED_LIMIT && displaySpeed > 0) {
                 speedometer.classList.add('speeding');
@@ -1543,7 +1532,6 @@
                 document.getElementById('speedometer').classList.add('show');
             }
 
-            // حساب المسافة
             if (lastPos && userPos) {
                 var dist = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
                 if (dist > 0.005) {
@@ -1555,7 +1543,6 @@
             lastPos = [lat, lng];
             lastTime = Date.now();
 
-            // إنشاء سهم الموقع
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -1579,7 +1566,6 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
-            // معلومات المكان
             var nearestCity = null;
             var minDist = Infinity;
             offlineCities.forEach(function(city) {
@@ -2370,9 +2356,8 @@
         setTimeout(function() { map.invalidateSize(); }, 500);
 
         console.log('🚀 أورا ماب - الإصدار المتطور');
-        console.log('✅ تم تحسين ألوان الخريطة');
-        console.log('✅ تم تكبير أسماء الشوارع');
-        console.log('✅ تم رفع عداد السرعة للأعلى');
+        console.log('✅ تم إزالة الفلتر الداكن من الخريطة');
+        console.log('✅ ألوان الخريطة طبيعية وواضحة');
         console.log('✅ جميع الميزات مفعلة');
     </script>
 </body>
