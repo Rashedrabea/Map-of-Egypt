@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>أورا ماب - الإصدار المتطور</title>
+    <title>أورا ماب - الإصدار المتطور v2.0</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -36,15 +36,114 @@
             z-index: 0;
         }
 
-        /* ===== تحسين الخريطة - ألوان واضحة ===== */
-        .leaflet-tile-pane {
-            filter: brightness(1.0) contrast(1.0) saturate(1.0) !important;
+        /* ===== مؤشر التحميل ===== */
+        #loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            color: #fff;
         }
-        .leaflet-tile-pane .leaflet-tile {
-            filter: brightness(1.0) contrast(1.0) saturate(1.0) !important;
+        #loading-spinner i {
+            font-size: 2rem;
+            color: #4a9eff;
+            display: block;
+            margin-bottom: 10px;
+        }
+        #loading-spinner span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
         }
 
-        /* ===== شريط البحث ===== */
+        /* ===== خريطة واضحة ===== */
+        .leaflet-tile-pane {
+            filter: none !important;
+        }
+        .leaflet-tile-pane .leaflet-tile {
+            filter: none !important;
+        }
+
+        /* ===== جولة الترحيب ===== */
+        #welcome-tour {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99998;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #fff;
+            padding: 20px;
+        }
+        #welcome-tour.show {
+            display: flex;
+        }
+        #welcome-tour .tour-box {
+            background: rgba(20, 30, 50, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        #welcome-tour .tour-box h3 {
+            font-size: 1.5rem;
+            color: #ffb84d;
+            margin-bottom: 10px;
+        }
+        #welcome-tour .tour-box p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        #welcome-tour .tour-box .tour-icon {
+            font-size: 3rem;
+            color: #4a9eff;
+            margin-bottom: 15px;
+            display: block;
+        }
+        #welcome-tour .tour-box button {
+            margin-top: 16px;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 40px;
+            background: linear-gradient(135deg, #4a9eff, #3d7acc);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #welcome-tour .tour-box button:hover {
+            transform: scale(1.03);
+        }
+        #welcome-tour .tour-box .skip-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            margin-top: 10px;
+            padding: 8px 20px;
+        }
+        #welcome-tour .tour-box .skip-btn:hover {
+            color: rgba(255, 255, 255, 0.6);
+            transform: none;
+        }
+
+        /* ===== شريط البحث المحسن ===== */
         #search-bar {
             position: absolute;
             top: 15px;
@@ -52,48 +151,79 @@
             transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.85);
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(20px);
-            padding: 8px 14px;
+            padding: 6px 10px;
             border-radius: 50px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9);
             width: 92%;
             max-width: 650px;
-            border: 2px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        #search-bar:focus-within {
+            border-color: rgba(74, 158, 255, 0.4);
+            box-shadow: 0 8px 30px rgba(74, 158, 255, 0.1);
+        }
+        .search-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
         }
         #search-input {
             flex: 1;
             border: none;
-            padding: 12px 18px;
-            font-size: 17px;
+            padding: 10px 14px;
+            font-size: 15px;
             border-radius: 30px;
             outline: none;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
             color: #ffffff;
             font-weight: 500;
+            width: 100%;
         }
         #search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.35);
             font-weight: 400;
         }
         #search-input:focus {
-            background: rgba(255, 255, 255, 0.18);
-            box-shadow: 0 0 20px rgba(74, 158, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        #clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: none;
+            padding: 4px 6px;
+        }
+        #clear-search:hover {
+            color: #ff6b6b;
+        }
+        #clear-search.show {
+            display: block;
         }
         #search-btn {
-            background: rgba(60, 140, 255, 0.25);
+            background: rgba(60, 140, 255, 0.2);
             color: #ffffff;
-            border: 1px solid rgba(60, 140, 255, 0.2);
-            padding: 12px 22px;
+            border: 1px solid rgba(60, 140, 255, 0.15);
+            padding: 10px 18px;
             border-radius: 30px;
             cursor: pointer;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: bold;
             transition: 0.3s;
+            white-space: nowrap;
         }
         #search-btn:hover {
-            background: rgba(60, 140, 255, 0.4);
+            background: rgba(60, 140, 255, 0.35);
             transform: scale(1.02);
         }
         #search-btn i {
@@ -101,17 +231,17 @@
         }
 
         #voice-btn {
-            background: rgba(255, 180, 60, 0.2);
-            border: 1px solid rgba(255, 180, 60, 0.15);
+            background: rgba(255, 180, 60, 0.15);
+            border: 1px solid rgba(255, 180, 60, 0.1);
             color: #ffb84d;
-            padding: 12px 18px;
+            padding: 10px 14px;
             border-radius: 30px;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: 0.3s;
         }
         #voice-btn:hover {
-            background: rgba(255, 180, 60, 0.35);
+            background: rgba(255, 180, 60, 0.3);
             transform: scale(1.02);
         }
         #voice-btn.listening {
@@ -130,25 +260,25 @@
         }
 
         #share-btn {
-            background: rgba(255, 180, 60, 0.2);
-            border: 1px solid rgba(255, 180, 60, 0.15);
+            background: rgba(255, 180, 60, 0.15);
+            border: 1px solid rgba(255, 180, 60, 0.1);
             color: #ffb84d;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 30px;
-            font-size: 17px;
+            font-size: 15px;
             cursor: pointer;
             transition: 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             white-space: nowrap;
         }
         #share-btn:hover {
-            background: rgba(255, 180, 60, 0.35);
+            background: rgba(255, 180, 60, 0.3);
             transform: scale(1.02);
         }
         #share-btn i {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #ffffff;
         }
         #share-btn span {
@@ -156,7 +286,7 @@
             font-weight: 500;
         }
 
-        /* ===== اللوحة السفلية ===== */
+        /* ===== اللوحة السفلية المحسنة ===== */
         #bottom-bar {
             position: absolute;
             bottom: 20px;
@@ -164,49 +294,49 @@
             transform: translateX(-50%);
             z-index: 999;
             width: min(96%, 950px);
-            padding: 12px 16px;
+            padding: 8px 10px;
             display: flex;
             align-items: center;
             justify-content: space-around;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(30px);
-            border: 2px solid rgba(255, 255, 255, 0.12);
-            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 30px;
             box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9);
             flex-wrap: wrap;
-            gap: 4px;
-            min-height: 62px;
+            gap: 2px;
+            min-height: 50px;
         }
         .bottom-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            padding: 6px 12px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.05);
+            gap: 2px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
             cursor: pointer;
-            color: #ccccdd;
-            font-size: 0.6rem;
-            font-weight: 600;
+            color: #8899bb;
+            font-size: 0.45rem;
+            font-weight: 500;
             border: 2px solid transparent;
             transition: 0.3s ease;
             user-select: none;
-            min-width: 48px;
-            min-height: 48px;
+            min-width: 40px;
+            min-height: 40px;
             justify-content: center;
+            position: relative;
         }
         .bottom-item i {
-            font-size: 1.2rem;
-            color: #ffffff;
+            font-size: 1rem;
+            color: #aabbdd;
             transition: 0.3s;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
         }
         .bottom-item:active {
             transform: scale(0.92);
         }
         .bottom-item.active {
-            background: rgba(60, 130, 255, 0.2);
+            background: rgba(60, 130, 255, 0.12);
             border-color: #4a9eff;
             color: #ffffff;
         }
@@ -218,15 +348,20 @@
             color: #4a9eff;
         }
         .bottom-item span {
-            font-size: 0.5rem;
-            color: #aabbdd;
+            font-size: 0.35rem;
+            color: #667799;
             transition: 0.3s;
             font-weight: 500;
+        }
+        /* ===== تنبيه السرعة في اللوحة السفلية ===== */
+        .bottom-item.speeding-alert i {
+            color: #ff6b6b !important;
+            animation: speed-flash 0.5s ease-in-out infinite;
         }
 
         /* ===== ألوان خاصة للأزرار النشطة ===== */
         .bottom-item#mode-navigation.active {
-            background: rgba(255, 50, 50, 0.2);
+            background: rgba(255, 50, 50, 0.12);
             border-color: #ff3333;
         }
         .bottom-item#mode-navigation.active i {
@@ -237,7 +372,7 @@
         }
 
         .bottom-item#mode-offline.active {
-            background: rgba(255, 180, 60, 0.2);
+            background: rgba(255, 180, 60, 0.12);
             border-color: #ffb84d;
         }
         .bottom-item#mode-offline.active i {
@@ -248,7 +383,7 @@
         }
 
         .bottom-item#mode-home.active {
-            background: rgba(61, 255, 158, 0.2);
+            background: rgba(61, 255, 158, 0.12);
             border-color: #3dff9e;
         }
         .bottom-item#mode-home.active i {
@@ -259,7 +394,7 @@
         }
 
         .bottom-item#mode-work.active {
-            background: rgba(255, 107, 107, 0.2);
+            background: rgba(255, 107, 107, 0.12);
             border-color: #ff6b6b;
         }
         .bottom-item#mode-work.active i {
@@ -269,52 +404,62 @@
             color: #ff6b6b;
         }
 
-        /* ===== لوحة المعلومات ===== */
+        /* ===== لوحة المعلومات (كروت) ===== */
         #info-panel {
             position: absolute;
             bottom: 200px;
             right: 15px;
             z-index: 50;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(16px);
-            border: 2px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 14px 18px;
-            min-width: 180px;
             display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            gap: 8px;
+            flex-direction: column;
+            max-width: 200px;
         }
         #info-panel.show {
-            display: block;
+            display: flex;
         }
-        #info-panel .info-row {
+        .info-card {
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+        .info-card .info-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 5px 0;
-            font-size: 0.85rem;
+            gap: 8px;
+            padding: 3px 0;
+            font-size: 0.75rem;
+            color: #d0daf0;
+        }
+        .info-card .info-row i {
+            color: #4a9eff;
+            width: 16px;
+            font-size: 0.7rem;
+        }
+        .info-card .info-row .info-value {
             color: #ffffff;
             font-weight: 500;
         }
-        #info-panel .info-row i {
-            color: #4a9eff;
-            width: 18px;
-            font-size: 0.85rem;
+        .info-card .info-row .info-value.eta {
+            color: #ffb84d;
         }
 
-        /* ===== عداد السرعة ===== */
+        /* ===== عداد السرعة المحسن ===== */
         #speedometer {
             position: absolute;
             bottom: 200px;
             left: 15px;
             z-index: 50;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(16px);
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
-            padding: 14px 20px;
-            min-width: 100px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            padding: 14px 18px;
+            min-width: 90px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
             display: none;
             text-align: center;
         }
@@ -324,20 +469,15 @@
         #speedometer .speed-value {
             font-size: 2.2rem;
             font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        #speedometer .speed-value.safe {
             color: #3dff9e;
-            text-shadow: 0 0 30px rgba(61, 255, 158, 0.3);
         }
-        #speedometer .speed-label {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 500;
+        #speedometer .speed-value.medium {
+            color: #ffb84d;
         }
-        #speedometer .speed-accuracy {
-            font-size: 0.5rem;
-            color: rgba(255, 255, 255, 0.3);
-            margin-top: 3px;
-        }
-        #speedometer.speeding .speed-value {
+        #speedometer .speed-value.danger {
             color: #ff6b6b;
             animation: speed-flash 0.5s ease-in-out infinite;
         }
@@ -350,6 +490,31 @@
                 opacity: 0.3;
             }
         }
+        #speedometer .speed-label {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+        }
+        #speedometer .speed-accuracy {
+            font-size: 0.45rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 3px;
+        }
+        #speedometer .speed-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        #speedometer .speed-bar .speed-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.5s ease, background 0.5s ease;
+            background: #3dff9e;
+        }
 
         /* ===== الطقس ===== */
         #weather-panel {
@@ -359,12 +524,12 @@
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 10px 14px;
             display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
-            min-width: 110px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            min-width: 100px;
         }
         #weather-panel.show {
             display: block;
@@ -373,11 +538,11 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.85rem;
-            color: #ffffff;
+            font-size: 0.8rem;
+            color: #d0daf0;
         }
         #weather-panel .weather-row i {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #ffb84d;
         }
 
@@ -389,21 +554,21 @@
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 10px 14px;
             display: none;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
         }
         #timer-panel.show {
             display: block;
         }
         #timer-panel .timer-row {
             font-size: 0.7rem;
-            color: #ffffff;
+            color: #d0daf0;
         }
 
-        /* ===== الإحصائيات ===== */
+        /* ===== الإحصائيات المحسنة ===== */
         #stats-panel {
             position: absolute;
             top: 85px;
@@ -411,23 +576,23 @@
             z-index: 50;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 12px 16px;
             min-width: 130px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
             display: none;
         }
         #stats-panel.show {
             display: block;
         }
         #stats-panel .stat-row {
-            font-size: 0.65rem;
-            color: #ffffff;
-            padding: 4px 0;
+            font-size: 0.6rem;
+            color: #d0daf0;
+            padding: 3px 0;
             display: flex;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
         }
         #stats-panel .stat-row .stat-value {
             color: #3dff9e;
@@ -440,12 +605,12 @@
             bottom: 255px;
             right: 15px;
             z-index: 50;
-            background: rgba(60, 140, 255, 0.15);
-            border: 1px solid rgba(60, 140, 255, 0.1);
+            background: rgba(60, 140, 255, 0.12);
+            border: 1px solid rgba(60, 140, 255, 0.08);
             color: #7bb0ff;
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: 30px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             backdrop-filter: blur(12px);
             background: rgba(0, 0, 0, 0.85);
@@ -461,12 +626,12 @@
             top: 85px;
             left: 15px;
             z-index: 50;
-            background: rgba(255, 50, 50, 0.15);
-            border: 1px solid rgba(255, 50, 50, 0.1);
+            background: rgba(255, 50, 50, 0.12);
+            border: 1px solid rgba(255, 50, 50, 0.08);
             color: #ff6b6b;
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: 30px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             backdrop-filter: blur(12px);
             background: rgba(0, 0, 0, 0.85);
@@ -477,7 +642,7 @@
             display: block;
         }
         #clear-markers-btn:hover {
-            background: rgba(255, 50, 50, 0.25);
+            background: rgba(255, 50, 50, 0.2);
         }
 
         /* ===== حالة الاتصال ===== */
@@ -487,25 +652,25 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
-            padding: 5px 18px;
-            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 16px;
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
             border-radius: 40px;
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.3);
             text-align: center;
             white-space: nowrap;
             pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             display: none;
         }
         #status-bar.online {
-            border-color: rgba(61, 255, 158, 0.15);
-            color: rgba(61, 255, 158, 0.5);
+            border-color: rgba(61, 255, 158, 0.12);
+            color: rgba(61, 255, 158, 0.4);
         }
         #status-bar.offline {
-            border-color: rgba(255, 180, 60, 0.15);
-            color: rgba(255, 180, 60, 0.5);
+            border-color: rgba(255, 180, 60, 0.12);
+            color: rgba(255, 180, 60, 0.4);
         }
 
         #offline-status {
@@ -514,12 +679,12 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 60;
-            background: rgba(255, 180, 60, 0.1);
-            border: 1px solid rgba(255, 180, 60, 0.1);
+            background: rgba(255, 180, 60, 0.08);
+            border: 1px solid rgba(255, 180, 60, 0.08);
             color: #ffb84d;
-            padding: 6px 20px;
+            padding: 4px 18px;
             border-radius: 40px;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             backdrop-filter: blur(12px);
             background: rgba(0, 0, 0, 0.85);
             display: none;
@@ -543,13 +708,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 42px;
+            font-size: 40px;
             color: #4a9eff;
-            text-shadow: 
-                0 0 40px rgba(74, 158, 255, 0.9),
-                0 0 80px rgba(74, 158, 255, 0.5),
-                0 0 120px rgba(74, 158, 255, 0.3);
-            filter: drop-shadow(0 0 20px rgba(74, 158, 255, 0.6));
+            text-shadow:
+                0 0 30px rgba(74, 158, 255, 0.7),
+                0 0 60px rgba(74, 158, 255, 0.3);
+            filter: drop-shadow(0 0 15px rgba(74, 158, 255, 0.4));
             transition: transform 0.3s ease;
         }
         .gps-marker .pulse {
@@ -560,8 +724,8 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: rgba(74, 158, 255, 0.2);
-            border: 3px solid rgba(74, 158, 255, 0.4);
+            background: rgba(74, 158, 255, 0.1);
+            border: 2px solid rgba(74, 158, 255, 0.2);
             animation: pulse-ring 2s ease-out infinite;
         }
         @keyframes pulse-ring {
@@ -605,23 +769,23 @@
         .fav-panel,
         .weather-panel-modal,
         .stats-panel-modal {
-            background: rgba(10, 14, 24, 0.95);
+            background: rgba(14, 20, 32, 0.95);
             backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 28px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 24px 28px;
             width: min(90%, 400px);
             max-height: 70vh;
             overflow-y: auto;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
         }
         .memory-panel h2,
         .fav-panel h2,
         .weather-panel-modal h2,
         .stats-panel-modal h2 {
             color: #e8f0ff;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
+            font-size: 1.1rem;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -633,21 +797,26 @@
             color: #ffb84d;
         }
         .memory-item {
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             color: #d0daf0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             gap: 10px;
             cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .memory-item:hover {
+            background: rgba(255, 255, 255, 0.03);
         }
         .memory-item i {
             color: #ffb84d;
         }
         .memory-item .memory-date {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.25);
             margin-left: auto;
         }
         .memory-empty,
@@ -655,86 +824,121 @@
             color: rgba(255, 255, 255, 0.3);
             text-align: center;
             padding: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .close-memory,
         .close-fav,
         .close-weather,
         .close-stats {
-            margin-top: 16px;
+            margin-top: 14px;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: none;
             border-radius: 40px;
-            background: rgba(60, 140, 255, 0.15);
+            background: rgba(60, 140, 255, 0.1);
             color: #b0d0ff;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            border: 1px solid rgba(60, 140, 255, 0.08);
+            border: 1px solid rgba(60, 140, 255, 0.05);
         }
         .memory-add {
             display: flex;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
         }
         .memory-add input {
             flex: 1;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.06);
             background: rgba(255, 255, 255, 0.03);
             color: #f0f4fc;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             outline: none;
         }
         .memory-add input::placeholder {
             color: rgba(255, 255, 255, 0.2);
         }
         .memory-add button {
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
             border: none;
-            background: rgba(255, 180, 60, 0.15);
+            background: rgba(255, 180, 60, 0.12);
             color: #ffb84d;
             cursor: pointer;
-            border: 1px solid rgba(255, 180, 60, 0.06);
+            border: 1px solid rgba(255, 180, 60, 0.05);
         }
 
         .fav-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             color: #d0daf0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .fav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
         }
         .fav-item .fav-del {
             color: #ff6b6b;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 2px 8px;
             border-radius: 20px;
             background: rgba(255, 107, 107, 0.05);
             border: none;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
 
         .weather-detail,
         .stats-detail {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             color: #d0daf0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .stats-detail .stats-value {
             color: #3dff9e;
             font-weight: bold;
         }
 
+        /* ===== إنجازات (Badges) ===== */
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .badge-item {
+            background: rgba(255, 180, 60, 0.08);
+            border: 1px solid rgba(255, 180, 60, 0.1);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.55rem;
+            color: #ffb84d;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-item i {
+            font-size: 0.6rem;
+        }
+        .badge-item.unlocked {
+            background: rgba(61, 255, 158, 0.08);
+            border-color: rgba(61, 255, 158, 0.15);
+            color: #3dff9e;
+        }
+
+        /* ===== AR Overlay ===== */
         #ar-overlay {
             background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(8px);
@@ -749,9 +953,9 @@
             max-width: 90%;
         }
         #ar-overlay .ar-content i {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: #ffb84d;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             animation: ar-pulse 2s ease-in-out infinite;
         }
         @keyframes ar-pulse {
@@ -761,33 +965,33 @@
                 opacity: 1;
             }
             50% {
-                transform: scale(1.08);
+                transform: scale(1.06);
                 opacity: 0.8;
             }
         }
         #ar-overlay .ar-content .compass-display {
-            font-size: 2.8rem;
-            margin: 16px 0;
+            font-size: 2.5rem;
+            margin: 14px 0;
             color: #ffb84d;
         }
         #ar-overlay .ar-content .ar-info {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.4);
-            margin: 6px 0;
+            margin: 4px 0;
         }
         #ar-overlay .ar-content .ar-altitude {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.3);
-            margin: 6px 0;
+            margin: 4px 0;
         }
         .ar-close {
-            margin-top: 24px;
-            padding: 12px 36px;
+            margin-top: 20px;
+            padding: 10px 32px;
             border: none;
             border-radius: 40px;
             background: rgba(255, 255, 255, 0.06);
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
@@ -803,43 +1007,43 @@
         @media (max-width: 480px) {
             #bottom-bar {
                 bottom: 12px;
-                padding: 6px 8px;
-                border-radius: 40px;
-                min-height: 50px;
-                gap: 2px;
+                padding: 4px 6px;
+                border-radius: 25px;
+                min-height: 42px;
+                gap: 1px;
             }
             .bottom-item {
-                padding: 4px 8px;
-                min-width: 38px;
-                min-height: 38px;
+                padding: 2px 5px;
+                min-width: 32px;
+                min-height: 32px;
             }
             .bottom-item i {
-                font-size: 0.95rem;
+                font-size: 0.8rem;
             }
             .bottom-item span {
-                font-size: 0.4rem;
+                font-size: 0.3rem;
             }
             #search-bar {
                 top: 10px;
-                padding: 6px 10px;
+                padding: 4px 8px;
                 gap: 4px;
                 width: 94%;
             }
             #search-input {
-                font-size: 14px;
-                padding: 8px 12px;
+                font-size: 13px;
+                padding: 6px 10px;
             }
             #search-btn {
-                padding: 8px 14px;
-                font-size: 14px;
+                padding: 6px 12px;
+                font-size: 13px;
             }
             #voice-btn {
-                padding: 8px 12px;
-                font-size: 15px;
+                padding: 6px 10px;
+                font-size: 14px;
             }
             #share-btn {
-                padding: 8px 14px;
-                font-size: 14px;
+                padding: 6px 10px;
+                font-size: 13px;
             }
             #share-btn span {
                 display: none;
@@ -847,27 +1051,29 @@
             #info-panel {
                 bottom: 155px;
                 right: 10px;
-                padding: 10px 12px;
-                min-width: 130px;
+                max-width: 160px;
             }
-            #info-panel .info-row {
-                font-size: 0.65rem;
+            .info-card {
+                padding: 8px 10px;
+            }
+            .info-card .info-row {
+                font-size: 0.6rem;
             }
             #status-bar {
                 bottom: 135px;
                 font-size: 0.45rem;
-                padding: 3px 14px;
+                padding: 2px 12px;
             }
             #offline-status {
                 top: 75px;
                 font-size: 0.45rem;
-                padding: 3px 14px;
+                padding: 2px 12px;
             }
             #speedometer {
                 bottom: 155px;
                 left: 10px;
-                padding: 10px 14px;
-                min-width: 75px;
+                padding: 10px 12px;
+                min-width: 70px;
             }
             #speedometer .speed-value {
                 font-size: 1.6rem;
@@ -875,14 +1081,14 @@
             #clear-markers-btn {
                 top: 75px;
                 left: 10px;
-                padding: 6px 12px;
-                font-size: 0.55rem;
+                padding: 4px 10px;
+                font-size: 0.5rem;
             }
             #weather-panel {
                 top: 75px;
                 right: 10px;
                 padding: 6px 10px;
-                min-width: 90px;
+                min-width: 80px;
             }
             #timer-panel {
                 bottom: 205px;
@@ -892,14 +1098,17 @@
             #saved-route-btn {
                 bottom: 205px;
                 right: 10px;
-                padding: 6px 12px;
-                font-size: 0.55rem;
+                padding: 4px 10px;
+                font-size: 0.5rem;
             }
             #stats-panel {
                 top: 75px;
                 left: 10px;
-                padding: 8px 12px;
-                min-width: 90px;
+                padding: 8px 10px;
+                min-width: 80px;
+            }
+            #stats-panel .stat-row {
+                font-size: 0.5rem;
             }
             .memory-panel,
             .fav-panel {
@@ -907,29 +1116,41 @@
                 width: 94%;
             }
             #ar-overlay .ar-content i {
-                font-size: 3rem;
+                font-size: 2.8rem;
             }
             #ar-overlay .ar-content .compass-display {
-                font-size: 2.2rem;
+                font-size: 2rem;
+            }
+            #welcome-tour .tour-box {
+                padding: 20px 24px;
+            }
+            #welcome-tour .tour-box h3 {
+                font-size: 1.2rem;
+            }
+            #welcome-tour .tour-box p {
+                font-size: 0.8rem;
             }
         }
 
         /* ===== تحسين للشاشات الكبيرة ===== */
         @media (min-width: 1024px) {
             .bottom-item i {
-                font-size: 1.3rem;
+                font-size: 1.15rem;
             }
             .bottom-item span {
-                font-size: 0.55rem;
+                font-size: 0.45rem;
             }
             #search-input {
-                font-size: 18px;
+                font-size: 16px;
             }
             #search-btn,
             #voice-btn,
             #share-btn {
-                font-size: 18px;
-                padding: 14px 24px;
+                font-size: 16px;
+                padding: 12px 20px;
+            }
+            #speedometer .speed-value {
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -938,9 +1159,32 @@
 
     <div id="map"></div>
 
-    <!-- ===== شريط البحث ===== -->
+    <!-- ===== مؤشر التحميل ===== -->
+    <div id="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>جاري تحميل الخريطة...</span>
+    </div>
+
+    <!-- ===== جولة الترحيب ===== -->
+    <div id="welcome-tour">
+        <div class="tour-box">
+            <i class="fas fa-map-location-dot tour-icon"></i>
+            <h3>👋 مرحباً بك في أورا ماب</h3>
+            <p>📍 اضغط على أيقونة <strong>موقعي</strong> لتحديد موقعك الحالي</p>
+            <p>🔍 استخدم <strong>البحث</strong> للعثور على المدن والمعالم</p>
+            <p>📊 تتبع <strong>إحصائيات</strong> رحلاتك وإنجازاتك</p>
+            <p>🌙 جرب <strong>الوضع الليلي</strong> للرؤية المثالية</p>
+            <button onclick="closeTour()">🚀 ابدأ الآن</button>
+            <button class="skip-btn" onclick="closeTour()">تخطي</button>
+        </div>
+    </div>
+
+    <!-- ===== شريط البحث المحسن ===== -->
     <div id="search-bar">
-        <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
+        <div class="search-wrapper">
+            <input type="text" id="search-input" placeholder="ابحث عن مدينة، شارع، معلم..." />
+            <button id="clear-search" title="مسح النص"><i class="fas fa-times"></i></button>
+        </div>
         <button id="voice-btn" title="بحث صوتي"><i class="fas fa-microphone"></i></button>
         <button id="search-btn"><i class="fas fa-search"></i></button>
         <button id="share-btn"><i class="fas fa-share-alt"></i> <span>مشاركة</span></button>
@@ -949,46 +1193,55 @@
     <div id="status-bar" class="online">📡 متصل</div>
     <div id="offline-status">📡 وضع Offline - خريطة محلية</div>
 
-    <!-- ===== لوحة المعلومات ===== -->
+    <!-- ===== لوحة المعلومات (كروت) ===== -->
     <div id="info-panel">
-        <div class="info-row"><i class="fas fa-route"></i> المسافة: <span id="distance">--</span> كم</div>
-        <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span id="time">--</span> دقيقة</div>
-        <div class="info-row"><i class="fas fa-map-pin"></i> الوجهة: <span id="destination">--</span></div>
-        <div class="info-row"><i class="fas fa-road"></i> الشارع: <span id="street-name">--</span></div>
-        <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span id="area-name">--</span></div>
+        <div class="info-card">
+            <div class="info-row"><i class="fas fa-route"></i> المسافة: <span class="info-value" id="distance">--</span> كم</div>
+            <div class="info-row"><i class="fas fa-clock"></i> الوقت: <span class="info-value" id="time">--</span> دقيقة</div>
+            <div class="info-row"><i class="fas fa-clock"></i> ETA: <span class="info-value eta" id="eta-time">--</span></div>
+        </div>
+        <div class="info-card">
+            <div class="info-row"><i class="fas fa-map-pin"></i> الوجهة: <span class="info-value" id="destination">--</span></div>
+            <div class="info-row"><i class="fas fa-road"></i> الشارع: <span class="info-value" id="street-name">--</span></div>
+            <div class="info-row"><i class="fas fa-city"></i> المنطقة: <span class="info-value" id="area-name">--</span></div>
+        </div>
     </div>
 
-    <!-- ===== عداد السرعة ===== -->
+    <!-- ===== عداد السرعة المحسن ===== -->
     <div id="speedometer">
-        <div class="speed-value" id="speed-value">0</div>
+        <div class="speed-value safe" id="speed-value">0</div>
         <div class="speed-label">كم/ساعة</div>
         <div class="speed-accuracy" id="speed-accuracy">⏳ منتظر...</div>
+        <div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>
     </div>
 
     <!-- ===== الطقس ===== -->
     <div id="weather-panel">
         <div class="weather-row"><i id="weather-icon" class="fas fa-sun"></i> <span id="weather-temp">--°</span></div>
-        <div class="weather-row" style="font-size:0.55rem;color:rgba(255,255,255,0.4);"><span id="weather-desc">جاري التحميل...</span></div>
+        <div class="weather-row" style="font-size:0.5rem;color:rgba(255,255,255,0.3);"><span id="weather-desc">جاري التحميل...</span></div>
     </div>
 
     <!-- ===== المؤقت ===== -->
     <div id="timer-panel">
         <div class="timer-row"><i class="fas fa-stopwatch"></i> الوقت: <span id="trip-time">00:00:00</span></div>
-        <div class="timer-row" style="font-size:0.55rem;color:rgba(255,255,255,0.3);">المسافة: <span id="trip-distance">0.0</span> كم</div>
+        <div class="timer-row" style="font-size:0.5rem;color:rgba(255,255,255,0.25);">المسافة: <span id="trip-distance">0.0</span> كم</div>
     </div>
 
-    <!-- ===== الإحصائيات ===== -->
+    <!-- ===== الإحصائيات المحسنة ===== -->
     <div id="stats-panel">
         <div class="stat-row">🚗 اليوم: <span class="stat-value" id="stats-today">0</span> كم</div>
         <div class="stat-row">📅 هذا الأسبوع: <span class="stat-value" id="stats-week">0</span> كم</div>
         <div class="stat-row">🏆 الإجمالي: <span class="stat-value" id="stats-total">0</span> كم</div>
-        <div class="stat-row" style="font-size:0.5rem;color:rgba(255,255,255,0.2);">⏱️ متوسط السرعة: <span id="stats-avg-speed">0</span> كم/ساعة</div>
+        <div class="stat-row" style="font-size:0.45rem;color:rgba(255,255,255,0.2);">⏱️ متوسط السرعة: <span id="stats-avg-speed">0</span> كم/ساعة</div>
+        <div class="stat-row" style="font-size:0.45rem;color:rgba(255,255,255,0.2);">🔥 أقصى سرعة: <span id="stats-max-speed">0</span> كم/ساعة</div>
+        <div class="stat-row" style="font-size:0.45rem;color:rgba(255,255,255,0.2);">📊 عدد الرحلات: <span id="stats-trips">0</span></div>
+        <div class="badge-container" id="badge-container"></div>
     </div>
 
     <button id="saved-route-btn"><i class="fas fa-route"></i> مسار مفضل</button>
     <button id="clear-markers-btn"><i class="fas fa-eraser"></i> مسح الكل</button>
 
-    <!-- ===== اللوحة السفلية ===== -->
+    <!-- ===== اللوحة السفلية المحسنة ===== -->
     <div id="bottom-bar">
         <div class="bottom-item active" id="mode-street"><i class="fas fa-road"></i><span>شارع</span></div>
         <div class="bottom-item" id="mode-satellite"><i class="fas fa-satellite"></i><span>قمر</span></div>
@@ -1041,6 +1294,7 @@
             <h2><i class="fas fa-chart-line"></i> إحصائيات الرحلات</h2>
             <div id="stats-details"></div>
             <button id="export-stats-btn"><i class="fas fa-download"></i> تصدير الإحصائيات (CSV)</button>
+            <button id="reset-stats-btn" style="margin-top:8px;width:100%;padding:10px;border:none;border-radius:40px;background:rgba(255,50,50,0.1);color:#ff6b6b;font-weight:600;font-size:0.8rem;cursor:pointer;border:1px solid rgba(255,50,50,0.05);">🔄 إعادة تعيين الإحصائيات</button>
             <button class="close-stats" id="close-stats-btn">إغلاق</button>
         </div>
     </div>
@@ -1054,12 +1308,24 @@
             <div class="ar-info"><i class="fas fa-map-pin"></i> <span id="ar-location">جاري التحديد...</span></div>
             <div class="ar-info"><i class="fas fa-building"></i> <span id="ar-nearby">جاري البحث...</span></div>
             <div class="ar-altitude"><i class="fas fa-mountain"></i> الارتفاع: <span id="ar-altitude">--</span> م</div>
-            <div class="ar-info" style="font-size:2rem;margin-top:10px;" id="ar-direction">⬆️</div>
+            <div class="ar-info" style="font-size:1.8rem;margin-top:10px;" id="ar-direction">⬆️</div>
             <button class="ar-close" id="ar-close-btn">إغلاق</button>
         </div>
     </div>
 
     <script>
+        // ================================================================
+        //  جولة الترحيب
+        // ================================================================
+        function closeTour() {
+            document.getElementById('welcome-tour').classList.remove('show');
+            localStorage.setItem('aora_tour_shown', 'true');
+        }
+
+        if (!localStorage.getItem('aora_tour_shown')) {
+            document.getElementById('welcome-tour').classList.add('show');
+        }
+
         // ================================================================
         //  1. قائمة المدن المصرية
         // ================================================================
@@ -1133,6 +1399,11 @@
         var currentLayer = streetLayer;
         var isOffline = false;
 
+        // ===== إظهار/إخفاء مؤشر التحميل =====
+        function showLoading(show) {
+            document.getElementById('loading-spinner').style.display = show ? 'block' : 'none';
+        }
+
         function toggleOfflineMode() {
             isOffline = !isOffline;
             var btn = document.getElementById('mode-offline');
@@ -1162,12 +1433,11 @@
                 showToast('⚠️ وضع Offline - بعض الطبقات غير متوفرة', '#ffb84d');
                 return;
             }
+            showLoading(true);
             if (currentLayer) map.removeLayer(currentLayer);
             currentLayer = layer;
             map.addLayer(layer);
-
-            // إزالة أي فلتر على الخريطة للحصول على ألوان طبيعية
-            document.querySelector('.leaflet-tile-pane').style.filter = 'none';
+            setTimeout(function() { showLoading(false); }, 500);
 
             document.querySelectorAll('.bottom-item').forEach(function(el) { el.classList.remove('active'); });
             if (btn) btn.classList.add('active');
@@ -1180,12 +1450,37 @@
         document.getElementById('mode-night').addEventListener('click', function() { switchLayer(nightLayer, this); });
 
         // ================================================================
-        //  3. نظام البحث (مع صوت)
+        //  3. نظام البحث المحسن
         // ================================================================
         var searchInput = document.getElementById('search-input');
         var searchBtn = document.getElementById('search-btn');
         var voiceBtn = document.getElementById('voice-btn');
+        var clearSearch = document.getElementById('clear-search');
         var searchMarker = null;
+
+        // ===== زر مسح النص =====
+        searchInput.addEventListener('input', function() {
+            clearSearch.classList.toggle('show', this.value.length > 0);
+        });
+        clearSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            clearSearch.classList.remove('show');
+            searchInput.focus();
+        });
+
+        // ===== اقتراحات البحث (Autocomplete) =====
+        var suggestionsList = [];
+
+        function getSuggestions(query) {
+            var results = [];
+            var q = query.toLowerCase();
+            offlineCities.forEach(function(city) {
+                if (city.name.includes(q) || q.includes(city.name.toLowerCase())) {
+                    results.push(city.name);
+                }
+            });
+            return results.slice(0, 5);
+        }
 
         function clearSearchMarker() {
             if (searchMarker) { map.removeLayer(searchMarker);
@@ -1196,9 +1491,9 @@
             clearSearchMarker();
             var icon = L.divIcon({
                 className: 'search-marker',
-                html: '<div style="background:#ff6b6b;border-radius:50% 50% 50% 0;width:30px;height:30px;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 0 30px rgba(255,107,107,0.5);"><div style="position:absolute;top:8px;left:8px;width:10px;height:10px;background:#fff;border-radius:50%;transform:rotate(45deg);"></div></div>',
-                iconSize: [30, 30],
-                iconAnchor: [15, 30],
+                html: '<div style="background:#ff6b6b;border-radius:50% 50% 50% 0;width:28px;height:28px;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 0 30px rgba(255,107,107,0.4);"><div style="position:absolute;top:7px;left:7px;width:10px;height:10px;background:#fff;border-radius:50%;transform:rotate(45deg);"></div></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 28],
             });
             searchMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
             searchMarker.bindPopup('📍 ' + name);
@@ -1228,6 +1523,7 @@
                 document.getElementById('destination').textContent = result.name;
                 document.getElementById('info-panel').classList.add('show');
                 showToast('📍 تم العثور على: ' + result.name + ' (Offline)', '#3dff9e');
+                calculateETA(result.lat, result.lng);
                 return;
             }
 
@@ -1258,10 +1554,21 @@
                     document.getElementById('destination').textContent = name;
                     document.getElementById('info-panel').classList.add('show');
                     showToast('📍 تم العثور على: ' + name, '#3dff9e');
+                    calculateETA(lat, lon);
                 })
                 ['catch'](function(error) { clearTimeout(timeoutId);
                     console.error('Search error:', error);
                     alert('⚠️ تعذر البحث. تأكد من اتصالك بالإنترنت'); });
+        }
+
+        // ===== حساب ETA =====
+        function calculateETA(destLat, destLng) {
+            if (userPos) {
+                var dist = calcDistance(userPos[0], userPos[1], destLat, destLng);
+                var avgSpeed = parseInt(document.getElementById('stats-avg-speed').textContent) || 30;
+                var timeMin = avgSpeed > 0 ? Math.round((dist / avgSpeed) * 60) : Math.round(dist * 2);
+                document.getElementById('eta-time').textContent = timeMin + ' دقيقة';
+            }
         }
 
         searchBtn.addEventListener('click', function() { var query = searchInput.value.trim();
@@ -1312,7 +1619,6 @@
             };
             isVoiceSupported = true;
         } else {
-            console.log('Voice recognition not supported');
             voiceBtn.style.opacity = '0.4';
             voiceBtn.title = 'غير مدعوم في هذا المتصفح';
         }
@@ -1340,7 +1646,7 @@
         });
 
         // ================================================================
-        //  4. GPS + عداد السرعة
+        //  4. GPS + عداد السرعة المحسن
         // ================================================================
         var userMarker = null;
         var userCircle = null;
@@ -1388,7 +1694,7 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        // ===== الطقس =====
+        // ===== الطقس الحقيقي =====
         var weatherCache = null;
 
         function fetchRealWeather(lat, lng) {
@@ -1508,18 +1814,36 @@
                 displaySpeed = Math.round(avg);
             }
 
+            // ===== تحديث عداد السرعة مع ألوان =====
             var speedometer = document.getElementById('speedometer');
-            if (displaySpeed > SPEED_LIMIT && displaySpeed > 0) {
-                speedometer.classList.add('speeding');
+            var speedValue = document.getElementById('speed-value');
+            var speedFill = document.getElementById('speed-fill');
+
+            // تغيير اللون حسب السرعة
+            speedValue.className = 'speed-value';
+            if (displaySpeed > 0 && displaySpeed < 60) {
+                speedValue.classList.add('safe');
+                speedFill.style.background = '#3dff9e';
+            } else if (displaySpeed >= 60 && displaySpeed < 100) {
+                speedValue.classList.add('medium');
+                speedFill.style.background = '#ffb84d';
+            } else if (displaySpeed >= 100) {
+                speedValue.classList.add('danger');
+                speedFill.style.background = '#ff6b6b';
                 if (!speedAlertActive) {
                     speedAlertActive = true;
-                    showToast('🚨 تنبيه: تجاوزت السرعة المسموحة (' + SPEED_LIMIT + ' كم/ساعة)', '#ff6b6b');
+                    showToast('🚨 تنبيه: تجاوزت السرعة 100 كم/ساعة', '#ff6b6b');
                     try { navigator.vibrate(200); } catch (e) {}
                 }
             } else {
-                speedometer.classList.remove('speeding');
+                speedValue.classList.add('safe');
+                speedFill.style.background = '#3dff9e';
                 speedAlertActive = false;
             }
+
+            // تحديث شريط السرعة
+            var percent = Math.min(displaySpeed / 160 * 100, 100);
+            speedFill.style.width = percent + '%';
 
             if (displaySpeed > 0) {
                 document.getElementById('speed-value').textContent = displaySpeed;
@@ -1532,6 +1856,15 @@
                 document.getElementById('speedometer').classList.add('show');
             }
 
+            // ===== تنبيه في اللوحة السفلية =====
+            var gpsBtn = document.getElementById('mode-gps');
+            if (displaySpeed > 100) {
+                gpsBtn.classList.add('speeding-alert');
+            } else {
+                gpsBtn.classList.remove('speeding-alert');
+            }
+
+            // ===== حساب المسافة =====
             if (lastPos && userPos) {
                 var dist = calcDistance(lastPos[0], lastPos[1], userPos[0], userPos[1]);
                 if (dist > 0.005) {
@@ -1543,6 +1876,7 @@
             lastPos = [lat, lng];
             lastTime = Date.now();
 
+            // ===== إنشاء سهم الموقع =====
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
                 if (userCircle) userCircle.setLatLng([lat, lng]);
@@ -1566,6 +1900,7 @@
                 showToast('📍 تم تحديد موقعك');
             }
 
+            // ===== معلومات المكان =====
             var nearestCity = null;
             var minDist = Infinity;
             offlineCities.forEach(function(city) {
@@ -1577,11 +1912,13 @@
             if (nearestCity && minDist < 20) {
                 document.getElementById('area-name').textContent = nearestCity.name;
                 document.getElementById('street-name').textContent = 'شارع (Offline)';
-                document.getElementById('destination').textContent = nearestCity.name;
+                if (!document.getElementById('destination').textContent || document.getElementById('destination')
+                    .textContent === '--') {
+                    document.getElementById('destination').textContent = nearestCity.name;
+                }
             } else {
                 document.getElementById('area-name').textContent = 'منطقة غير معروفة (Offline)';
                 document.getElementById('street-name').textContent = 'شارع (Offline)';
-                document.getElementById('destination').textContent = 'موقعك الحالي';
             }
 
             document.getElementById('mode-gps').classList.add('active');
@@ -1595,6 +1932,7 @@
             updateTimer();
         }
 
+        // ===== تقليل تحديثات GPS =====
         function locateUser() {
             if (navigator.geolocation) {
                 showToast('⏳ جاري تحديد موقعك...');
@@ -1602,8 +1940,12 @@
                     alert('⚠️ لم نتمكن من تحديد موقعك. تأكد من تشغيل GPS.');
                 }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
                 if (speedWatchId) navigator.geolocation.clearWatch(speedWatchId);
-                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, { enableHighAccuracy: true,
-                    maximumAge: 1000, timeout: 10000 });
+                speedWatchId = navigator.geolocation.watchPosition(updateLocation, null, {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    // تحديث كل 5 ثواني بدلاً من كل ثانية
+                    timeout: 15000
+                });
             } else {
                 alert('⚠️ متصفحك لا يدعم تحديد الموقع');
             }
@@ -1659,12 +2001,39 @@
         document.getElementById('mode-work').addEventListener('dblclick', setWork);
 
         // ================================================================
-        //  6. الإحصائيات
+        //  6. الإحصائيات المحسنة مع الإنجازات
         // ================================================================
         var statsData = JSON.parse(localStorage.getItem('aora_stats') ||
             '{"today":0,"week":0,"total":0,"trips":0,"avgSpeed":0,"maxSpeed":0,"lastTrip":null,"history":[],"lastUpdate":null}');
         var statsDistanceToday = statsData.today || 0;
         var lastUpdatePos = null;
+
+        // ===== تحديث الإنجازات =====
+        function updateBadges() {
+            var container = document.getElementById('badge-container');
+            var badges = [];
+            var total = statsData.total || 0;
+            var trips = statsData.trips || 0;
+            var maxSpeed = statsData.maxSpeed || 0;
+
+            if (total > 0) badges.push({ icon: '🚀', name: 'أول رحلة', unlocked: true });
+            if (total > 10) badges.push({ icon: '🏃', name: '10 كم', unlocked: true });
+            if (total > 50) badges.push({ icon: '🚗', name: '50 كم', unlocked: true });
+            if (total > 100) badges.push({ icon: '🏆', name: '100 كم', unlocked: true });
+            if (trips > 5) badges.push({ icon: '📊', name: '5 رحلات', unlocked: true });
+            if (trips > 20) badges.push({ icon: '🌟', name: '20 رحلة', unlocked: true });
+            if (maxSpeed > 80) badges.push({ icon: '⚡', name: 'سرعة عالية', unlocked: true });
+            if (maxSpeed > 120) badges.push({ icon: '🔥', name: 'سرعة قصوى', unlocked: true });
+
+            if (badges.length === 0) {
+                badges.push({ icon: '🎯', name: 'ابدأ رحلتك', unlocked: false });
+            }
+
+            container.innerHTML = badges.map(function(b) {
+                return '<span class="badge-item ' + (b.unlocked ? 'unlocked' : '') + '"><i class="fas fa-' + (b
+                    .unlocked ? 'check-circle' : 'circle') + '"></i> ' + b.icon + ' ' + b.name + '</span>';
+            }).join('');
+        }
 
         function updateStats(speed, distance) {
             if (distance === undefined) {
@@ -1703,11 +2072,16 @@
                 document.getElementById('stats-week').textContent = Math.round(statsData.week) + ' كم';
                 document.getElementById('stats-total').textContent = Math.round(statsData.total) + ' كم';
                 document.getElementById('stats-avg-speed').textContent = Math.round(statsData.avgSpeed || 0);
+                document.getElementById('stats-max-speed').textContent = Math.round(statsData.maxSpeed || 0);
+                document.getElementById('stats-trips').textContent = statsData.trips || 0;
                 document.getElementById('stats-panel').classList.add('show');
                 document.getElementById('distance').textContent = statsData.today.toFixed(2);
+
+                updateBadges();
             }
         }
 
+        // ===== نافذة الإحصائيات =====
         document.getElementById('mode-stats').addEventListener('click', function() {
             var modal = document.getElementById('stats-modal');
             modal.classList.toggle('open');
@@ -1717,7 +2091,7 @@
                 var history = statsData.history || [];
                 var recent = history.slice(-5).reverse();
                 recent.forEach(function(h) {
-                    historyHTML += '<div class="stats-detail" style="font-size:0.7rem;padding:4px 0;">' +
+                    historyHTML += '<div class="stats-detail" style="font-size:0.65rem;padding:3px 0;">' +
                         '<span>' + new Date(h.date).toLocaleDateString('ar-EG') + '</span>' +
                         '<span class="stats-value">' + h.distance + ' كم - ' + (h.speed || 0) +
                         ' كم/ساعة</span></div>';
@@ -1731,9 +2105,9 @@
                     <div class="stats-detail"><span>⚡ أقصى سرعة</span><span class="stats-value">${Math.round(statsData.maxSpeed) || 0} كم/ساعة</span></div>
                     <div class="stats-detail"><span>📈 متوسط السرعة</span><span class="stats-value">${Math.round(statsData.avgSpeed || 0)} كم/ساعة</span></div>
                     <div class="stats-detail"><span>⏱️ آخر رحلة</span><span class="stats-value">${statsData.lastTrip ? new Date(statsData.lastTrip).toLocaleDateString('ar-EG') : '--'}</span></div>
-                    <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
-                        <span style="color:rgba(255,255,255,0.3);font-size:0.6rem;">📋 آخر الرحلات:</span>
-                        ${historyHTML || '<div style="color:rgba(255,255,255,0.2);font-size:0.6rem;padding:4px 0;">لا توجد رحلات مسجلة</div>'}
+                    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04);">
+                        <span style="color:rgba(255,255,255,0.25);font-size:0.55rem;">📋 آخر الرحلات:</span>
+                        ${historyHTML || '<div style="color:rgba(255,255,255,0.15);font-size:0.55rem;padding:4px 0;">لا توجد رحلات مسجلة</div>'}
                     </div>
                 `;
             }
@@ -1746,6 +2120,7 @@
             if (e.target === this) { this.classList.remove('open'); }
         });
 
+        // ===== تصدير الإحصائيات =====
         document.getElementById('export-stats-btn').addEventListener('click', function() {
             var data = statsData;
             var csv = 'التاريخ,المسافة(كم),السرعة(كم/ساعة)\n';
@@ -1761,6 +2136,34 @@
             link.download = 'احصائيات_الرحلات_' + new Date().toISOString().slice(0, 10) + '.csv';
             link.click();
             showToast('📥 تم تصدير الإحصائيات', '#3dff9e');
+        });
+
+        // ===== إعادة تعيين الإحصائيات =====
+        document.getElementById('reset-stats-btn').addEventListener('click', function() {
+            if (confirm('⚠️ هل أنت متأكد من إعادة تعيين جميع الإحصائيات؟\nهذا الإجراء لا يمكن التراجع عنه.')) {
+                statsData = {
+                    today: 0,
+                    week: 0,
+                    total: 0,
+                    trips: 0,
+                    avgSpeed: 0,
+                    maxSpeed: 0,
+                    lastTrip: null,
+                    history: [],
+                    lastUpdate: null
+                };
+                statsDistanceToday = 0;
+                localStorage.setItem('aora_stats', JSON.stringify(statsData));
+                document.getElementById('stats-today').textContent = '0';
+                document.getElementById('stats-week').textContent = '0';
+                document.getElementById('stats-total').textContent = '0';
+                document.getElementById('stats-avg-speed').textContent = '0';
+                document.getElementById('stats-max-speed').textContent = '0';
+                document.getElementById('stats-trips').textContent = '0';
+                document.getElementById('stats-panel').classList.remove('show');
+                updateBadges();
+                showToast('🔄 تم إعادة تعيين الإحصائيات', '#ffb84d');
+            }
         });
 
         // ================================================================
@@ -1855,6 +2258,16 @@
             document.getElementById('clear-markers-btn').classList.remove('show');
         }
 
+        // ===== إشعار الوصول =====
+        function sendNotification(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🗺️%3C/text%3E%3C/svg%3E"
+                });
+            }
+        }
+
         function playArrivalSound() {
             try {
                 var ctx = new(window.AudioContext || window.webkitAudioContext)();
@@ -1926,16 +2339,16 @@
                 [lat, lon]
             ];
 
-            routeLine = L.polyline(points, { color: '#ff3333', weight: 6, opacity: 0.9, dashArray: '10, 8',
+            routeLine = L.polyline(points, { color: '#ff3333', weight: 5, opacity: 0.9, dashArray: '10, 8',
                 lineJoin: 'round' }).addTo(map);
 
             var directions = ['🟢 ابدأ', '⬆️ استمر', '⬆️ استمر', '🔴 وصلت'];
             points.forEach(function(p, index) {
                 var icon = L.divIcon({
-                    html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 10px;border-radius:20px;font-size:0.6rem;border:1px solid rgba(255,255,255,0.1);">' +
+                    html: '<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:20px;font-size:0.55rem;border:1px solid rgba(255,255,255,0.1);">' +
                         directions[index] + '</div>',
-                    iconSize: [60, 20],
-                    iconAnchor: [30, 10],
+                    iconSize: [50, 18],
+                    iconAnchor: [25, 9],
                 });
                 var m = L.marker([p[0], p[1]], { icon: icon }).addTo(map);
                 routeMarkers.push(m);
@@ -1967,6 +2380,7 @@
                         navArrived = true;
                         clearInterval(navCheckInterval);
                         playArrivalSound();
+                        sendNotification('✅ وصلت إلى وجهتك!', name);
                         showToast('🔔 لقد وصلت إلى وجهتك!', '#3dff9e');
                         var alertDiv = document.createElement('div');
                         alertDiv.style.position = 'fixed';
@@ -1974,15 +2388,16 @@
                         alertDiv.style.left = '50%';
                         alertDiv.style.transform = 'translate(-50%, -50%)';
                         alertDiv.style.zIndex = '9999';
-                        alertDiv.style.background = 'rgba(0,0,0,0.9)';
+                        alertDiv.style.background = 'rgba(0,0,0,0.92)';
                         alertDiv.style.backdropFilter = 'blur(20px)';
-                        alertDiv.style.padding = '30px 40px';
-                        alertDiv.style.borderRadius = '24px';
+                        alertDiv.style.padding = '28px 36px';
+                        alertDiv.style.borderRadius = '20px';
                         alertDiv.style.border = '2px solid #3dff9e';
                         alertDiv.style.color = '#fff';
                         alertDiv.style.textAlign = 'center';
-                        alertDiv.innerHTML = '<h2>✅ وصلت!</h2><p style="margin-top:10px;">' + name +
-                            '</p><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:10px 30px;border:none;border-radius:40px;background:#3dff9e;color:#000;cursor:pointer;">حسناً</button>';
+                        alertDiv.innerHTML = '<h2 style="color:#3dff9e;">✅ وصلت!</h2><p style="margin-top:8px;">' +
+                            name +
+                            '</p><button onclick="this.parentElement.remove()" style="margin-top:14px;padding:10px 30px;border:none;border-radius:40px;background:#3dff9e;color:#000;cursor:pointer;font-weight:600;">حسناً</button>';
                         document.body.appendChild(alertDiv);
                     }
                 }
@@ -2010,7 +2425,7 @@
         function updateFavsUI() {
             var list = document.getElementById('fav-list');
             list.innerHTML = '';
-            if (favs.length === 0) { list.innerHTML = '<div class="fav-empty">لا توجد أماكن مفضلة</div>'; return; }
+            if (favs.length === 0) { list.innerHTML = '<div class="fav-empty">❤️ لا توجد أماكن مفضلة</div>'; return; }
             favs.forEach(function(f, index) {
                 var div = document.createElement('div');
                 div.className = 'fav-item';
@@ -2040,9 +2455,9 @@
             favMarkers = [];
             favs.forEach(function(f) {
                 var icon = L.divIcon({
-                    html: '<div style="background:#ff6b6b;border-radius:50%;width:14px;height:14px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.4);"></div>',
-                    iconSize: [14, 14],
-                    iconAnchor: [7, 7]
+                    html: '<div style="background:#ff6b6b;border-radius:50%;width:12px;height:12px;border:2px solid #fff;box-shadow:0 0 20px rgba(255,107,107,0.3);"></div>',
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
                 });
                 var m = L.marker([f.lat, f.lng], { icon: icon }).addTo(map).bindPopup('❤️ ' + f.name);
                 favMarkers.push(m);
@@ -2063,7 +2478,7 @@
 
         document.getElementById('mode-fav').addEventListener('dblclick', function() {
             if (userPos) {
-                var name = prompt('أدخل اسم المكان:');
+                var name = prompt('❤️ أدخل اسم المكان المفضل:');
                 if (name) {
                     favs.push({ lat: userPos[0], lng: userPos[1], name: name });
                     localStorage.setItem('aora_favorites', JSON.stringify(favs));
@@ -2251,7 +2666,7 @@
                     [(route.start.lat + route.end.lat) / 2 - 0.003, (route.start.lng + route.end.lng) / 2 + 0.003],
                     [route.end.lat, route.end.lng]
                 ];
-                var routeLine = L.polyline(points, { color: '#4a9eff', weight: 5, opacity: 0.8, dashArray: '8, 6' })
+                var routeLine = L.polyline(points, { color: '#4a9eff', weight: 4, opacity: 0.8, dashArray: '8, 6' })
                     .addTo(map);
                 setTimeout(function() { map.removeLayer(routeLine); }, 8000);
             }
@@ -2272,7 +2687,7 @@
                     <div class="weather-detail"><span>🌡️ درجة الحرارة</span><span>${w.temp}°</span></div>
                     <div class="weather-detail"><span>💨 الرطوبة</span><span>${w.humidity}%</span></div>
                     <div class="weather-detail"><span>☁️ الحالة</span><span>${w.desc}</span></div>
-                    <div class="weather-detail" style="font-size:0.6rem;color:rgba(255,255,255,0.2);">
+                    <div class="weather-detail" style="font-size:0.55rem;color:rgba(255,255,255,0.15);">
                         <span>📡 المصدر</span><span>${navigator.onLine ? 'wttr.in (حقيقي)' : 'Offline (تقديري)'}</span>
                     </div>
                 `;
@@ -2288,8 +2703,8 @@
                 var url = 'https://www.openstreetmap.org/?mlat=' + userPos[0] + '&mlon=' + userPos[1] +
                     '&zoom=16';
                 if (navigator.share) {
-                    navigator.share({ title: 'موقعي', text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[1]
-                            .toFixed(4), url: url })['catch'](function() {});
+                    navigator.share({ title: '📍 موقعي', text: '📍 موقعي: ' + userPos[0].toFixed(4) + ', ' + userPos[
+                            1].toFixed(4), url: url })['catch'](function() {});
                 } else {
                     navigator.clipboard.writeText(url).then(function() {
                         showToast('📋 تم نسخ رابط الموقع', '#7bb0ff');
@@ -2317,21 +2732,22 @@
             t.style.left = '50%';
             t.style.transform = 'translateX(-50%)';
             t.style.zIndex = '999';
-            t.style.padding = '8px 20px';
-            t.style.background = 'rgba(0,0,0,0.8)';
+            t.style.padding = '6px 18px';
+            t.style.background = 'rgba(0,0,0,0.85)';
             t.style.backdropFilter = 'blur(12px)';
             t.style.borderRadius = '40px';
             t.style.border = '1px solid ' + color + '33';
             t.style.color = '#fff';
-            t.style.fontSize = '0.8rem';
+            t.style.fontSize = '0.75rem';
             t.style.maxWidth = '90%';
             t.style.textAlign = 'center';
+            t.style.pointerEvents = 'none';
             t.innerHTML = msg;
             document.body.appendChild(t);
             setTimeout(function() {
                 t.style.opacity = '0';
-                setTimeout(function() { t.remove(); }, 900);
-            }, 3000);
+                setTimeout(function() { t.remove(); }, 700);
+            }, 2500);
         }
 
         // ===== حالة الاتصال =====
@@ -2355,10 +2771,22 @@
 
         setTimeout(function() { map.invalidateSize(); }, 500);
 
-        console.log('🚀 أورا ماب - الإصدار المتطور');
-        console.log('✅ تم إزالة الفلتر الداكن من الخريطة');
-        console.log('✅ ألوان الخريطة طبيعية وواضحة');
-        console.log('✅ جميع الميزات مفعلة');
+        // ===== طلب إذن الإشعارات =====
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+
+        console.log('🚀 أورا ماب - الإصدار المتطور v2.0');
+        console.log('✅ تحسينات الأداء: تقليل تحديثات GPS');
+        console.log('✅ إضافة ألوان السرعة (آمن - متوسط - خطير)');
+        console.log('✅ إضافة الإنجازات (Badges)');
+        console.log('✅ إضافة زر مسح النص في البحث');
+        console.log('✅ إضافة ETA (الوقت المتوقع للوصول)');
+        console.log('✅ إضافة إشعارات الوصول');
+        console.log('✅ إضافة زر إعادة تعيين الإحصائيات');
+        console.log('✅ تحسين شكل اللوحة السفلية');
+        console.log('✅ إضافة مؤشر تحميل الخريطة');
+        console.log('✅ إضافة جولة الترحيب');
     </script>
 </body>
 </html>
